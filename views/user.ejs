@@ -1,0 +1,65 @@
+<% include userpanel_header %>
+
+<script src="<%= resources_url %>/js/users-utility.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+
+    // variables from the server
+    var userId = <%= id %>
+
+    $('#nav-sidebar-singleuser').addClass('active');
+    fillUser(userId);
+    $('#form-edit-user-submit').click(function(e) {
+        var newname = $('#form-edit-user-name').val();
+
+        console.log(newname);
+        console.log(DATA_URL+'/users/'+userId);
+
+        $.ajax({
+            url: DATA_URL+'/users/'+userId, 
+            type: "PUT",
+            data: {
+                'userId': userId,
+                'userName': newname
+            },
+            success: function(data, textStatus, jqXHR) { 
+                console.log("PUT resposne:"); 
+                // console.dir(data); 
+                console.log(textStatus); 
+                // console.dir(jqXHR); 
+            }
+        });
+
+        e.preventDefault();
+        return false;
+    });
+});
+</script>
+
+<!--------------------------------------------------- /.container -->
+
+<h1 class="page-header" id="page-header-title">User </h1>
+<div id="alerttt-placeholder"></div>
+<table class="table table-hover" id="userList">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Control</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<h1 class="page-header">Edit</h1>
+<form role="form">
+    <div class="form-group">
+        <label for="exampleInputEmail1">Name:</label>
+        <input type="text" class="form-control" id="form-edit-user-name" placeholder="Name">
+    </div>
+    <button type="asdsubmit" class="btn btn-default" id="form-edit-user-submit" click="return false">Submit</button>
+</form>
+
+<!--------------------------------------------------- /.container -->
+
+<% include footer %>

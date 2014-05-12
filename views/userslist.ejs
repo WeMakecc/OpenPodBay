@@ -1,0 +1,65 @@
+<% include userpanel_header %>
+
+<script src="<%= resources_url %>/js/users-utility.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    
+    $('#nav-sidebar-userlist').addClass('active');
+
+    fillUsers();
+
+});
+</script>
+
+<div class="modal fade" 
+    id="confirm-delete" 
+    tabindex="-1" 
+    role="dialog" 
+    aria-labelledby="myModalLabel" 
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" 
+                    class="close" 
+                    data-dismiss="modal" 
+                    aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" 
+                        id="myModalLabel">Confirm Delete</h4>
+            </div>
+
+            <div class="modal-body">
+                <p>You are about to delete the user, this procedure is irreversible.</p>
+                <p>Do you want to proceed?</p>
+                <p class="user-to-delete"></p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" 
+                    class="btn btn-default" 
+                    data-dismiss="modal">Cancel</button>
+                <a href="#" class="btn btn-danger danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--------------------------------------------------- /.container -->
+
+<h1 class="page-header">Users list</h1>
+<div id="alerttt-placeholder"></div>
+<table class="table table-hover" id="userList">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Control</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<!--------------------------------------------------- /.container -->
+
+<% include footer %>
