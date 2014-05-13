@@ -1,10 +1,12 @@
 var dblite = require('dblite'),
     db = dblite('test.db');
 
+var http = require('http');
+
 var express = require('express'),
     bodyParser = require('body-parser');
     app = express();
-    
+
 app.use(bodyParser())
 //app.use(app.router);
 
@@ -174,10 +176,31 @@ app.post('/api/tag/add', function(req, res){
 app.get('/api/tag/read/:node_id', function(req, res) {
     // get the tag value from bridge
     console.log('should ask the tag type to bridge..');
-    var tag = {};
-    tag['dudee'] = 0;
-    res.json(tag);
-    res.end();
+
+    var options = {
+        host: '192.168.1.20',
+        port: 80,
+        path: '/arduino/read',
+        auth: 'root:wemakemilano!'
+    };
+
+    var request = http.get(options, function(htres){
+        var body = "";
+        htres.on('data', function(data) {
+            body += data;
+        });
+        htres.on('end', function() {
+            console.log(body);
+            console.log(body.type);
+            res.json(body);
+            res.end();
+        })
+        htres.on('error', function(e) {
+            console.log("Got error: " + e.message);
+        });
+    });
+    
+
 });
 
 /********************************
