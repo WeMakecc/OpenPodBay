@@ -68,24 +68,16 @@ delete /api/users/:id
 
 app.get('/api/users', function(req, res) {
     db.query('SELECT * FROM Users', function(err, rows) {
-        var users = [];
-        for (var i = 0; i < rows.length; ++i) {
-            var user = {}
-            user['id'] = rows[i][0];
-            user['name'] = rows[i][1];
-            users.push(user);
-        };
-        res.json(users);
+        res.json( buildUserFromRow(rows) );
     });
 });
 
 app.post('/api/users/add', function(req, res) {
-    
     db.query('SELECT max(User_Id)+1 FROM "Users";', function(err, rows) {
         var i = rows[0][0];
-        
-        db.query('INSERT INTO Users VALUES('+i+', "'+req.body.userName+'");', function(err, rows) {
-            console.log('dudee');
+        var query = 'INSERT INTO Users VALUES('+i+', "'+req.body.userName+'", '+req.body.active+');';
+        console.log(query);
+        db.query(query, function(err, rows) {
             res.send(200);
             res.end();
         });
@@ -94,14 +86,7 @@ app.post('/api/users/add', function(req, res) {
 
 app.get('/api/users/:id', function(req, res) {
     db.query('SELECT * FROM Users WHERE User_Id='+req.params.id+';', function(err, rows) {
-        var users = [];
-        for (var i = 0; i < rows.length; ++i) {
-            var user = {}
-            user['id'] = rows[i][0];
-            user['name'] = rows[i][1];
-            users.push(user);
-        };
-        res.json(users);
+        res.json( buildUserFromRow(rows) );
     });
 });
 
@@ -118,11 +103,7 @@ app.delete('/api/users/:id', function(req, res) {
 });
 
 app.put('/api/users/:id', function (req, res) {
-    console.log(req.data);
-    console.log(req.params);
-    console.log(req.body);
-
-    var query = 'UPDATE  Users SET Name="'+req.body.userName+'" WHERE User_Id='+req.body.userId+';';
+    var query = 'UPDATE Users SET Name="'+req.body.userName+'", Active="'+req.body.active+'" WHERE User_Id='+req.body.userId+';';
     console.log(query);
     db.query(query, function(err, rows) {
         if(err) {
@@ -135,6 +116,69 @@ app.put('/api/users/:id', function (req, res) {
     });
 });
 
+function buildUserFromRow(rows) {
+    var users = [];
+    for (var i = 0; i < rows.length; ++i) {
+        var user = {}
+        user['id'] = rows[i][0];
+        user['name'] = rows[i][1];
+        user['active'] = rows[i][2]==1 ? true : false; 
+        users.push(user);
+    };
+    return users;
+}
+
+/********************************
+
+get /api/tag/user
+post /api/tag/add
+get /api/tag/read/0   <------- read the tag json from node #9
+
+********************************/
+
+app.get('/api/tag/:user_id', function(req, res) {
+    var query = 'SELECT * FROM Tag WHERE User_Id='+req.params.user_id+';';
+    db.query(query, function(err, rows) {
+        if(err) {
+            console.error(err.toString());
+            // TODO: error handling
+        } else {
+            var tags = [];
+            for (var i = 0; i < rows.length; ++i) {
+                var tag = {}
+                tag['id'] = rows[i][0];
+                tag['user_id'] = rows[i][1];
+                tag['type'] = rows[i][2];
+                tag['value'] = rows[i][3];
+                tags.push(tag);
+            };
+            res.json(tags);
+            res.send(200);
+            res.end();
+         }
+    });
+});
+
+app.post('/api/tag/add', function(req, res){
+    db.query('SELECT max(Tag_Id)+1 FROM "Tag";', function(err, rows) {
+        var i = rows[0][0];
+        var query = 'INSERT INTO Tag VALUES('+i+', "'+req.body.userId+'", "'+req.body.type+'", "'+req.body.value+'");';
+        //console.log(query);
+        db.query(query, function(err, rows) {
+            res.send(200);
+            res.end();
+        });
+    });
+});
+
+app.get('/api/tag/read/:node_id', function(req, res) {
+    // get the tag value from bridge
+    console.log('should ask the tag type to bridge..');
+    var tag = {};
+    tag['dudee'] = 0;
+    res.json(tag);
+    res.end();
+});
 
 /********************************
 

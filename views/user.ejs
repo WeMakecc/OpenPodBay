@@ -1,6 +1,8 @@
 <% include userpanel_header %>
 
 <script src="<%= resources_url %>/js/users-utility.js"></script>
+<script src="<%= resources_url %>/js/tag-utility.js"></script>
+<!--------------------------------------------------- page script -->
 <script type="text/javascript">
 $(document).ready(function() {
 
@@ -10,54 +12,77 @@ $(document).ready(function() {
     $('#nav-sidebar-singleuser').addClass('active');
     fillUser(userId);
     $('#form-edit-user-submit').click(function(e) {
-        var newname = $('#form-edit-user-name').val();
-
-        console.log(newname);
-        console.log(DATA_URL+'/users/'+userId);
-
-        $.ajax({
-            url: DATA_URL+'/users/'+userId, 
-            type: "PUT",
-            data: {
-                'userId': userId,
-                'userName': newname
-            },
-            success: function(data, textStatus, jqXHR) { 
-                console.log("PUT resposne:"); 
-                // console.dir(data); 
-                console.log(textStatus); 
-                // console.dir(jqXHR); 
-            }
-        });
-
+        onClickModifyUser(userId);
         e.preventDefault();
         return false;
     });
+    $('#form-add-tag-submit').click(function(e) {
+        onClickAddTag(userId);
+        e.preventDefault();
+        return false;
+    });
+
+    $('#tagOnReader').click(function(e) {
+        getTagInfoFromBridge();
+    })
+
+    fillTagList(userId);
 });
 </script>
 
 <!--------------------------------------------------- /.container -->
 
-<h1 class="page-header" id="page-header-title">User </h1>
 <div id="alerttt-placeholder"></div>
-<table class="table table-hover" id="userList">
+<h1 class="page-header" id="page-header-title">User </h1>
+
+<h3 class="page-header">Tag</h3>
+<h4>Tag list</h4>
+<table class="table table-hover" id="tagList">
     <thead>
         <tr>
             <th>#</th>
-            <th>Name</th>
-            <th>Control</th>
+            <th>Type</th>
+            <th>Value</th>
         </tr>
     </thead>
     <tbody></tbody>
 </table>
 
-<h1 class="page-header">Edit</h1>
+<h4>Add tag</h4>
+<div class="form-group">
+    <button type="submit" class="btn btn-default" id="tagOnReader">Check tag on reader</button>
+    <br/><br/>
+    <form class="form-inline" role="form">
+      <div class="form-group">
+        <label class="sr-only" for="tagType">Type</label>
+        <input type="text" class="form-control" id="tagType" placeholder="MiFare Classic">
+      </div>
+      <div class="form-group">
+        <label class="sr-only" for="tagValue">Value</label>
+        <input type="text" class="form-control" id="tagValue" placeholder="qwerty">
+      </div>
+      <button type="submit" class="btn btn-default" id="form-add-tag-submit">Add tag</button>
+    </form>
+</div>
+
+<br/><br/>
+<h3 class="page-header">User data</h3>
 <form role="form">
     <div class="form-group">
-        <label for="exampleInputEmail1">Name:</label>
+        <label for="form-edit-user-name">Name:</label>
         <input type="text" class="form-control" id="form-edit-user-name" placeholder="Name">
+        <label class="checkbox" for="checkbox1">
+            <span class="icons">
+                <span class="first-icon fui-checkbox-unchecked"></span>
+                <span class="second-icon fui-checkbox-checked"></span>
+            </span>
+            <input type="checkbox" 
+                   value="" 
+                   id="checkboxActive" 
+                   data-toggle="checkbox">Active
+        </label>
     </div>
-    <button type="asdsubmit" class="btn btn-default" id="form-edit-user-submit" click="return false">Submit</button>
+    <button type="submit" class="btn btn-default" id="form-edit-user-submit" click="return false">Submit</button>
 </form>
 
 <!--------------------------------------------------- /.container -->

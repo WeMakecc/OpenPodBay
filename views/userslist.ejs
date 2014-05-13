@@ -3,11 +3,8 @@
 <script src="<%= resources_url %>/js/users-utility.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-    
     $('#nav-sidebar-userlist').addClass('active');
-
     fillUsers();
-
 });
 </script>
 
@@ -39,7 +36,7 @@ $(document).ready(function() {
                 <button type="button" 
                     class="btn btn-default" 
                     data-dismiss="modal">Cancel</button>
-                <a href="#" class="btn btn-danger danger">Delete</a>
+                <a href="" class="btn btn-danger danger">Delete</a>
             </div>
         </div>
     </div>
@@ -47,8 +44,8 @@ $(document).ready(function() {
 
 <!--------------------------------------------------- /.container -->
 
-<h1 class="page-header">Users list</h1>
 <div id="alerttt-placeholder"></div>
+<h1 class="page-header">Users list</h1>
 <table class="table table-hover" id="userList">
     <thead>
         <tr>
