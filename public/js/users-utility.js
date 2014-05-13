@@ -2,15 +2,11 @@
 //----------------------------------------------------------------------------
 //---------------------------------------------------------------------------- user list
 
-var __k = 0;
-
 function fillUsers() {
     console.log("fillUsers");
     $('#userList > tbody').empty();
-
     var users_path = DATA_URL+'/users';
     $.getJSON(users_path, function(users) {
-        console.log(users);
         users.forEach(function(user){
             var controlOption = 
                 '<a class="user_control delete" data-toggle="modal" data-target="#confirm-delete" >delete</a>'+
@@ -69,11 +65,10 @@ function deleteUserAjax(userId, userName) {
     $.ajax({
         type: 'DELETE',
         url: DATA_URL+'/users/' + userId,
-        success: deleteUserSuccess(userId, userName)
+        success: deleteUserSuccess(userId, userName),
     }).done(function( response ) {
         if (response.msg === '') {
             console.log('user deted');
-        } else {
         }
         // update - recall populateTable
     });
@@ -85,17 +80,20 @@ function deleteUserSuccess(userId, userName) {
     $('#alerttt-placeholder').append(
         '<div id="alert-delete-user-success" '+
         '     class="alert alert-success" '+
-        '     data-alert="alert"> User #'+userId+' '+userName+' correctly deleted</div>');
+        '     data-alert="alert" style="display:none;"> User #'+userId+' '+userName+' correctly deleted</div>');
+    $('#alert-delete-user-success').slideDown().fadeIn();
 
-    // perchè???
+    // perchè deve essere dentro un timer altrimenti non è aggiornato???
     setTimeout(function() {
         fillUsers();
     }, 500);
 
     setTimeout(function() {
-        $("#alert-delete-user-success").fadeOut('slow',function() {
-            $(this).remove();
-        })
+        $("#alert-delete-user-success").fadeTo('slow', 0.00, function(){ //fade
+             $(this).slideUp('slow', function() { //slide up
+                 $(this).remove(); //then remove from the DOM
+             });
+         });
     }, 3000);
 }
 
@@ -106,7 +104,18 @@ function deleteUserSuccess(userId, userName) {
 function fillUser(id) {
     var users_path = DATA_URL+'/users/'+id;
     $.getJSON(users_path, function(users) {
+        console.log('fillUser > users: ',users);
+        if(users && users.length==0) {
+            $('#user_container').empty();
+            $('#alerttt-placeholder').append(
+                '<div id="alert-user_not_found" '+
+                '     class="alert alert-danger" '+
+                '     data-alert="alert"> User #'+id+' not found</div>');
+            return;
+        }
+
         users.forEach(function(user){
+            console.log(user);
             $('#page-header-title').append(user.name);
             $('#form-edit-user-name').val(user.name);
             if(user.active) {
@@ -168,8 +177,25 @@ function addUserAjax(user_json) {
         data: user_json,
         success: function(data, textStatus, jqXHR) { 
             console.log("POST resposne:"); 
-            console.log(textStatus); 
+            console.log(textStatus);
+            addUserSucess(user_json);
             //location.reload();
         }
     });
+}
+
+function addUserSucess(user_json) {
+    $('#alerttt-placeholder').append(
+        '<div id="alert-add-user-success" '+
+        '     class="alert alert-success" '+
+        '     data-alert="alert" style="display:none; "> User '+user_json.userName+' correctly added</div>')
+    $('#alert-add-user-success').slideDown().fadeIn();
+
+    setTimeout(function() {
+        $("#alert-add-user-success").fadeTo('slow', 0.00, function(){ //fade
+             $(this).slideUp('slow', function() { //slide up
+                 $(this).remove(); //then remove from the DOM
+             });
+         });
+    }, 3000);
 }

@@ -7,10 +7,11 @@
 $(document).ready(function() {
 
     // variables from the server
-    var userId = <%= id %>
+    var userId = <%= id %>;
+    // TODO -> see if userId contains character or only digits
 
     $('#nav-sidebar-singleuser').addClass('active');
-    fillUser(userId);
+    fillUser(userId)
     $('#form-edit-user-submit').click(function(e) {
         onClickModifyUser(userId);
         e.preventDefault();
@@ -24,6 +25,7 @@ $(document).ready(function() {
 
     $('#tagOnReader').click(function(e) {
         getTagInfoFromBridge();
+        return false;
     })
 
     fillTagList(userId);
@@ -33,57 +35,59 @@ $(document).ready(function() {
 <!--------------------------------------------------- /.container -->
 
 <div id="alerttt-placeholder"></div>
-<h1 class="page-header" id="page-header-title">User </h1>
+<div id="user_container">
+    <h1 class="page-header" id="page-header-title">User </h1>
 
-<h3 class="page-header">Tag</h3>
-<h4>Tag list</h4>
-<table class="table table-hover" id="tagList">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Type</th>
-            <th>Value</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
+    <h3 class="page-header">Tag</h3>
+    <h4>Tag list</h4>
+    <table class="table table-hover" id="tagList">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Type</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 
-<h4>Add tag</h4>
-<div class="form-group">
-    <button type="submit" class="btn btn-default" id="tagOnReader">Check tag on reader</button>
+    <h4>Add tag</h4>
+    <div class="form-group">
+        <button type="submit" class="btn btn-default" id="tagOnReader">Check tag on reader</button>
+        <br/><br/>
+        <form class="form-inline" role="form">
+          <div class="form-group">
+            <label class="sr-only" for="tagType">Type</label>
+            <input type="text" class="form-control" id="tagType" placeholder="MiFare Classic">
+          </div>
+          <div class="form-group">
+            <label class="sr-only" for="tagValue">Value</label>
+            <input type="text" class="form-control" id="tagValue" placeholder="qwerty">
+          </div>
+          <button type="submit" class="btn btn-default" id="form-add-tag-submit">Add tag</button>
+        </form>
+    </div>
+
     <br/><br/>
-    <form class="form-inline" role="form">
-      <div class="form-group">
-        <label class="sr-only" for="tagType">Type</label>
-        <input type="text" class="form-control" id="tagType" placeholder="MiFare Classic">
-      </div>
-      <div class="form-group">
-        <label class="sr-only" for="tagValue">Value</label>
-        <input type="text" class="form-control" id="tagValue" placeholder="qwerty">
-      </div>
-      <button type="submit" class="btn btn-default" id="form-add-tag-submit">Add tag</button>
+    <h3 class="page-header">User data</h3>
+    <form role="form">
+        <div class="form-group">
+            <label for="form-edit-user-name">Name:</label>
+            <input type="text" class="form-control" id="form-edit-user-name" placeholder="Name">
+            <label class="checkbox" for="checkbox1">
+                <span class="icons">
+                    <span class="first-icon fui-checkbox-unchecked"></span>
+                    <span class="second-icon fui-checkbox-checked"></span>
+                </span>
+                <input type="checkbox" 
+                       value="" 
+                       id="checkboxActive" 
+                       data-toggle="checkbox">Active
+            </label>
+        </div>
+        <button type="submit" class="btn btn-default" id="form-edit-user-submit" click="return false">Submit</button>
     </form>
 </div>
-
-<br/><br/>
-<h3 class="page-header">User data</h3>
-<form role="form">
-    <div class="form-group">
-        <label for="form-edit-user-name">Name:</label>
-        <input type="text" class="form-control" id="form-edit-user-name" placeholder="Name">
-        <label class="checkbox" for="checkbox1">
-            <span class="icons">
-                <span class="first-icon fui-checkbox-unchecked"></span>
-                <span class="second-icon fui-checkbox-checked"></span>
-            </span>
-            <input type="checkbox" 
-                   value="" 
-                   id="checkboxActive" 
-                   data-toggle="checkbox">Active
-        </label>
-    </div>
-    <button type="submit" class="btn btn-default" id="form-edit-user-submit" click="return false">Submit</button>
-</form>
 
 <!--------------------------------------------------- /.container -->
 

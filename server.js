@@ -18,7 +18,7 @@ get /version
 ********************************/
 
 app.get('/', function(req, res) {
-    res.send('Hello');
+    res.send('Hello');ghf
 });
 
 app.get('/version', function(req, res) {
@@ -43,19 +43,26 @@ get /view/users/add
 app.use('/view', express.static(__dirname + '/public'));
 
 app.get('/view/users', function(req, res) {
-    res.render('userslist.ejs', { resources_url: getURL(req)+'/view',
-                                  api_url: getURL(req)+'/api' });
+    res.render('userslist.ejs', { 
+        resources_url: getURL(req)+'/view',
+        api_url: getURL(req)+'/api' 
+    });
 });
 
 app.get('/view/users/add', function(req, res, next){
-    res.render('adduser.ejs', { resources_url:getURL(req)+'/view',
-                                api_url: getURL(req)+'/api' });
+    res.render('adduser.ejs', { 
+        resources_url:getURL(req)+'/view',
+        api_url: getURL(req)+'/api' 
+    });
 });
 
 app.get('/view/users/:id', function(req, res, next){
-    res.render('user.ejs', { resources_url:getURL(req)+'/view',
-                             api_url: getURL(req)+'/api',
-                             id: req.params.id });
+    res.render('user.ejs', {   
+        resources_url:getURL(req)+'/view',
+        api_url: getURL(req)+'/api',
+        //id: parseInt(req.params.id) ? req.params.id : -1 
+        id: req.params.id
+    });
 });
 
 /********************************
@@ -78,7 +85,6 @@ app.post('/api/users/add', function(req, res) {
     db.query('SELECT max(User_Id)+1 FROM "Users";', function(err, rows) {
         var i = rows[0][0];
         var query = 'INSERT INTO Users VALUES('+i+', "'+req.body.userName+'", '+req.body.active+');';
-        console.log(query);
         db.query(query, function(err, rows) {
             res.send(200);
             res.end();
@@ -88,7 +94,9 @@ app.post('/api/users/add', function(req, res) {
 
 app.get('/api/users/:id', function(req, res) {
     db.query('SELECT * FROM Users WHERE User_Id='+req.params.id+';', function(err, rows) {
-        res.json( buildUserFromRow(rows) );
+        //console.log(rows);
+        res.json( rows ? buildUserFromRow(rows) : [] );
+        //res.json( rows );
     });
 });
 
@@ -139,6 +147,13 @@ get /api/tag/read/0   <------- read the tag json from node #9
 ********************************/
 
 app.get('/api/tag/:user_id', function(req, res) {
+    if(!parseInt(req.params.user_id)){
+        res.json([]);
+        res.send(200);
+        res.end();
+        return;
+    }
+
     var query = 'SELECT * FROM Tag WHERE User_Id='+req.params.user_id+';';
     db.query(query, function(err, rows) {
         if(err) {
