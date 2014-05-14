@@ -115,7 +115,6 @@ function fillUser(id) {
         }
 
         users.forEach(function(user){
-            console.log(user);
             $('#page-header-title').append(user.name);
             $('#form-edit-user-name').val(user.name);
             if(user.active) {

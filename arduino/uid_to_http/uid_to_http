@@ -1,0 +1,108 @@
+#include <Bridge.h>
+#include <YunServer.h>
+#include <YunClient.h> 
+ 
+#include <Wire.h>
+#include <Adafruit_NFCShield_I2C.h>
+
+#define IRQ   (6)
+#define RESET (7)  // Not connected by default on the NFC Shield
+
+Adafruit_NFCShield_I2C nfc(IRQ, RESET);
+
+bool shieldOK = false;
+int shieldOKled = 13;
+
+#define NOT_FOUND 0
+#define MIFARE_CLASSIC 4
+#define MIFARE_ULTRA 7
+uint8_t uid[7];
+uint8_t uidLength;
+String uidString = "";
+
+YunServer server;
+
+void setup(void) {
+  Bridge.begin();
+  server.listenOnLocalhost();
+  server.begin();
+  
+  Serial.begin(115200);
+  while (!Serial) {} // wait for serial port to connect. Needed for Leonardo only
+  Serial.println("Hello!");
+  
+  
+  pinMode(shieldOKled, OUTPUT);
+  setupNFC();
+}
+
+unsigned long previousMillis = 0;
+const long interval = 1000;
+
+void loop(void) {
+  if(shieldOK) {
+    digitalWrite(shieldOKled, HIGH);
+    
+    unsigned long currentMillis = millis();
+    if(currentMillis - previousMillis >= interval) {
+      previousMillis = currentMillis;
+      Serial.println("reading the nfc..");
+      readNFC_uid();
+      printUID();
+    }
+    
+  } else {
+    digitalWrite(shieldOKled, LOW);
+  }
+  
+  sendCardUIDtoCloud();
+}
+
+void printUID() {
+  Serial.println("\n\n>--------------------");
+  switch(uidLength) {
+      case MIFARE_CLASSIC: Serial.println("MiFare classic"); break;
+      case MIFARE_ULTRA: Serial.println("MiFare ultralight"); break;
+    }
+    if(uidLength!=NOT_FOUND) {
+      uid_array2string(uidString, uid, uidLength);
+      Serial.println(uidString);
+    }
+  Serial.println("--------------------<\n\n");
+}
+
+void sendCardUIDtoCloud() {
+  YunClient client = server.accept();
+  if (client) {
+    String command = client.readString();
+    Serial.println("-------- incoming connection --------");
+    Serial.println(command);
+    command.trim();
+    if (command == "read") {
+      Serial.println("-------- read recieved.. responding with the json --------");
+      client.println("Status:200");
+      client.println("content-type:application/json");
+      client.println();
+      client.print("{ \"type\": ");
+      client.print(uidLength);
+      client.print(", \"value\": \"");
+      client.print(uidString);
+      client.println("\"}");
+    }
+    client.stop();
+  }
+  delay(50);
+}
+
+void uid_array2string(String &s, const byte * data, const uint8_t numBytes) {
+  
+  s = "";
+  uint8_t szPos;
+  
+  for (szPos=0; szPos < numBytes; szPos++) {
+    s += data[szPos];
+    if ((numBytes > 1) && (szPos != numBytes - 1)) {
+      s += " ";
+    }
+  }
+}

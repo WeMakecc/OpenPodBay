@@ -42,7 +42,7 @@ function addTagAjax(tag_json) {
 function getTagInfoFromBridge() {
     var path = DATA_URL+'/tag/read/0';
     $.getJSON(path, function(tag) {
-        tag = $.parseJSON($.trim(tag));
+        console.log(typeof(tag));
         if(tag.type==4) $('#tagType').val("MiFare Classic");
         else if(tag.type==7) $('#tagType').val("MiFare Ultra");
         $('#tagValue').val(tag.value);

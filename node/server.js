@@ -7,8 +7,7 @@ var express = require('express'),
     bodyParser = require('body-parser');
     app = express();
 
-app.use(bodyParser())
-//app.use(app.router);
+app.use(bodyParser());
 
 /********************************
 
@@ -60,7 +59,6 @@ app.get('/view/users/:id', function(req, res, next){
     res.render('user.ejs', {   
         resources_url:getURL(req)+'/view',
         api_url: getURL(req)+'/api',
-        //id: parseInt(req.params.id) ? req.params.id : -1 
         id: req.params.id
     });
 });
@@ -103,7 +101,7 @@ app.get('/api/users/:id', function(req, res) {
 app.delete('/api/users/:id', function(req, res) {
     db.query('DELETE FROM Users WHERE User_Id='+req.params.id+';', function(err, rows) {
         if(err) {
-            console.error(err.toString());
+            console.error("app.delete---> /api/users/:id ERROR:"+ err.toString());
             // TODO: error handling
         } else {
             res.send(200);
@@ -114,10 +112,9 @@ app.delete('/api/users/:id', function(req, res) {
 
 app.put('/api/users/:id', function (req, res) {
     var query = 'UPDATE Users SET Name="'+req.body.userName+'", Active="'+req.body.active+'" WHERE User_Id='+req.body.userId+';';
-    console.log(query);
     db.query(query, function(err, rows) {
         if(err) {
-            console.error(err.toString());
+            console.error("app.put---> /api/users/:id ERROR:"+err.toString());
             // TODO: error handling
         } else {
             res.send(200);
@@ -157,7 +154,7 @@ app.get('/api/tag/:user_id', function(req, res) {
     var query = 'SELECT * FROM Tag WHERE User_Id='+req.params.user_id+';';
     db.query(query, function(err, rows) {
         if(err) {
-            console.error(err.toString());
+            console.error("app.get---> /api/tag/:user_id ERROR:"+err.toString());
             // TODO: error handling
         } else {
             var tags = [];
@@ -205,13 +202,13 @@ app.get('/api/tag/read/:node_id', function(req, res) {
             body += data;
         });
         htres.on('end', function() {
-            console.log(body);
-            console.log(body.type);
+
+            body = JSON.parse(body);
             res.json(body);
             res.end();
         })
         htres.on('error', function(e) {
-            console.log("Got error: " + e.message);
+            console.log("app.get---> /api/tag/read/:node_id ERROR: " + e.message);
         });
     });
     
