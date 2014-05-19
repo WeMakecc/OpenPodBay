@@ -190,9 +190,10 @@ function addTagSuccess(tag_json) {
 function getTagInfoFromBridge() {
     var path = DATA_URL+'/tag/read/0';
     $.getJSON(path, function(tag) {
-        console.log(typeof(tag));
+        console.log(tag);
         if(tag.type==4) $('#tagType').val("MiFare Classic");
         else if(tag.type==7) $('#tagType').val("MiFare Ultra");
+        else if(tag.type==0) $('#tagType').val('');
         $('#tagValue').val(tag.value);
     });
 }
