@@ -15,6 +15,7 @@ function fillUsers() {
     $('#userList > tbody').empty();
     var users_path = DATA_URL+'/users';
     $.getJSON(users_path, function(users) {
+        console.log(users);
         users.forEach(function(user){
             var controlOption = 
                 '<a class="user_control delete" data-toggle="modal" data-target="#confirm-delete" >delete</a>'+
@@ -36,12 +37,12 @@ function addControlToUsersTable() {
     $('.user_control.delete').css('cursor', 'pointer');
 
     // click on modify redirect on the single user page
-    // i.e. http://localhost:3000/view/users/1
+    // i.e. http://localhost:3000/view/users/user-1
     $('.user_control.modify').attr('href', function() {
         var userTr = this.parentNode.parentNode
           , userName = userTr.getElementsByClassName('name')[0].innerHTML
           , userId = userTr.getElementsByClassName('id')[0].innerHTML;
-        return VIEW_URL+'/users/'+userId;
+        return VIEW_URL+'/users/user-'+userId;
     });
 
     // click on delete open the twitter bootstrap modal
@@ -77,7 +78,7 @@ function addControlToUsersTable() {
 function deleteUserAjax(userId, userName) {
     $.ajax({
         type: 'DELETE',
-        url: DATA_URL+'/users/' + userId,
+        url: DATA_URL+'/users/user-' + userId,
         success: deleteUserSuccess(userId, userName),
     }).done(function( response ) {
         if (response.msg === '') {

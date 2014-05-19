@@ -50,7 +50,7 @@ function resetUserPage() {
 }
 
 function fillUser(id) {
-    var users_path = DATA_URL+'/users/'+id;
+    var users_path = DATA_URL+'/users/user-'+id;
     $.getJSON(users_path, function(users) {
         if(users && users.length==0) {
             $('#user_container').empty();
@@ -71,7 +71,7 @@ function fillUser(id) {
 }
 
 function fillTagList(userId) {
-    var tag_path = DATA_URL+'/tag/'+userId;
+    var tag_path = DATA_URL+'/tag/user-'+userId;
     console.log(tag_path);
     $.getJSON(tag_path, function(tags) {
         console.log('tags', tags)
