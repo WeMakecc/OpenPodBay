@@ -164,10 +164,8 @@ module.exports = function(params){
                 body += data;
             });
             htres.on('end', function() {
-                body = JSON.parse(body);
-
                 console.log('/api/tag/read/:node_id > receiving data from '+options.host+': '+ body);
-
+                body = JSON.parse(body);
                 res.json(body);
                 res.end();
             })
@@ -207,7 +205,7 @@ module.exports = function(params){
                 '("'+timestamp_sql_format+'" BETWEEN Start AND End) AND'+
                 ' User_Id = (SELECT User_Id FROM Tag WHERE Value="'+req.params.tagval+'") AND'+
                 ' Node_Id = "'+req.params.nodeid+'";'
-        //console.log(query);
+        console.log(query);
         db.query(query, function(err, rows) {
             //console.log(rows);
             switch(rows.length) {
