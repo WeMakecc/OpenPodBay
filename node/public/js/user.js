@@ -31,14 +31,22 @@ $(document).ready(function() {
 //----------------------------------------------------------------------------
 //---------------------------------------------------------------------------- dom manipulation
 
-function resetUserPage() {
+function resetUserForm() {
     $('#page-header-title').html('User ');
-    $('#tagList > tbody').empty();
-    $('#tagType').val('');
-    $('#tagValue').val('');
     $('#form-edit-user-name').val('');
     $('#checkboxActive').removeAttr("checked");
     $('#checkboxActive').checkbox('uncheck');
+}
+
+function resetTags() {
+    $('#tagList > tbody').empty();
+    $('#tagType').val('');
+    $('#tagValue').val('');
+}
+
+function resetUserPage() {
+    resetUserForm();
+    resetTags();
 }
 
 function fillUser(id) {
@@ -64,7 +72,9 @@ function fillUser(id) {
 
 function fillTagList(userId) {
     var tag_path = DATA_URL+'/tag/'+userId;
+    console.log(tag_path);
     $.getJSON(tag_path, function(tags) {
+        console.log('tags', tags)
         tags.forEach(function(tag) {
             var tr = 
                 '<tr>'+
@@ -107,7 +117,7 @@ function modifyUserAjax(user_json) {
 }
 
 function modifyUserSucess(user_json) {
-    resetUserPage();
+    resetUserForm();
     fillUser(userId);
 
     $('#alerttt-placeholder').append(
@@ -151,10 +161,30 @@ function addTagAjax(tag_json) {
         data: tag_json,
         success: function(data, textStatus, jqXHR) { 
             console.log("POST resposne:"); 
-            console.log(textStatus); 
-            location.reload();
+            addTagSuccess(tag_json);
         }
     });
+}
+
+function addTagSuccess(tag_json) {
+    resetTags();
+    fillTagList(userId);
+
+    $('#alerttt-placeholder').append(
+        '<div id="alert-add-user-success" '+
+        '     class="alert alert-success" '+
+        '     data-alert="alert" style="display:none; "> Tag '+tag_json.value+' correctly added</div>')
+    $('#alert-add-user-success').slideDown().fadeIn(function() {
+        $("html, body").animate({ scrollTop: 0 }, "slow");
+    });
+
+    setTimeout(function() {
+        $("#alert-add-user-success").fadeTo('slow', 0.00, function(){ //fade
+             $(this).slideUp('slow', function() { //slide up
+                 $(this).remove(); //then remove from the DOM
+             });
+         });
+    }, 3000);
 }
 
 function getTagInfoFromBridge() {

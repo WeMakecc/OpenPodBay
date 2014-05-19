@@ -17,7 +17,7 @@ get /version
 ********************************/
 
 app.get('/', function(req, res) {
-    res.send('Hello');ghf
+    res.send('Hello');
 });
 
 app.get('/version', function(req, res) {
@@ -139,12 +139,12 @@ function buildUserFromRow(rows) {
 
 get /api/tag/user
 post /api/tag/add
-get /api/tag/read/0   <------- read the tag json from node #9
+get /api/tag/read/0   <------- read the tag json from node #0
 
 ********************************/
 
 app.get('/api/tag/:user_id', function(req, res) {
-    if(!parseInt(req.params.user_id)){
+    if( isNaN(parseInt(req.params.user_id)) ) {
         res.json([]);
         res.send(200);
         res.end();
@@ -177,8 +177,13 @@ app.post('/api/tag/add', function(req, res){
     db.query('SELECT max(Tag_Id)+1 FROM "Tag";', function(err, rows) {
         var i = rows[0][0];
         var query = 'INSERT INTO Tag VALUES('+i+', "'+req.body.userId+'", "'+req.body.type+'", "'+req.body.value+'");';
-        //console.log(query);
+        console.log(query);
         db.query(query, function(err, rows) {
+            if(err) {
+                console.log(err, query);
+                res.send(404); res.end();
+                return;
+            }
             res.send(200);
             res.end();
         });
@@ -190,7 +195,7 @@ app.get('/api/tag/read/:node_id', function(req, res) {
     console.log('should ask the tag type to bridge..');
 
     var options = {
-        host: '192.168.1.20',
+        host: '192.168.1.10',
         port: 80,
         path: '/arduino/read',
         auth: 'root:wemakemilano!'
@@ -202,8 +207,10 @@ app.get('/api/tag/read/:node_id', function(req, res) {
             body += data;
         });
         htres.on('end', function() {
-
             body = JSON.parse(body);
+
+            console.log('/api/tag/read/:node_id > receiving data from '+options.host+': '+ body);
+
             res.json(body);
             res.end();
         })
@@ -213,6 +220,46 @@ app.get('/api/tag/read/:node_id', function(req, res) {
     });
     
 
+});
+
+/********************************
+
+get /api/checkin/:tagval/:duration/, answer y/n
+
+********************************/
+
+app.get('/api/checkin/:tagval/:duration/:nodeid', function(req, res) {
+
+    function paddy(n, p, c) {
+        var pad_char = typeof c !== 'undefined' ? c : '0';
+        var pad = new Array(1 + p).join(pad_char);
+        return (pad + n).slice(-pad.length);
+    }
+
+    var now = new Date();
+    var timestamp_sql_format = '';
+    timestamp_sql_format += now.getFullYear()+'-';
+    timestamp_sql_format += paddy(now.getMonth(), 2)+'-';
+    timestamp_sql_format += paddy(now.getDate(), 2)+' ';
+    timestamp_sql_format += paddy(now.getHours(), 2)+':';
+    timestamp_sql_format += paddy(now.getMinutes(), 2);
+
+    var query = '';
+    query = 'SELECT * FROM Reservation WHERE '+
+            '("'+timestamp_sql_format+'" BETWEEN Start AND End) AND'+
+            ' User_Id = (SELECT User_Id FROM Tag WHERE Value="'+req.params.tagval+'") AND'+
+            ' Node_Id = "'+req.params.nodeid+'";'
+    //console.log(query);
+    db.query(query, function(err, rows) {
+        //console.log(rows);
+        switch(rows.length) {
+            case 0: res.send('n').status(404).end(); break;
+            case 1: res.send('y').status(200).end(); break;
+            default:
+                console.log('appe.get---> /api/checkin/:tagid/:duration/:timestamp ERROR:\n'+
+                            'database shoud respond 0/1 instad is: '+ rows.length);
+        }
+    });
 });
 
 /********************************

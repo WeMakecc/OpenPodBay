@@ -27,3 +27,13 @@ INSERT INTO Tag VALUES(16, 4, 'MiFare classic', 16);
 INSERT INTO Tag VALUES(17, 4, 'ATM badge', 17);
 INSERT INTO Tag VALUES(18, 4, 'RFID', 18);
 COMMIT;
+
+-- SQL for Tag table
+BEGIN TRANSACTION;
+CREATE TABLE Reservation(RES_Id integer primary key autoincrement,
+                         User_Id integer,
+                         Node_Id integer,
+                         Start datetime,
+                         End datetime);
+INSERT INTO Reservation VALUES(0, 1, 0, '2014-01-01 12:00', '2014-12-01 12:200');
+COMMIT;
