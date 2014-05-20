@@ -33,8 +33,8 @@ module.exports = function(params){
         });
     });
 
-    app.get('/api/users/:id', function(req, res) {
-        var id = req.params.id.split('user-')[1];
+    app.get('/api/users/:user_id', function(req, res) {
+        var id = req.params.user_id.split('user-')[1];
         db.query('SELECT * FROM Users WHERE User_Id='+id+';', function(err, rows) {
             //console.log(rows);
             res.json( rows ? buildUserFromRow(rows) : [] );
@@ -42,10 +42,10 @@ module.exports = function(params){
         });
     });
 
-    app.delete('/api/users/:id', function(req, res) {
-        var id = req.params.id.split('user-')[1];
+    app.delete('/api/users/:user_id', function(req, res) {
+        var id = req.params.user_id.split('user-')[1];
         var query = 'DELETE FROM Users WHERE User_Id='+id+';';
-        console.log(query);
+        //console.log(query);
         db.query(query, function(err, rows) {
             if(err) {
                 console.error("app.delete---> /api/users/:id ERROR:"+ err.toString());
@@ -95,8 +95,6 @@ module.exports = function(params){
 
         var user_id = req.params.user_id.split('user-')[1];
         
-
-
         if( isNaN(parseInt(user_id)) ) {
             res.json([]);
             res.send(200);
@@ -104,10 +102,8 @@ module.exports = function(params){
             return;
         }
 
-        console.log('dudee');
-
         var query = 'SELECT * FROM Tag WHERE User_Id='+user_id+';';
-        console.log(query);
+        //console.log(query);
         db.query(query, function(err, rows) {
             if(err) {
                 console.error("app.get---> /api/tag/:user_id ERROR:"+err.toString());
@@ -122,7 +118,6 @@ module.exports = function(params){
                     tag['value'] = rows[i][3];
                     tags.push(tag);
                 };
-                console.log(tags);
                 res.json(tags);
                 res.send(200);
                 res.end();
@@ -158,13 +153,15 @@ module.exports = function(params){
             auth: 'root:wemakemilano!'
         };
 
+        console.log(options);
+
         var request = http.get(options, function(htres){
             var body = "";
             htres.on('data', function(data) {
                 body += data;
             });
             htres.on('end', function() {
-                console.log('/api/tag/read/:node_id > receiving data from '+options.host+': '+ body);
+                //console.log('/api/tag/read/:node_id > receiving data from '+options.host+': '+ body);
                 body = JSON.parse(body);
                 res.json(body);
                 res.end();
@@ -185,6 +182,11 @@ module.exports = function(params){
     ********************************/
 
     app.get('/api/checkin/:tagval/:duration/:nodeid', function(req, res) {
+
+        console.log('app.get---> /api/checkin/:tagval/:duration/:nodeid\n'+
+                    '            /api/checkin/'+req.params.tagval+'/'+req.params.duration+'/'+req.params.nodeid+'\n'+
+                    '            from '+req.connection.remoteAddress);
+
 
         function paddy(n, p, c) {
             var pad_char = typeof c !== 'undefined' ? c : '0';

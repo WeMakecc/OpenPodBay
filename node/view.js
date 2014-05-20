@@ -40,4 +40,16 @@ module.exports = function(params){
         });
     });
 
+    /********************************
+
+    get /view/machines
+    
+    ********************************/
+
+    app.get('/view/machines', function(req, res) {
+        res.render('machineslist.ejs', {
+            resources_url: getURL(req)+'/view',
+            api_url: getURL(req)+'/api'
+        })
+    });
 }
