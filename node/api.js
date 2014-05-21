@@ -58,10 +58,12 @@ module.exports = function(params){
     });
 
     app.put('/api/users/:id', function (req, res) {
+        console.log(req.body);
         var query = 'UPDATE Users SET Name="'+req.body.userName+'", Active="'+req.body.active+'" WHERE User_Id='+req.body.userId+';';
         db.query(query, function(err, rows) {
             if(err) {
                 console.error("app.put---> /api/users/:id ERROR:"+err.toString());
+                console.log(query);
                 // TODO: error handling
             } else {
                 res.send(200);

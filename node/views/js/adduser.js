@@ -1,22 +1,16 @@
 $(document).ready(function() {
     $('#nav-sidebar-adduser').addClass('active');
-    $('#form-add-user-submit').click(function(e) {
-        onClickAddUser();
+    $('#form-user-submit').click(function(e) {
         e.preventDefault();
-        return false;
+        onClickAddUser();
+        
     });
+    $('#checkbox-user-active').checkbox('check');
+    console.log($('checkbox-user-active'));
 });
 
 function onClickAddUser() {
-    var newname = $('#form-add-user-name').val();
-    var user_json = {   
-        'userName': newname,
-        'active': 1
-    };
-    addUserAjax(user_json);
-}
-
-function addUserAjax(user_json) {
+    var user_json = getUserDataFromForm();
     $.ajax({
         url: DATA_URL+'/users/add', 
         type: "POST",
@@ -31,14 +25,21 @@ function addUserAjax(user_json) {
 }
 
 function addUserSucess(user_json) {
+    resetUserForm();
+    setTimeout(function() {
+        $('#checkbox-user-active').checkbox('check');
+    }, 500);
+    
+    var id = 'alert-add-user-success'+Math.floor((Math.random() * 100) + 1);
+
     $('#alerttt-placeholder').append(
-        '<div id="alert-add-user-success" '+
+        '<div id="'+id+'" '+
         '     class="alert alert-success" '+
-        '     data-alert="alert" style="display:none; "> User '+user_json.userName+' correctly added</div>')
-    $('#alert-add-user-success').slideDown().fadeIn();
+        '     data-alert="alert" style="display:none; "> User '+user_json.userName+' correctly added</div>');
+    $('#'+id).slideDown().fadeIn();
 
     setTimeout(function() {
-        $("#alert-add-user-success").fadeTo('slow', 0.00, function(){ //fade
+        $('#'+id).fadeTo('slow', 0.00, function(){ //fade
              $(this).slideUp('slow', function() { //slide up
                  $(this).remove(); //then remove from the DOM
              });

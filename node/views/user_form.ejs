@@ -1,0 +1,35 @@
+<script type="text/javascript">
+
+function getUserDataFromForm() {
+    var user_json = {   
+        'userName': $('#form-user-name').val(),
+        'active': $('#checkbox-user-active').is(':checked') ? 1 : 0
+    };
+    return user_json;
+}
+
+function resetUserForm() {
+    $('#form-user-name').val('');
+    $('#checkbox-user-active').checkbox('uncheck');
+}
+
+function fillUserForm(user_json) {
+    $('#form-user-name').val(user_json.name);
+    if(user_json.active) {
+        $('#checkbox-user-active').checkbox('check');    
+    }
+}
+
+</script>
+
+<form role="form">
+    <div class="form-group">
+        <label for="form-user-name">Name:</label>
+        <input type="text" class="form-control" id="form-user-name" placeholder="Name">
+        <label class="checkbox" for="checkbox-user-active">
+            <input type="checkbox" value="" id="checkbox-user-active" data-toggle="checkbox">
+            Active
+        </label>
+    </div>
+    <button type="submit" class="btn btn-default" id="form-user-submit" click="return false">Submit</button>
+</form>

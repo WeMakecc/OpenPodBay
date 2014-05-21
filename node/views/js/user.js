@@ -13,9 +13,9 @@ $(document).ready(function() {
     $('#nav-sidebar-singleuser').addClass('active');
     
     // bind clicks on buttons
-    $('#form-edit-user-submit').click(function(e) {
+    $('#form-user-submit').click(function(e) {
         onClickModifyUser(userId);
-        return false;
+        e.preventDefault();
     });
     $('#form-add-tag-submit').click(function(e) {
         onClickAddTag(userId);
@@ -31,11 +31,9 @@ $(document).ready(function() {
 //----------------------------------------------------------------------------
 //---------------------------------------------------------------------------- dom manipulation
 
-function resetUserForm() {
+function resetUser() {
     $('#page-header-title').html('User ');
-    $('#form-edit-user-name').val('');
-    $('#checkboxActive').removeAttr("checked");
-    $('#checkboxActive').checkbox('uncheck');
+    resetUserForm();
 }
 
 function resetTags() {
@@ -45,7 +43,7 @@ function resetTags() {
 }
 
 function resetUserPage() {
-    resetUserForm();
+    resetUser();
     resetTags();
 }
 
@@ -62,10 +60,7 @@ function fillUser(id) {
         }
         users.forEach(function(user){
             $('#page-header-title').append(user.name);
-            $('#form-edit-user-name').val(user.name);
-            if(user.active) {
-                $('#checkboxActive').checkbox('check');    
-            }
+            fillUserForm(user);
         });
     });
 }
@@ -92,18 +87,9 @@ function fillTagList(userId) {
 //---------------------------------------------------------------------------- modify
 
 function onClickModifyUser(userId) {
-    var newname = $('#form-edit-user-name').val()
-      , active = $('#checkboxActive').is(':checked');
-    var user_json = {
-        'userId': userId,
-        'userName': newname,
-        'active': (active?1:0)
-    };
-    modifyUserAjax(user_json);
-    return false;
-}
-
-function modifyUserAjax(user_json) {
+    var user_json = getUserDataFromForm();
+    user_json['userId'] = userId;
+    console.log('onClickModifyUser > ', user_json);
     $.ajax({
         url: DATA_URL+'/users/'+user_json.userId, 
         type: "PUT",
@@ -117,7 +103,7 @@ function modifyUserAjax(user_json) {
 }
 
 function modifyUserSucess(user_json) {
-    resetUserForm();
+    resetUser();
     fillUser(userId);
 
     $('#alerttt-placeholder').append(

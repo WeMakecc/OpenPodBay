@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>User Panel</title>
+
+    <link href="<%= resources_url %>/lib/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="<%= resources_url %>/lib/css/flat-ui.css" rel="stylesheet">
+    <link href="<%= resources_url %>/lib/css/dashboard.css" rel="stylesheet">
+
+    <link rel="shortcut icon" href="<%= resources_url %>/libimages/favicon.ico">
+
+    <script src="<%= resources_url %>/lib/js/jquery-1.8.3.min.js"></script>
+    <script src="<%= resources_url %>/lib/js/jquery-ui-1.10.3.custom.min.js"></script>
+    <script src="<%= resources_url %>/lib/js/jquery.ui.touch-punch.min.js"></script>
+    <script src="<%= resources_url %>/lib/js/bootstrap.min.js"></script>
+    <script src="<%= resources_url %>/lib/js/bootstrap-select.js"></script>
+    <script src="<%= resources_url %>/lib/js/bootstrap-switch.js"></script>
+    <script src="<%= resources_url %>/lib/js/flatui-checkbox.js"></script>
+    <script src="<%= resources_url %>/lib/js/flatui-radio.js"></script>
+    <script src="<%= resources_url %>/lib/js/jquery.tagsinput.js"></script>
+    <script src="<%= resources_url %>/lib/js/jquery.placeholder.js"></script>
+
+    <script src="<%= resources_url %>/lib/js/grapnel.min.js"></script>
+
+
+    <link href="<%= resources_url %>/css/userpanel.css" rel="stylesheet">
+    <script type="text/javascript">
+
+    var DATA_URL = '<%= api_url %>';
+    var VIEW_URL = '<%= resources_url %>';
+
+    $.ajaxSetup({ cache: false });
+
+    </script>
+
+
+
+</head>
+<body>
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Access Control System</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/view/users/">Users panel</a></li>
+                <li><a href="/view/machines/">Machines status</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">

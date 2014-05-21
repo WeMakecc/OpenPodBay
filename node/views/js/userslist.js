@@ -15,12 +15,11 @@ function fillUsers() {
     $('#userList > tbody').empty();
     var users_path = DATA_URL+'/users';
     $.getJSON(users_path, function(users) {
-        console.log(users);
         users.forEach(function(user){
             var controlOption = 
                 '<a class="user_control delete" data-toggle="modal" data-target="#confirm-delete" >delete</a>'+
                 '/'+
-                '<a class="user_control modify" data-toggle="modal" >modify</a>';
+                '<a class="user_control modify">modify</a>';
             var tr = '<tr class="'+(user.active?'':'inactive')+'">'+ 
                 '<th class="id">'+user.id+'</th>'+
                 '<th class="name">'+user.name+'</th>'+
@@ -64,7 +63,7 @@ function addControlToUsersTable() {
             btnDelete.click(function(e) {
                 $('#confirm-delete').modal('hide');
                 deleteUserAjax(userId, userName);
-                return false;
+                e.preventDefault();
             });
 
         });
@@ -82,27 +81,26 @@ function deleteUserAjax(userId, userName) {
         success: deleteUserSuccess(userId, userName),
     }).done(function( response ) {
         if (response.msg === '') {
-            console.log('user deted');
         }
     });
 }
 
 function deleteUserSuccess(userId, userName) {
-    console.log('User #'+userId+' '+userName+' correctly deleted');
+    var id = 'alert-delete-user-success'+Math.floor((Math.random() * 100) + 1);
 
     $('#alerttt-placeholder').append(
-        '<div id="alert-delete-user-success" '+
+        '<div id="'+id+'" '+
         '     class="alert alert-success" '+
         '     data-alert="alert" style="display:none;"> User #'+userId+' '+userName+' correctly deleted</div>');
-    $('#alert-delete-user-success').slideDown().fadeIn();
+    $('#'+id).slideDown().fadeIn();
 
-    // perchè deve essere dentro un timer altrimenti non è aggiornato???
+    // deve essere dentro un timer altrimenti non è aggiornato perchè l'animazione non è finita
     setTimeout(function() {
         fillUsers();
     }, 500);
 
     setTimeout(function() {
-        $("#alert-delete-user-success").fadeTo('slow', 0.00, function(){ //fade
+        $('#'+id).fadeTo('slow', 0.00, function(){ //fade
              $(this).slideUp('slow', function() { //slide up
                  $(this).remove(); //then remove from the DOM
              });
