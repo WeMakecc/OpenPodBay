@@ -67,9 +67,7 @@ function fillUser(id) {
 
 function fillTagList(userId) {
     var tag_path = DATA_URL+'/tag/user-'+userId;
-    console.log(tag_path);
     $.getJSON(tag_path, function(tags) {
-        console.log('tags', tags)
         tags.forEach(function(tag) {
             var tr = 
                 '<tr>'+
@@ -89,7 +87,6 @@ function fillTagList(userId) {
 function onClickModifyUser(userId) {
     var user_json = getUserDataFromForm();
     user_json['userId'] = userId;
-    console.log('onClickModifyUser > ', user_json);
     $.ajax({
         url: DATA_URL+'/users/'+user_json.userId, 
         type: "PUT",

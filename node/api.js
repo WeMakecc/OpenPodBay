@@ -5,6 +5,8 @@ module.exports = function(params){
         http = require('http'),
         app = params.app;
 
+    var machines = {};
+
     //---------------------------------------------------------------------------------- USERS
     /********************************
 
@@ -148,14 +150,26 @@ module.exports = function(params){
         // get the tag value from bridge
         console.log('should ask the tag type to bridge..');
 
+        if(machines.length==0) {
+            console.log('should perform a net scan first!');
+            netScan(); 
+        }
+
+        if( !(req.params.node_id in machines) ) {
+            res.send(404);
+            res.end();
+            return;
+        }
+        var ip = machines[req.params.node_id].ip;
+
         var options = {
-            host: '192.168.1.10',
+            host: String(ip),
             port: 80,
             path: '/arduino/read',
             auth: 'root:wemakemilano!'
         };
 
-        console.log(options);
+        console.log(ip);
 
         var request = http.get(options, function(htres){
             var body = "";
@@ -217,8 +231,97 @@ module.exports = function(params){
                 case 1: res.send('y').status(200).end(); break;
                 default:
                     console.log('appe.get---> /api/checkin/:tagid/:duration/:timestamp ERROR:\n'+
-                                'database shoud respond 0/1 instad is: '+ rows.length);
+                                'database should respond 0/1 instad is: '+ rows.length);
             }
         });
     });
+
+    //---------------------------------------------------------------------------------- MACHINES
+    /********************************
+
+    get /api/machines
+
+    ********************************/
+
+    function netScan(callback) {
+        machines = {};
+
+        var ip_already_done = 0,
+            ip_max = 20;
+
+        function onYunFound(ip, body) {
+            console.log(ip + ' /api/machines answer: '+ body.nodeId);
+            body['ip'] = ip;
+            machines[body.nodeId] = body;
+            onAllIpDone();
+        }
+
+        function onYunNotFound(ip, body) { 
+            onAllIpDone();
+        }
+
+        function onAllIpDone() {
+            ip_already_done++;
+            if(ip_already_done >= ip_max) {
+                if (callback && typeof(callback) === "function") {
+                    // execute the callback, passing parameters as necessary
+                    callback();
+                }
+            }
+        }
+
+        for (var i = 0; i < ip_max; i++) {
+            checkStatus(i, onYunFound, onYunNotFound);
+        };
+    }
+
+    function checkStatus(i, found, notFound) {
+        var options = {
+            host: '192.168.1.'+i,
+            port: 80,
+            path: '/arduino/status/1.1.1.1/'+ Math.floor((new Date()).getTime() / 1000),
+            auth: 'root:wemakemilano!'
+        };
+
+        var request = http.get(options, function(htres){
+            var body = "";
+            
+            htres.on('data', function(data) {
+                body += data;
+            });
+            htres.on('end', function() {
+                if( htres.statusCode == 404 ) {
+                    notFound(options.host, {});
+                    return;
+                }
+                found(options.host, JSON.parse(body))
+            })
+        }).on('error', function(e) {
+            notFound(options.host, {});
+            return;
+        });
+
+        request.on('socket', function (socket) {
+            socket.setTimeout(5000);  
+            socket.on('timeout', function() {
+                request.abort();
+            });
+        });
+    }
+
+    app.get('/api/machines', function(req, res) {
+
+        netScan(function() {
+
+            var machines_json = []
+            for(var key in machines) {
+                machines_json.push( machines[key] );
+            }
+
+            res.json(machines_json);
+            res.end();
+        });
+        
+    });
+
 }

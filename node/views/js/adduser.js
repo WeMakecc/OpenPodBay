@@ -6,7 +6,6 @@ $(document).ready(function() {
         
     });
     $('#checkbox-user-active').checkbox('check');
-    console.log($('checkbox-user-active'));
 });
 
 function onClickAddUser() {
