@@ -34,7 +34,23 @@
 
         <h4>Add tag</h4>
         <div class="form-group">
-            <button type="submit" class="btn btn-default" id="tagOnReader">Check tag on reader</button>
+
+             <div id="dropdownbutton" class="btn-group select select-inline mbl">
+                <button class="btn dropdown-toggle clearfix btn-default btn-primary" data-toggle="dropdown">
+                    <span id ="dropdownbuttonlabel" class="filter-option pull-left">Node Id</span>&nbsp;
+                    <span class="caret"></span>
+                </button>
+                <span class="dropdown-arrow dropdown-arrow-inverse"></span>
+
+                <ul id="dropdownmenu" class="dropdown-menu dropdown-inverse" role="menu" style="overflow-y: auto; min-height: 108px; max-height: 328px;">
+                    
+                </ul>
+            </div>
+
+            <div class="btn-group mbl">
+                <button type="submit" class="btn btn-default" id="tagOnReader">Check tag on reader</button>
+            </div>
+
             <br/><br/>
             <form class="form-inline" role="form">
               <div class="form-group">

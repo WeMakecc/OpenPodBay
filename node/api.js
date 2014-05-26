@@ -3,9 +3,16 @@ module.exports = function(params){
     var dblite = require('dblite'),
         db = dblite('test.db'),
         http = require('http'),
-        app = params.app;
+        app = params.app,
+        fs = require('fs');
 
-    var machines = {};
+    var file = __dirname + '/' + 'yunApi.auth';
+    var authString = fs.readFileSync(file).toString();
+    var auth = JSON.parse(authString);
+
+    var NetScan = require('./netscan.js'),
+    netscan = new NetScan();
+
 
     //---------------------------------------------------------------------------------- USERS
     /********************************
@@ -150,6 +157,8 @@ module.exports = function(params){
         // get the tag value from bridge
         console.log('should ask the tag type to bridge..');
 
+        var machines = netscan.getMachines();
+
         if(machines.length==0) {
             console.log('should perform a net scan first!');
             netScan(); 
@@ -166,7 +175,7 @@ module.exports = function(params){
             host: String(ip),
             port: 80,
             path: '/arduino/read',
-            auth: 'root:wemakemilano!'
+            auth: auth.user+':'+auth.pass
         };
 
         console.log(ip);
@@ -242,9 +251,6 @@ module.exports = function(params){
     get /api/machines
 
     ********************************/
-
-    var NetScan = require('./netscan.js'),
-        netscan = new NetScan();
 
     app.get('/api/machines', function(req, res) {
 

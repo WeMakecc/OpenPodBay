@@ -25,6 +25,30 @@ $(document).ready(function() {
         getTagInfoFromBridge();
         return false;
     })
+
+    // drop down menu hacks
+    $('#dropdownmenu').width( $('#dropdownbutton').width() );
+
+    $.ajax({
+        url: DATA_URL+'/machines/', 
+        type: "GET",
+        success: function(data, textStatus, jqXHR) { 
+            for(d in data) {
+                $('#dropdownmenu').append(
+                  '<li rel="'+d+'">'+
+                  '    <a tabindex="-1" class="opt active">'+
+                  '        <span class="pull-left">'+d+'</span>'+
+                  '    </a>'+
+                  '</li>')
+            }
+            
+            $('#dropdownmenu > li').click(function(e) {
+                $('#dropdownbuttonlabel').html(
+                    $(this).children().children().html()
+                );
+            });
+        }
+    });
 });
 
 //----------------------------------------------------------------------------
@@ -171,7 +195,8 @@ function addTagSuccess(tag_json) {
 }
 
 function getTagInfoFromBridge() {
-    var path = DATA_URL+'/tag/read/0';
+    var path = DATA_URL+'/tag/read/'+$('#dropdownbuttonlabel').html();
+    console.log('user.js > getTagInfoFromBridge > path: '+path);
     $.getJSON(path, function(tag) {
         console.log(tag);
         if(tag.type==4) $('#tagType').val("MiFare Classic");
