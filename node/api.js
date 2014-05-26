@@ -243,81 +243,19 @@ module.exports = function(params){
 
     ********************************/
 
-    function netScan(callback) {
-        machines = {};
-
-        var ip_already_done = 0,
-            ip_max = 20;
-
-        function onYunFound(ip, body) {
-            console.log(ip + ' /api/machines answer: '+ body.nodeId);
-            body['ip'] = ip;
-            machines[body.nodeId] = body;
-            onAllIpDone();
-        }
-
-        function onYunNotFound(ip, body) { 
-            onAllIpDone();
-        }
-
-        function onAllIpDone() {
-            ip_already_done++;
-            if(ip_already_done >= ip_max) {
-                if (callback && typeof(callback) === "function") {
-                    // execute the callback, passing parameters as necessary
-                    callback();
-                }
-            }
-        }
-
-        for (var i = 0; i < ip_max; i++) {
-            checkStatus(i, onYunFound, onYunNotFound);
-        };
-    }
-
-    function checkStatus(i, found, notFound) {
-        var options = {
-            host: '192.168.1.'+i,
-            port: 80,
-            path: '/arduino/status/1.1.1.1/'+ Math.floor((new Date()).getTime() / 1000),
-            auth: 'root:wemakemilano!'
-        };
-
-        var request = http.get(options, function(htres){
-            var body = "";
-            
-            htres.on('data', function(data) {
-                body += data;
-            });
-            htres.on('end', function() {
-                if( htres.statusCode == 404 ) {
-                    notFound(options.host, {});
-                    return;
-                }
-                found(options.host, JSON.parse(body))
-            })
-        }).on('error', function(e) {
-            notFound(options.host, {});
-            return;
-        });
-
-        request.on('socket', function (socket) {
-            socket.setTimeout(5000);  
-            socket.on('timeout', function() {
-                request.abort();
-            });
-        });
-    }
+    var NetScan = require('./netscan.js'),
+        netscan = new NetScan();
 
     app.get('/api/machines', function(req, res) {
 
-        netScan(function() {
+        var prefix = '192.168.3';
 
+        netscan.scan(prefix, function() {
             var machines_json = []
-            for(var key in machines) {
-                machines_json.push( machines[key] );
+            var machinesById = netscan.machines;
+            for(var id in machinesById) {
+                machines_json.push( machinesById[id] );
             }
-
             res.json(machines_json);
             res.end();
         });
