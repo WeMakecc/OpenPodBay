@@ -18,6 +18,7 @@ void serveIncomingRequest() {
       String timestamp = getTrimValue(url, '/', 2);
       Serial.println(timestamp);
     } else if(command == "doortick") {
+      Serial.println('rough door tick');
       doTheCheckIn();
       client.println("Status:200");
     }

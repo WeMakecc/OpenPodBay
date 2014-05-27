@@ -65,7 +65,7 @@ void loop(void) {
 }
 
 unsigned long tick_prevMillis = 0;
-const long tick_interval = 5000;
+const long tick_interval = 1000;
 
 void doTheCheckIn() {
   tick = true;
@@ -83,6 +83,7 @@ void tickTheDoor() {
   if(tick_currentMillis - tick_prevMillis >= tick_interval) {
     tick_prevMillis = tick_currentMillis;  
     tick = false;
+    Serial.println("tick closed");
   } else {
     
   }

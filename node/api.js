@@ -246,54 +246,6 @@ module.exports = function(params){
     //---------------------------------------------------------------------------------- MACHINES
     /********************************
 
-    get /api/dothecheckin/:node_id
-
-    ********************************/
-
-    app.get('/api/dothecheckin/:node_id', function(req, res) {
-        // get the tag value from bridge
-        console.log('very secret page.. do manually the check-in');
-
-        var machines = netscan.getMachines();
-
-        if(machines.length==0) {
-            console.log('should perform a net scan first!');
-            netScan(); 
-        }
-
-        if( !(req.params.node_id in machines) ) {
-            res.send(404);
-            res.end();
-            return;
-        }
-        var ip = machines[req.params.node_id].ip;
-
-        var options = {
-            host: String(ip),
-            port: 80,
-            path: '/arduino/doortick',
-            auth: auth.user+':'+auth.pass
-        };
-
-        console.log(ip);
-
-        var request = http.get(options, function(htres){
-            var body = "";
-            htres.on('end', function() {
-                res.send(200);
-                res.end();
-            })
-            htres.on('error', function(e) {
-                console.log("app.get---> /api/dothecheckin/:node_id ERROR: " + e.message);
-            });
-        });
-        
-
-    });
-
-    //---------------------------------------------------------------------------------- MACHINES
-    /********************************
-
     get /api/machines
 
     ********************************/
