@@ -66,6 +66,12 @@ void loop(void) {
 
 unsigned long tick_prevMillis = 0;
 const long tick_interval = 5000;
+
+void doTheCheckIn() {
+  tick = true;
+  tick_prevMillis = millis();
+}
+
 void tickTheDoor() {
   if(tick==false) {
     digitalWrite(tickled, LOW);

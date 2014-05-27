@@ -1,6 +1,5 @@
 String ipServer = "192.168.1.10:3000";
 
-
 void serveIncomingRequest() {
   YunClient client = server.accept();
   if (client) {
@@ -18,7 +17,10 @@ void serveIncomingRequest() {
       Serial.print("should set the timestamp in seconds from epoch:");
       String timestamp = getTrimValue(url, '/', 2);
       Serial.println(timestamp);
-    } 
+    } else if(command == "doortick") {
+      doTheCheckIn();
+      client.println("Status:200");
+    }
     client.stop();
     Serial.println("-------- connection closed -------<");
   }
@@ -69,7 +71,6 @@ void askPermission() {
   Serial.flush();
   
   if(response=="y") {
-    tick = true;
-    tick_prevMillis = millis();
+    doTheCheckIn();
   }
 }
