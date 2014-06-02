@@ -1,0 +1,7 @@
+#userList tr.inactive {
+    color: rgb(189, 195, 199);
+}
+
+#userList tr.inactive a {
+    color: rgb(189, 195, 199);
+}
