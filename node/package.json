@@ -4,6 +4,8 @@
     "version": "0.0.1",
     "private": true,
     "dependencies": {
-        "express": "4.x"
+        "express": "4.x",
+        "body-parser": "1.x",
+        "dblite": "0.x"
     }
 }
