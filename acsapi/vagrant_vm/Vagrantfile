@@ -1,0 +1,40 @@
+$script = <<SCRIPT
+echo I am provisioning by shell....
+#debconf-set-selections <<< 'mysql-server-5.5 mysql-server/root_password password root'
+#debconf-set-selections <<< 'mysql-server-5.5 mysql-server/root_password_again password root'
+apt-get -y update
+apt-get -y install mongodb
+#apt-get -y install lamp-server^
+apt-get -y install rabbit
+#apt-get -y install puppet
+#apt-get -y install phpmyadmin
+apt-get -y install nginx
+apt-get -y install python-software-properties python g++ make
+add-apt-repository -y ppa:chris-lea/node.js
+apt-get -y install nodejs
+apt-get -y install npm
+npm install sails -g
+SCRIPT
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.ssh.private_key_path = "~/.ssh/id_rsa"
+  
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.hostname = "dev.localdomain"
+  config.vm.box_check_update = true
+
+  config.vm.network "private_network", ip: "192.168.2.2"
+
+  config.vm.synced_folder "/Users/salvo/sviluppo/progetti/vagrant_www", "/var/www"
+  
+  config.vm.provider "virtualbox" do |vb|
+     vb.gui = false
+     vb.customize ["modifyvm", :id, "--memory", "2048","--cpus","2"]
+  end
+  
+  config.vm.provision "shell",inline: $script
+
+end
