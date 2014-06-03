@@ -22,6 +22,10 @@ module.exports.adapters = {
   // (data is preserved when the server shuts down)
   mongo: {
     module: 'sails-mongo',
-    schema: true
+    host: '127.0.0.1',
+    port: 27017,
+    user: '',
+    password: '',
+    database: 'acsapi'
   }
 };
