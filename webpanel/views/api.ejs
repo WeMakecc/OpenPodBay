@@ -1,0 +1,14 @@
+<% include header.ejs %>
+
+<h1><%= title %></h1>
+
+<table class="api">
+    <% for(var i=0; i<api.length; i++) { %>
+        <tr class="api">
+            <td class="api"> <%= api[i][0] %> </td>
+            <td class="api"> <%= api[i][1] %> </td>
+        </tr>
+    <% } %>
+</table>
+
+<% include footer.ejs %>
