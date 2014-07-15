@@ -8,7 +8,8 @@ function fillUsers(users) {
     
     function _partial_getUserControl() {
         var s = '<a class="user_control delete" data-toggle="modal" data-target="#confirm-delete">'+
-                '<span class="glyphicon glyphicon-trash"></span>'+'</a>';
+                '<span class="glyphicon glyphicon-trash"></span>'+
+                '</a>';
         return s;
     }
 

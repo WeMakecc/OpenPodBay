@@ -98,6 +98,9 @@ function fillTagList(userId) {
                 '<th class="id">'+tag.tag_id+'</th>'+
                 '<th class="type">'+tag.type+'</th>'+
                 '<th class="value">'+tag.value+'</th>'+
+                '<th class="delete">'+
+                '    <span class="glyphicon glyphicon-trash"></span>'+
+                '</th>'+
                 '</tr>';
             $('#tagList > tbody:last').append(tr);
         })
