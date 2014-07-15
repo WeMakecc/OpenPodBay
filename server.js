@@ -1,5 +1,7 @@
 var u = require('./utils.js');
 
+u.getLogger();
+
 var webpanel = require('./webpanel')(),
     portWebpanel = process.env.PORT || 5000;
 

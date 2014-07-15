@@ -8,6 +8,7 @@
     "dblite" : "0.4",        
     "body-parser": "1.2.0",
     "cli-table": "0.0.1",
-    "nodemailer": "0.7.1"
+    "nodemailer": "0.7.1",
+    "winston": "0.7.3"
   }
 }
