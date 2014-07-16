@@ -23,7 +23,7 @@ var pingGoogle = function() {
         var t = ''+stdout.split('\n')[1].split(' ')[6].split('=')[1];
         fs.appendFile('./log/ping.log', t+' ', function (err) {
             if(err) {
-                u.getLogger().error('PING error: writing into log error: '+err);
+                u.getLogger().log('errors','PING error: writing into log error: '+err);
             }
         });
     });

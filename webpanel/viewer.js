@@ -54,11 +54,13 @@ module.exports = function(app) {
                 p['logs'] = [{timestamp: u.getNowPrettyPrint(), message:log_path+'does not exist!'}];
             } else {
                 var lines = data.trim().split('\n');
-                var lastLines = lines.slice(-50, -1);
+                var lastLines = lines.slice(-50, lines.length).reverse();
 
                 p['logs'] = JSON.parse('['+lastLines+']');
             }
             res.render('log.ejs', p);
+
+
         });
     }
 

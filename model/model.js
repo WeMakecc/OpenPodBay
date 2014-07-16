@@ -30,7 +30,7 @@ module.exports = {
 
         db.query(query, UserSchema, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > getUsers: '+err);
+                u.getLogger().db('error','DB error: model.js > getUsers: '+err);
                 callback([]);
             }
             callback(rows);
@@ -42,7 +42,7 @@ module.exports = {
 
         db.query(query, UserSchema, function(err, rows) {
             if(err) {
-              u.getLogger().error('DB error: model.js > getUser: '+err);
+              u.getLogger().db('error','DB error: model.js > getUser: '+err);
               callback([]);
             }
             callback(rows);
@@ -58,7 +58,7 @@ module.exports = {
 
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > addUser: '+err);
+                u.getLogger().db('error','DB error: model.js > addUser: '+err);
                 callback(false);
             } else {
                 callback(true);
@@ -71,7 +71,7 @@ module.exports = {
 
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > deleteUserByUsername: '+err);
+                u.getLogger().db('error','DB error: model.js > deleteUserByUsername: '+err);
                 callback(false);
             } else {
                 callback(true);
@@ -84,7 +84,7 @@ module.exports = {
 
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > deleteUserById: '+err);
+                u.getLogger().db('error','DB error: model.js > deleteUserById: '+err);
                 callback(false);
             } else {
                 callback(true);
@@ -99,7 +99,7 @@ module.exports = {
 
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > modifyUser: '+err);
+                u.getLogger().db('error','DB error: model.js > modifyUser: '+err);
                 callback(false);
             } else {
                 callback(true);
@@ -113,7 +113,7 @@ module.exports = {
 
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > setUserName: '+err);
+                u.getLogger().db('error','DB error: model.js > setUserName: '+err);
                 callback(false);
             } else {
                 callback(true);
@@ -129,7 +129,7 @@ module.exports = {
 
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > addTag: '+err);
+                u.getLogger().db('error','DB error: model.js > addTag: '+err);
                 callback(false);
             } else {
                 callback(true);
@@ -143,7 +143,7 @@ module.exports = {
 
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > setTagActive: '+err);
+                u.getLogger().db('error','DB error: model.js > setTagActive: '+err);
                 callback(false);
             } else {
                 callback(true);
@@ -156,7 +156,7 @@ module.exports = {
 
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > deleteTagByValue: '+err);
+                u.getLogger().db('error','DB error: model.js > deleteTagByValue: '+err);
                 callback(false);
             } else {
                 callback(true);
@@ -172,7 +172,7 @@ module.exports = {
 
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > addMachine: '+err);
+                u.getLogger().db('error','DB error: model.js > addMachine: '+err);
                 callback(false);
             } else {
                 callback(true);
@@ -185,7 +185,7 @@ module.exports = {
 
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > deleteMachine: '+err);
+                u.getLogger().db('error','DB error: model.js > deleteMachine: '+err);
                 callback(false);
             } else {
                 callback(true);
@@ -204,7 +204,7 @@ module.exports = {
 
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > modifyMachine: '+err);
+                u.getLogger().db('error','DB error: model.js > modifyMachine: '+err);
                 callback(false);
             } else {
                 callback(true);
@@ -218,7 +218,7 @@ module.exports = {
 
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > setMachineSeenTime: '+err);
+                u.getLogger().db('error','DB error: model.js > setMachineSeenTime: '+err);
                 callback(false);
             } else {
                 callback(true);
@@ -232,7 +232,7 @@ module.exports = {
 
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > setMachineStatus: '+err);
+                u.getLogger().db('error','DB error: model.js > setMachineStatus: '+err);
                 callback(false);
             } else {
                 callback(true);
@@ -259,7 +259,7 @@ module.exports = {
         
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > addReservation: '+err);
+                u.getLogger().db('error','DB error: model.js > addReservation: '+err);
 
                 callback(false);
             } else {
@@ -281,7 +281,7 @@ module.exports = {
 
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > deleteReservation: '+err);
+                u.getLogger().db('error','DB error: model.js > deleteReservation: '+err);
                 callback(false);
             } else {
                 callback(true);
@@ -301,7 +301,7 @@ module.exports = {
 
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > modifyReservation: '+err);
+                u.getLogger().db('error','DB error: model.js > modifyReservation: '+err);
                 callback(false);
             } else {
                 callback(false);
@@ -315,7 +315,7 @@ module.exports = {
 
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > setReservationActualDuration: '+err);
+                u.getLogger().db('error','DB error: model.js > setReservationActualDuration: '+err);
 
                 callback(false);
             } else {
@@ -330,7 +330,7 @@ module.exports = {
 
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > setReservationActive: '+err);
+                u.getLogger().db('error','DB error: model.js > setReservationActive: '+err);
                 callback(false);
             } else {
                 callback(false);
@@ -344,7 +344,7 @@ module.exports = {
 
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > setReservationActualStartTime: '+err);
+                u.getLogger().db('error','DB error: model.js > setReservationActualStartTime: '+err);
                 callback(false);
             } else {
                 callback(false);
@@ -362,7 +362,7 @@ module.exports = {
 
         db.query(query, rowType, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > findUserByUsername: '+err);
+                u.getLogger().db('error','DB error: model.js > findUserByUsername: '+err);
                 callback(false);
             } else {
                 console.log('model > findUserByUsername: '+rows[0]);
@@ -381,7 +381,7 @@ module.exports = {
 
         db.query(query, rowType, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > findUserById: '+err);
+                u.getLogger().db('error','DB error: model.js > findUserById: '+err);
                 callback(false);
             } else {
                 callback(rows[0]);
@@ -395,7 +395,7 @@ module.exports = {
 
         db.query(query, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > findTagByUsername: '+err);
+                u.getLogger().db('error','DB error: model.js > findTagByUsername: '+err);
                 callback(false);
             } else {
                 callback(rows);
@@ -408,7 +408,7 @@ module.exports = {
 
         db.query(query, TagSchema, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > findTagById: '+err);
+                u.getLogger().db('error','DB error: model.js > findTagById: '+err);
                 callback(false);
             } else {
                 callback(rows);
@@ -422,7 +422,7 @@ module.exports = {
 
         db.query(query, UserSchema, function(err, rows) {
             if(err) {
-                u.getLogger().error('DB error: model.js > findUserByTagValue: '+err);
+                u.getLogger().db('error','DB error: model.js > findUserByTagValue: '+err);
                 callback(false);
             } else {
                 callback(rows);

@@ -1,25 +1,4 @@
-var logger = null;
-function initLogger() {
-    console.log('utils.json > initLogger');
-    var winston = require('winston');
-    var myCustomLevels = {
-        levels: {
-          db: 0,
-          view: 1,
-          info: 2,
-          error: 3,
-          network: 4
-        }
-    };
-
-    var logger = new (winston.Logger)({ levels: myCustomLevels.levels });
-    logger.add(winston.transports.File, { name:'log.db', filename: './log/db.log', level: 'db' });
-    logger.add(winston.transports.File, { name:'log.view', filename: './log/view.log', level: 'view' });
-    logger.add(winston.transports.File, { name:'log.info', filename: './log/info.log', level: 'info' });
-    logger.add(winston.transports.File, { name:'log.error', filename: './log/error.log', level: 'error' });
-    logger.add(winston.transports.File, { name:'log.network', filename: './log/network.log', level: 'network' });
-    return logger;
-}
+logger = require('./logger.js');
 
 module.exports = {
     getNow: function() {
@@ -68,9 +47,6 @@ module.exports = {
     },
 
     getLogger: function() {
-        if(logger==null) {
-            logger = initLogger();
-        }
         return logger;
     },
 
