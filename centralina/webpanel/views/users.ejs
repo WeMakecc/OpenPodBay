@@ -1,0 +1,25 @@
+<% include header.ejs %>
+
+<script type="text/javascript">
+    var DATA_URL = '<%= api_url %>';
+    var VIEW_URL = '<%= resources_url %>';
+    $.ajaxSetup({ cache: false });
+</script>
+
+<div id="container">
+    <div id="alerttt-placeholder"></div>
+    <div class="breadcrumbs">
+        <a href="/">Home</a> > <%= title %>
+    </div>
+    
+    <% include users_list.ejs %>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    var users_path = DATA_URL+'/users';
+    var users_list = new UsersList(users_path);
+});
+</script>
+
+<% include footer %>

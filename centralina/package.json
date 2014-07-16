@@ -1,0 +1,14 @@
+{
+  "name": "newdb",
+  "version": "0.0.1",
+  "main": "server.js",
+  "dependencies" : {
+    "express" : "4.1",           
+    "ejs" : "1.0",               
+    "dblite" : "0.4",        
+    "body-parser": "1.2.0",
+    "cli-table": "0.0.1",
+    "nodemailer": "0.7.1",
+    "winston": "0.7.3"
+  }
+}
