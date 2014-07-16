@@ -55,6 +55,7 @@ module.exports = function(app) {
             } else {
                 var lines = data.trim().split('\n');
                 var lastLines = lines.slice(-50, lines.length).reverse();
+                lastLines = lastLines.filter(function(n){ return n != undefined });
 
                 p['logs'] = JSON.parse('['+lastLines+']');
             }
@@ -72,6 +73,10 @@ module.exports = function(app) {
     app.get('/log/db', function(req, res) {
         var log_path = rootPath+'/log/db.log';
         getLogView('Db log', log_path, req, res);
+    });
+    app.get('/log/network', function(req, res) {
+        var log_path = rootPath+'/log/network.log';
+        getLogView('Network log', log_path, req, res);
     });
 
     //---------------------------------------------------------------- utils

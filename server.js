@@ -7,7 +7,6 @@ var webpanel = require('./webpanel')(),
 
 var server = webpanel.listen(portWebpanel, function() {
     console.log('Listening on port %d', server.address().port);
-    //console.log( u.listAllAPI(webpanel).toString() );
 });
 
 // TODO: will be a module with a class
@@ -21,11 +20,8 @@ var pingGoogle = function() {
         
         // hand made ping stdout parser
         var t = ''+stdout.split('\n')[1].split(' ')[6].split('=')[1];
-        fs.appendFile('./log/ping.log', t+' ', function (err) {
-            if(err) {
-                u.getLogger().log('errors','PING error: writing into log error: '+err);
-            }
-        });
+
+        u.getLogger().network('PING: '+t);
     });
 }
 setInterval(pingGoogle, 1000*60);
