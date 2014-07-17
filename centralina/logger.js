@@ -6,7 +6,7 @@ var genericLogger = null,
     networkLogger = null;
 
 function initLogger() {
-    console.log('utils.json > initLogger');
+    console.log('logger.js > initLogger');
     
     genericLogger = new (winston.Logger)({
         transports: [

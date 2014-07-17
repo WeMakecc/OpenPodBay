@@ -1,17 +1,14 @@
-module.exports = function() {
+module.exports = function(port) {
 
-    //---------------------------------------------------------------- import dependencies
     var rootPath = require('path').dirname(require.main.filename);
     var u = require(rootPath+'/utils.js');
 
     var express = require('express'),
-        http = require('http'),
         app = express();
 
     [
         'api.js',
         'authentication.js',
-        'viewer.js',
         'transport.js'
     ].map (function(controllerName) {
         controller = require('./' + controllerName);

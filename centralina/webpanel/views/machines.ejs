@@ -1,0 +1,53 @@
+<% include header.ejs %>
+
+<script type="text/javascript">
+    var DATA_URL = '<%= api_url %>';
+    var VIEW_URL = '<%= resources_url %>';
+    $.ajaxSetup({ cache: false });
+</script>
+
+<div id="container">
+    <div id="alerttt-placeholder"></div>
+    <div class="breadcrumbs">
+        <a href="/">Home</a> > <%= title %>
+    </div>
+    
+    <h1 class="page-header">Machines list</h1>
+    <table class="table table-hover" id="machinesList">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Ip</th>
+                <th>Last seen</th>
+                <th>status</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    var machines_path = DATA_URL+'/machines';
+
+    fillMachines(machines_path);
+
+    var path = '/api'
+});
+
+function fillMachines(machines_path) {
+    $.getJSON(machines_path, function(machines) { 
+        machines.forEach(function(machine){
+            var tr = '<tr>'+ 
+                '<th class="id">'+machine.node_id+'</th>'+
+                '<th class="ip">'+machine.current_ip+'</th>'+
+                '<th class="last_seen">'+machine.date_last_seen+'</th>'+
+                '<th class="status">'+machine.status+'</th>'+
+                '</tr>';
+            $('#machinesList > tbody:last').append(tr);
+        });
+    });
+}
+</script>
+
+<% include footer %>

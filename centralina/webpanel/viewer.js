@@ -3,7 +3,14 @@ var rootPath = require('path').dirname(require.main.filename),
     model = require(rootPath+'/model/model.js'),
     u = require(rootPath+'/utils.js');
 
-module.exports = function(app) {
+var express = require('express');
+
+module.exports.setup = function(app) {
+
+    app.set('views', __dirname + '/views');
+    app.use('/', express.static(__dirname + '/static'));
+    app.set('view engine', 'ejs');
+    app.engine('html', require('ejs').renderFile);
 
     app.get('/', function(req, res) {
         res.render('home.ejs', path('Home', req));
@@ -42,6 +49,10 @@ module.exports = function(app) {
             p = path('User #'+id, req);
         p['id'] = id;    
         res.render('user.ejs', p);
+    });
+
+    app.get('/machines', function(req, res){
+        res.render('machines.ejs', path('Machine list', req));
     });
 
     //---------------------------------------------------------------- log viewer

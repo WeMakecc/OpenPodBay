@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "main": "server.js",
   "dependencies" : {
+    "basic-auth": "1.0.x",
     "express" : "4.1",           
     "ejs" : "1.0",               
     "dblite" : "0.4",        

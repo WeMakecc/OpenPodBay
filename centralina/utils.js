@@ -15,9 +15,8 @@ module.exports = {
         return now;
     },
 
-    sendMail: function(mail) {
-        var fs = require('fs'),
-            auth = JSON.parse( fs.readFileSync('./config/mail.auth', 'utf8') );
+    sendMail: function(mail, auth) {
+        var fs = require('fs');
         // the server is up: send notification mail
         var nodemailer = require("nodemailer");
         var smtpTransport = nodemailer.createTransport("SMTP",{

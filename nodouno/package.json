@@ -1,0 +1,11 @@
+{
+  "name": "nodouno",
+  "version": "0.0.1",
+  "main": "server.js",
+  "dependencies" : {
+    "basic-auth": "1.0.x",
+    "express" : "4.1",
+    "body-parser": "1.2.0",
+    "request": "2.37.x"
+  }
+}

@@ -20,7 +20,14 @@ var TagSchema = {
     active: Number
 };
 
-var NodeSchema = {};
+var NodeSchema = {
+    node_id: Number,
+    current_ip: String,
+    date_last_seen: Number,
+    status: Number,
+    active: Number
+};
+
 var ReservationSchema = {};
 
 module.exports = {
@@ -163,6 +170,18 @@ module.exports = {
             }
         });
     },
+    getMachines: function(callback) {
+        var query = 'SELECT * FROM Node';
+        u.getLogger().db(query);
+
+        db.query(query, NodeSchema, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > getMachines: '+err);
+                callback([]);
+            }
+            callback(rows);
+        })
+    },
     addMachine: function(machine_id, current_ip, callback) {
         current_ip = '"'+current_ip+'"';
         var params = [machine_id, current_ip, u.getNow(), 0, 1];
@@ -195,44 +214,21 @@ module.exports = {
     // TODO: check on ip already exists
     // TODO: check on id already exists
     modifyMachine: function(machine_id, current_ip, last_seen, status, active, callback) {
-        var query = 'UPDATE Node SET current_ip="'+current_ip+'"'+
-                                  ', date_last_seen='+last_seen+
-                                  ', status='+status+
-                                  ', active='+active+
-                                ' WHERE node_id='+parseInt(machine_id)+';';
+        var query = 'INSERT OR REPLACE INTO '+
+                    'Node (node_id, current_ip, date_last_seen, status, active)'+
+                    ' VALUES ('+machine_id+', "'+current_ip+'",'+
+                    last_seen+', '+status+', '+active+');';
+
+        // var query = 'UPDATE Node SET current_ip="'+current_ip+'"'+
+        //                           ', date_last_seen='+last_seen+
+        //                           ', status='+status+
+        //                           ', active='+active+
+        //                         ' WHERE node_id='+parseInt(machine_id)+';';
         u.getLogger().db(query);
 
         db.query(query, function(err, rows) {
             if(err) {
                 u.getLogger().db('error','DB error: model.js > modifyMachine: '+err);
-                callback(false);
-            } else {
-                callback(true);
-            }
-        });
-    },
-    setMachineSeenTime: function(machine_id, last_seen, callback) {
-        var query = 'UPDATE Node SET date_last_seen='+last_seen+
-                                ' WHERE node_id='+parseInt(machine_id)+';';
-        u.getLogger().db(query);
-
-        db.query(query, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > setMachineSeenTime: '+err);
-                callback(false);
-            } else {
-                callback(true);
-            }
-        });
-    },
-    setMachineStatus: function(machine_id, status, callback) {
-        var query = 'UPDATE Node SET status='+status+
-                                ' WHERE node_id='+parseInt(machine_id)+';';
-        u.getLogger().db(query);
-
-        db.query(query, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > setMachineStatus: '+err);
                 callback(false);
             } else {
                 callback(true);

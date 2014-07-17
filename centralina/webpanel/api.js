@@ -2,7 +2,11 @@ var rootPath = require('path').dirname(require.main.filename),
     model = require(rootPath+'/model/model.js'),
     u = require(rootPath+'/utils.js');
 
-module.exports = function(app){
+var bodyParser = require('body-parser');
+
+module.exports.setup = function(app){
+
+    app.use(bodyParser()); // get information from html forms
 
     var http = require('http'),
         fs = require('fs');
@@ -10,7 +14,7 @@ module.exports = function(app){
     app.get('/api/users', function(req, res) {
         model.getUsers(function(_res) {
             res.json(_res);
-        })
+        });
     });
 
     app.post('/api/users/add', function(req, res) {
@@ -59,6 +63,12 @@ module.exports = function(app){
     app.get('/api/search-by-tag/:tag_value', function(req, res) {
         var tag_value = req.params.tag_value;
         model.findUserByTagValue(tag_value, function(_res) {
+            res.json(_res);
+        })
+    });
+
+    app.get('/api/machines', function(req, res) {
+        model.getMachines(function(_res) {
             res.json(_res);
         })
     });
