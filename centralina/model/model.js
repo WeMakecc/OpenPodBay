@@ -29,6 +29,12 @@ var NodeSchema = {
     active: Number
 };
 
+var TokenSchema = {
+    token_id: Number,
+    token: String,
+    time: Number
+}
+
 var ReservationSchema = {};
 
 module.exports = {
@@ -434,6 +440,28 @@ module.exports = {
     },
     findAllReservationByUsername: function(username, callback) {
 
+    },
+    setToken: function(token, callback) {
+        var query = 'INSERT OR REPLACE INTO Token(token_id, token) VALUES (0, "'+token+'");';
+        db.query(query, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > setToken: '+err);
+                callback(false);
+            } else {
+                callback(rows);
+            }
+        });  
+    },
+    getToken: function(callback) {
+        var query = 'SELECT * FROM Token';
+        db.query(query, TokenSchema, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > getToken: '+err);
+                callback(false);
+            } else {
+                callback(rows[0]);
+            }
+        });  
     }
 
 

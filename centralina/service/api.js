@@ -1,14 +1,14 @@
 var bodyParser = require('body-parser'),
-    request = require('request');
+    request = require('request'),
+    async = require('async');
 
 var rootPath = require('path').dirname(require.main.filename),
     u = require(rootPath+'/utils.js'),
     model = require(rootPath+'/model/model.js');
 
-var token = '';
-
 module.exports.setup = function(app){
 
+    setToken('a');
     app.use(bodyParser()); // get information from html forms
 
     app.post('/notifyStatus', function(req, res) {
@@ -60,7 +60,6 @@ module.exports.setup = function(app){
             //forwardCheckinToWordpress(user_id, asset_id, actual_time_checkin);
             forwardCheckinToWordpress(1, 0, actual_time_checkin);
         });
-
     });
 
     function forwardCheckinToWordpress(user_id, asset_id, actual_time_checkin) {
@@ -70,29 +69,24 @@ module.exports.setup = function(app){
                '&actual_time_checkin='+actual_time_checkin+
                '&timestamp_last_info='+12345;
 
-        var options = {
-            url: url,
-            headers: {'Authorization': token}
-        };
+        var options = makeOptionWithToken(url, function(options) {
+            request(options, function (error, response, body) {
+                if (error) {
+                    u.getLogger().error('WORDPRESS > problem in callling madeCheckin '+error);
+                    return;
+                } 
 
-        function callback(error, response, body) {
-            if (error) {
-                u.getLogger().error('WORDPRESS > problem in callling madeCheckin '+error);
-                return;
-            } 
-
-            body = flatBody(body);
-            
-            if(body.Errors.length>0 && parseInt(body.Errors[0].Code) == 3) {
-                authenticateInWordress(function() {
-                    forwardCheckinToWordpress(user_id, asset_id, actual_time_checkin);
-                });
-            } else {
-                token = body.Token;
-            }
-        }
-
-        request(options, callback);
+                body = flatBody(body);
+                
+                if(body.Errors.length>0 && parseInt(body.Errors[0].Code) == 3) {
+                    authenticateInWordress(function() {
+                        forwardCheckinToWordpress(user_id, asset_id, actual_time_checkin);
+                    });
+                } else {
+                    setToken( body.Token );
+                }
+            });
+        });
     }
 
     function authenticateInWordress(callback) {
@@ -105,7 +99,7 @@ module.exports.setup = function(app){
         }, function(err, response, body) {
             body = body = flatBody(body);
             if(body.Response=='y') {
-                token = body.Token;
+                setToken( body.Token );
                 callback();
             } else {
                 u.getLogger().error('WORDPRESS > problem in callling checkUser '+body);
@@ -114,6 +108,32 @@ module.exports.setup = function(app){
     }
 
     //------------------------------------------------------- utility
+
+    function makeOptionWithToken(url, callback) {
+        getToken(function(token) {
+            var options = {
+                url: url,
+                headers: {'Authorization': token }
+            };
+            callback(options);
+        });
+    };
+
+    function getToken(callback) {
+        model.getToken(function(result) {
+            callback(result.token);
+        });
+    }
+
+    function getTokenSync() {
+        async.series( getToken )
+        
+        return ret;
+    }
+
+    function setToken(token) {
+        model.setToken(token, function() {});
+    }
 
     function flatBody(body) {
         body = JSON.parse(body);
