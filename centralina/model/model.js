@@ -9,6 +9,7 @@ var UserSchema = {
     user_id: Number,
     username: String,
     group: String,
+    status: Number,
     active: Number
 };
 

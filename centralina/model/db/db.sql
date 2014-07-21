@@ -3,13 +3,12 @@ BEGIN TRANSACTION;
 CREATE TABLE User (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT,
-    password TEXT, -- sha256 hash of the plain-text password
-    salt TEXT, -- salt that is appended to the password before it is hashed
     groups TEXT,
+    status INTEGER,
     active INTEGER
 );
-INSERT INTO User VALUES(0, 'admin', '4ddf3f61c0c2d465dd949cc9fdb4899b02d933d4b2ddb0debb5ec42b9f630999', 'foo', 'ADMIN', 1);
-INSERT INTO User VALUES(1, 'user', 'd8215582333e446fab89b60f1831d12a08fb9a6140c6a0eeca4bc2bdec815a22', 'foo1', 'USER', 1);
+INSERT INTO User VALUES(0, 'admin', 'ADMIN', 5, 1);
+INSERT INTO User VALUES(1, 'user', 'USER', 5, 1);
 COMMIT;
 
 -- SQL for Tag table

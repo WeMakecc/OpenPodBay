@@ -31,6 +31,9 @@ UsersList.prototype.fillUsers = function(users) {
                 '        <a class="user_control modify"'+
                 '           href="/users/'+user.user_id+'">'+user.username+'</a>'+
                 '    </th>'+
+                '    <th class="group">'+user.group+'</th>'+
+                '    <th class="status">'+user.status+'</th>'+
+                '    <th class="user_active">'+user.active+'</th>'+
                 '    <th>'+controlOption+'</th>'+
                 '</tr>';
         return s;
@@ -159,6 +162,9 @@ UsersList.prototype.deleteUserSuccess = function(userId, userName) {
         <tr>
             <th>#</th>
             <th>Name</th>
+            <th>Group</th>
+            <th>Status</th>
+            <th>Active</th>
             <th>Control</th>
         </tr>
     </thead>

@@ -72,4 +72,5 @@ module.exports.setup = function(app){
             res.json(_res);
         })
     });
+
 }

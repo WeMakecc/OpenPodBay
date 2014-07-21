@@ -29,6 +29,6 @@ pingGoogle();
 
 //------------------------------------------------------- startup mail
 u.sendMail({
-    subject: "[Pot bay door] start",
+    subject: "[Pod bay door] start",
     text: u.getNowPrettyPrint() + " restart server"},
     config.getMailAuth());

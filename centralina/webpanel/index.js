@@ -10,6 +10,7 @@ module.exports = function() {
 
     [
         'api.js',
+        'external.js',
         'authentication.js',
         'viewer.js',
         'transport.js'

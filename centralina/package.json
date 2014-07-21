@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "main": "server.js",
   "dependencies" : {
+    "underscore": "1.6.0",
     "basic-auth": "1.0.x",
     "express" : "4.1",           
     "ejs" : "1.0",               
@@ -10,6 +11,7 @@
     "body-parser": "1.2.0",
     "cli-table": "0.0.1",
     "nodemailer": "0.7.1",
-    "winston": "0.7.3"
+    "winston": "0.7.3",
+    "request": "2.37.x"
   }
 }
