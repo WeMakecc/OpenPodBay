@@ -105,15 +105,36 @@ module.exports = {
             }
         });
     },
-    modifyUser: function(id, username, group, active, callback) {
+    modifyUser: function(id, username, group, status, credits, active, callback) {
         var query = 'UPDATE User SET username="'+username+
                                   '", groups="'+group+
+                                  '", status="'+status+
+                                  '", credits="'+credits+
                                   '", active="'+active+'" WHERE user_id='+id+';';
         u.getLogger().db(query);
 
         db.query(query, function(err, rows) {
             if(err) {
                 u.getLogger().db('error','DB error: model.js > modifyUser: '+err);
+                callback(false);
+            } else {
+                callback(true);
+            }
+        });
+    },
+    modifyOrInsertUser: function(user_id, username, group, status, credits, active, callback) {
+        var query = 'INSERT OR REPLACE INTO User (user_id, username, groups, status, credits, active) '+
+                    'VALUES ( '+user_id+','
+                               +'"'+username+'"'+','
+                               +'"'+group+'"'+','
+                               +status+','
+                               +credits+','
+                               +active+');'
+        u.getLogger().db(query);
+
+        db.query(query, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > modifyOrInsertUser: '+err);
                 callback(false);
             } else {
                 callback(true);

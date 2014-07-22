@@ -5,10 +5,11 @@ CREATE TABLE User (
     username TEXT,
     groups TEXT,
     status INTEGER,
+    credits INTEGER,
     active INTEGER
 );
-INSERT INTO User VALUES(0, 'admin', 'ADMIN', 5, 1);
-INSERT INTO User VALUES(1, 'user', 'USER', 5, 1);
+INSERT INTO User VALUES(0, 'admin', 'ADMIN', 5, 0, 1);
+INSERT INTO User VALUES(1, 'user', 'USER', 5, 0, 1);
 COMMIT;
 
 -- SQL for Tag table
@@ -20,12 +21,13 @@ CREATE TABLE Tag(tag_id INTEGER PRIMARY KEY AUTOINCREMENT,
                  active INTEGER);
 INSERT INTO Tag VALUES(10, 0, 'MiFare classic', '_DD_78_90_11', 1);
 INSERT INTO Tag VALUES(11, 0, 'ATM badge', '_BB_05_79_39', 1);
-INSERT INTO Tag VALUES(12, 1, 'MiFare classic', '_FD_9E_F0_69', 1);
+INSERT INTO Tag VALUES(12, 1, 'tessera wemake', '_FD_9E_F0_69', 1);
 INSERT INTO Tag VALUES(13, 2, 'MiFare classic', '_1D_7D_2A_3F', 1);
 INSERT INTO Tag VALUES(14, 2, 'ATM badge', '_07_BE_BA_16', 1);
 INSERT INTO Tag VALUES(16, 4, 'MiFare classic', '_07_BD_9F_18', 1);
 INSERT INTO Tag VALUES(17, 0, 'atm costantino', '_AE_8B_6C_FD', 1);
-INSERT INTO Tag VALUES(18, 0, 'tessera wemake', '_FD_A4_F3_69', 1);
+INSERT INTO Tag VALUES(18, 1, 'tessera wemake', '_FD_A4_F3_69', 1);
+
 COMMIT;
 
 BEGIN TRANSACTION;
