@@ -44,7 +44,7 @@ void setup(void) {
 
   Serial.println("Hello!");
   
-  timer.setInterval(4000, notifyServer);
+  timer.setInterval(60000, notifyServer);
 }
 
 void loop(void) {

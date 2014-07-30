@@ -36,6 +36,8 @@ void readNFC() {
     if(uidString_last != uidString) {
       if(uidLength <= 0) {
         Serial.println("tag removed..");
+        //Bridge.put("uidLength", String(""));
+        //Bridge.put("uidString", String(""));
       } else {
         printUID();
         askPermission();
