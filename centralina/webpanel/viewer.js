@@ -55,6 +55,10 @@ module.exports.setup = function(app) {
         res.render('machines.ejs', path('Machine list', req));
     });
 
+    app.get('/reservations', function(req, res){
+        res.render('reservations.ejs', path('Machine list', req));
+    });
+
     //---------------------------------------------------------------- log viewer
     function getLogView(title, log_path, req, res) {
         var id = req.params.id,

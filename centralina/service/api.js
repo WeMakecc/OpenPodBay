@@ -6,10 +6,11 @@ var rootPath = require('path').dirname(require.main.filename),
     u = require(rootPath+'/utils.js'),
     model = require(rootPath+'/model/model.js');
 
+var cript = require(rootPath+'/wordpress.js');
+
+
 module.exports.setup = function(app){
 
-    setToken('a');
-    authenticateInWordress( function(){} ); // so I have a valid token
     app.use(bodyParser()); // get information from html forms
 
     app.post('/notifyStatus', function(req, res) {
@@ -59,44 +60,18 @@ module.exports.setup = function(app){
             //.. or res.send(404)
             res.send(200);
 
-            //forwardCheckinToWordpress(user_id, asset_id, actual_time_checkin);
-            forwardCheckinToWordpress(user_id, asset_id, actual_time_checkin);
+            forwardCheckinToWordpress(user_id, asset_id, actual_time_checkin); //@
         });
     });
 
     function forwardCheckinToWordpress(user_id, asset_id, actual_time_checkin) {
         var url = 'http://'+wordpressAuth.ip+wordpressAuth.checkin +'?';
-        url += 'user_id='+user_id+
-               '&asset_id='+asset_id+
-               '&actual_time_checkin='+actual_time_checkin+
-               '&timestamp_last_info='+12345;
+        var uri = 'user_id='+user_id+
+                  '&asset_id='+asset_id+
+                  '&actual_time_check='+actual_time_checkin+
+                  '&timestamp_last_info='+12345;
 
-        var options = makeOptionWithToken(url, function(options) {
-            request(options, function (error, response, body) {
-                if (error) {
-                    u.getLogger().error('WORDPRESS > problem in callling madeCheckin '+error);
-                    return;
-                } 
-
-                body = JSON.parse(body);
-                if(body.errors.length>0 ) {
-                    if(parseInt(body.errors[0].code) == 3) {
-                        authenticateInWordress(function() {
-                            forwardCheckinToWordpress(user_id, asset_id, actual_time_checkin);
-                        });
-                    } else if(body.response=='y') {
-                        setToken( body.token );
-                        console.log('forwardCheckinToWordpress > OK');
-                    } else {
-                        var error_log = 'forwardCheckinToWordpress > errors:';
-                        for(var i=0; i<body.errors.length; i++) {
-                            error_log += JSON.stringify(body.errors[i]);
-                        }
-                        u.getLogger().error(error_log);
-                    }
-                }
-            });
-        });
+        forwardToWordpress(url, uri, ' Check IN');
     }
 
     app.post('/checkout', function(req,res) {
@@ -108,7 +83,7 @@ module.exports.setup = function(app){
 
         var asset_id = body.asset_id;
         var tag_id = body.tag_id;
-        var actual_time_checkin = u.getNow();
+        var actual_time_checkout = u.getNow();
 
         // TODO: double check that the ip correspond to the given node id
         //var asset_id_from_db = model.getNodeId(ip);
@@ -130,80 +105,48 @@ module.exports.setup = function(app){
             //.. or res.send(404)
             res.send(200);
 
-            //forwardCheckinToWordpress(user_id, asset_id, actual_time_checkin);
-            forwardCheckoutToWordpress(user_id, asset_id, actual_time_checkin);
+            forwardCheckoutToWordpress(user_id, asset_id, actual_time_checkout); //@
         });
     });
 
     function forwardCheckoutToWordpress(user_id, asset_id, actual_time_checkin) {
         var url = 'http://'+wordpressAuth.ip+wordpressAuth.checkout +'?';
-        url += 'user_id='+user_id+
-               '&asset_id='+asset_id+
-               '&actual_time_checkout='+actual_time_checkin+
-               '&timestamp_last_info='+12345;
+        var uri = 'user_id='+user_id+
+                  '&asset_id='+asset_id+
+                  '&actual_time_check='+actual_time_checkin+
+                  '&timestamp_last_info='+12345+
+                  '&checkout_type=0';
 
-        var options = makeOptionWithToken(url, function(options) {
-            request(options, function (error, response, body) {
-                if (error) {
-                    u.getLogger().error('WORDPRESS > problem in callling madeCheckout '+error);
-                    return;
-                } 
+        console.log(uri);
 
-                body = JSON.parse(body);
-                if(body.errors.length>0 ) {
-                    if(parseInt(body.errors[0].code) == 3) {
-                        authenticateInWordress(function() {
-                            forwardCheckinToWordpress(user_id, asset_id, actual_time_checkin);
-                        });
-                    } else if(body.response=='y') {
-                        setToken( body.token );
-                        console.log('forwardCheckoutToWordpress > OK');
-                    } else {
-                        var error_log = 'forwardCheckoutToWordpress > errors:';
-                        for(var i=0; i<body.errors.length; i++) {
-                            error_log += JSON.stringify(body.errors[i]);
-                        }
-                        u.getLogger().error(error_log);
-                    }
-                }
-            });
-        });
+        forwardToWordpress(url, uri, ' Check OUT');
     }
 
-    function authenticateInWordress(callback) {
-        u.getLogger().info('WORDPRESS > invalid token, asking for a new one ');
+    function forwardToWordpress(url, uri, type) {
+        console.log('forwardToWordpress > uri: '+uri);
+        var options = {
+            url: url + cript.cript(uri)
+        };
 
-        var url = 'http://'+wordpressAuth.ip+wordpressAuth.login;
-        var auth = { username: wordpressAuth.username, password: wordpressAuth.password };
-        request.post(url, {
-            form: auth
-        }, function(err, response, body) {
+        request(options, function (error, response, body) {
+            if (error) {
+                u.getLogger().error('WORDPRESS > problem in callling '+type+' '+error);
+                return;
+            } 
+
+            console.log('forwardToWordpress > response:'+body);
             body = JSON.parse(body);
-            if(body.response=='y') {
-                setToken( body.token );
-                callback();
-            } else {
-                u.getLogger().error('WORDPRESS > problem in callling checkUser '+body);
+            if(body.errors.length>0 ) {
+                if(body.response=='y') {
+                    console.log('forwardToWordpress > OK');
+                } else {
+                    var error_log = type+' > errors:';
+                    for(var i=0; i<body.errors.length; i++) {
+                        error_log += JSON.stringify(body.errors[i]);
+                    }
+                    u.getLogger().error(error_log);
+                }
             }
         });
     }
-
-    //------------------------------------------------------- utility
-
-    function makeOptionWithToken(url, callback) {
-        model.getToken(function(result) {
-            var options = {
-                url: url,
-                headers: {'Authorization': result.token }
-            };
-            callback(options);
-        });
-
-    };
-
-    function setToken(token) {
-        console.log('setToken: '+token);
-        model.setToken(token, function() {});
-    }
-
 }

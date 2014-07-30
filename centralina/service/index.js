@@ -7,9 +7,9 @@ module.exports = function(port) {
         app = express();
 
     [
-        'api.js',
         'authentication.js',
-        'transport.js'
+        'transport.js',
+        'api.js'
     ].map (function(controllerName) {
         controller = require('./' + controllerName);
         controller.setup(app)

@@ -73,4 +73,10 @@ module.exports.setup = function(app){
         })
     });
 
+    app.get('/api/reservations', function(req, res) {
+        model.getReservations(function(_res) {
+            res.json(_res);
+        })
+    });
+
 }

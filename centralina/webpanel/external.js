@@ -1,25 +1,31 @@
 var rootPath = require('path').dirname(require.main.filename),
     model = require(rootPath+'/model/model.js'),
     u = require(rootPath+'/utils.js'),
-    _ = require('underscore');
+    _ = require('underscore'),
+    cript = require(rootPath+'/wordpress.js');
 
-var bodyParser = require('body-parser');
+var bodyParser = require('body-parser'),
+    url = require('url'),
+    Promise = require('bluebird');
 
-var crypto = require('crypto');
+var QueryUserSchema = {
+    user_id: Number,
+    role: String,
+    username: String,
+    status: Number,
+    credits: Number,
+    timestamp: Number
+};
 
-function random (howMany, chars) {
-    chars = chars 
-        || "abcdefghijklmnopqrstuwxyzABCDEFGHIJKLMNOPQRSTUWXYZ0123456789";
-    var rnd = crypto.randomBytes(howMany)
-        , value = new Array(howMany)
-        , len = chars.length;
+var QuesryOrderSchema = {
+    user_id: Number,
+    asset_id: Number,
+    time_start: Number,
+    duration: Number,
+    status: Number,
+    timestamp: Number
+};
 
-    for (var i = 0; i < howMany; i++) {
-        value[i] = chars[rnd[i] % len]
-    };
-
-    return value.join('');
-}
 
 module.exports.setup = function(app){
 
@@ -33,93 +39,149 @@ module.exports.setup = function(app){
             errors: errors
         };
 
-        if(response) {
-            var token = random(12);
-            ret['token'] = token;
-            model.setToken(token, function() {});
-        };
-
         return ret;
+    }
+
+    function decriptQueryString(req) {
+        // decript querystring
+        var querystringCrypt = null;
+        for(var property in req.query) {
+            querystringCrypt = property;
+            break;
+        }
+        var querystringClear = 'http://foo.com/foo?'+cript.decript(querystringCrypt),
+            query = url.parse(querystringClear, true).query;
+
+        console.log('decriptQueryString > querystringClear: '+querystringClear);
+
+        return query;
+    }
+
+    function checkDeleteUser(res, query, _callback) {
+        var params_for_deleteuser = [query.role, query.username, query.status, query.credits, query.timestamp];
+        var delete_user = _.every(params_for_deleteuser, function(n) {
+            return n=='-1';
+        });
+
+        if(delete_user) {
+            model.getUser(query.user_id, function(result) {
+                if (result.length==1) {
+                    model.deleteUserById(query.user_id, function(result2) {
+                        var errors = [];
+                        res.json( makeResponse(errors, true) );
+
+                        _callback(true);
+                    });
+                } else {
+                    var errors = [];
+                    errors.push({code:'1', description:'User '+query.user_id+' not exists', params:['id' /*, query.user_id*/]});
+                    res.json( makeResponse(errors, false) );
+
+                    _callback(true);
+                }
+            });
+        } else {
+
+            _callback(false);
+        }
+    }
+
+    function checkDeleteOrder(res, query, _callback) {
+
+        var params_for_deleteorder = [query.user_id, query.asset_id, query.time_start, query.duration, query.status];
+        var delete_order = _.every(params_for_deleteorder, function(n) {
+            return n=='-1';
+        });
+
+        if(delete_order) {
+            model.getReservationById(query.order_id, function(result) {
+                if (result.length==1) {
+                    model.deleteReservation(query.order_id, function(result2) {
+                        var errors = [];
+                        res.json( makeResponse(errors, true) );
+
+                        _callback(true);
+                    });
+                } else {
+                    var errors = [];
+                    errors.push({code:'1', description:'Order '+query.order_id+' not exists', params:['order_id'/*, query.order_id*/]});
+                    res.json( makeResponse(errors, false) );
+
+                    _callback(true);
+                }
+            });
+        } else {
+
+            _callback(false);
+        }
     }
 
     //--------------------------------------------------------------- callee
     app.get('/external/modifyUser', function(req, res) {
         console.log('/external/modifyUser > handling the get');
-        var elements = {
-            user_id: req.query.user_id, 
-            role: req.query.role, 
-            username: req.query.username, 
-            status: req.query.status, 
-            credits: req.query.credits, 
-            timestamp: req.query.timestamp
-        };
 
-        var Schema = {
-            user_id: Number,
-            role: String,
-            username: String,
-            status: Number,
-            credits: Number,
-            timestamp: Number
-        };
+        var query = decriptQueryString(req);
 
-        model.getToken(function(result) {
-            console.log(result.token+"   "+req.headers.token);
-            console.log(req.headers.hasOwnProperty('authorization'));
-            console.log(result.authorization != req.headers.token);
-            if( req.headers.hasOwnProperty('authorization') && result.token != req.headers.authorization ) {
-                var errors = [{code:3, description:"Unhatorized", params:['token']}];
-                res.send( makeResponse(errors, false) );
+        // check if the user has to be deleted
+
+        var user_deleted = checkDeleteUser(res, query, function(userCancelled) {
+            if(userCancelled) {
                 return;
-            } else {
-                var errors = parseElement(elements, Schema);
+            }
 
-                if(errors.length>0) {
-                    res.send( makeResponse(errors, false) );
-                    return;
-                }
-                
-                    model.modifyOrInsertUser(elements.user_id, elements.username, 
-                                             elements.role, elements.status, 
-                                             elements.credits, 1, function(result) {
-                    res.send( makeResponse(errors, true) );
+            var elements = {
+                user_id: query.user_id, role: query.role, 
+                username: query.username, status: query.status, 
+                credits: query.credits, timestamp: query.timestamp
+            };
+            
+            var errors = parseElement(elements, QueryUserSchema);
+
+            if(errors.length>0) {
+                res.json( makeResponse(errors, false) );
+
+            } else {
+                model.modifyOrInsertUser(elements.user_id, elements.username, 
+                                         elements.role, elements.status, 
+                                         elements.credits, 1, function(result) {
+                    res.json( makeResponse(errors, true) );
                 });
             }
         });
     });
 
     app.get('/external/modifyOrder', function(req, res) {
-        var elements = {
-            user_id: req.query.user_id,
-            asset_id: req.query.asset_id,
-            time_start: req.query.time_start,
-            duration: req.query.duration,
-            status: req.query.status,
-            timestamp: req.query.timestamp
-        }
+        console.log('/external/modifyOrder > handling the get');
 
-        var Schema = {
-            user_id: Number,
-            asset_id: Number,
-            time_start: Number,
-            duration: Number,
-            status: Number,
-            timestamp: Number
-        };
+        var query = decriptQueryString(req);
 
-        var errors = parseElement(elements, Schema);
-        
-        // TODO: check on db, of course..
-        var ret = {
-            0: {
-                response: errors.length==0 ? 'y' : 'n'
-            },
-            1: {
-                errors: errors
+        var order_deleted = checkDeleteOrder(res, query, function(orderCancelled) {
+            if(orderCancelled) {
+                return;
             }
-        }
 
-        res.send(ret);
+            var elements = {
+                reservation_id: query.order_id, user_id: query.user_id,
+                asset_id: query.asset_id, time_start: query.time_start,
+                duration: query.duration, status: query.status,
+                timestamp: query.timestamp
+            }
+
+            var errors = parseElement(elements, QuesryOrderSchema);
+           
+            if(errors.length>0) {
+                res.send( makeResponse(errors, false) );
+                return;
+            }
+            
+            model.modifyOrInsertReservation(elements.reservation_id, elements.user_id,
+                                            elements.asset_id, elements.time_start,
+                                            -1, elements.duration,
+                                            -1, 1,
+                                            function(result) {
+                res.send( makeResponse(errors, true) );
+            });
+        });
     });
 
     //--------------------------------------------------------------- utils

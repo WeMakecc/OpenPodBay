@@ -1,0 +1,93 @@
+<% include header.ejs %>
+
+<script type="text/javascript">
+    var DATA_URL = '<%= api_url %>';
+    var VIEW_URL = '<%= resources_url %>';
+    $.ajaxSetup({ cache: false });
+
+
+
+//     reservation_id: Number,
+//     user_id: Number,
+//     node_id: Number,
+//     expected_start: Number,
+//     actual_start: Number,
+//     expected_duration: Number,
+//     actual_duration: Number,
+//     active: Number
+
+
+</script>
+
+<div id="container">
+    <div id="alerttt-placeholder"></div>
+    <div class="breadcrumbs">
+        <a href="/">Home</a> > <%= title %>
+    </div>
+    
+    <h1 class="page-header">Reservations list</h1>
+    <table class="table table-hover" id="reservationList">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>User</th>
+                <th>Asset</th>
+                <th>Expected start</th>
+                <th>Expected duration</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    var reservations_path = DATA_URL+'/reservations';
+    fillReservations(reservations_path);
+
+    var path = '/api'
+});
+
+function fillReservations(path) {
+    $.getJSON(path, function(reservations) { 
+        reservations.forEach(function(r) {
+            console.log(r);
+            var durationSecond = r.expected_duration;
+            var durationDate = new Date(durationSecond*1000)
+              , durationH = durationDate.getHours()
+              , durationM = durationDate.getMinutes()
+              , duration = durationH +'h '+durationM+'m';
+
+            var startSeconds = r.expected_start;
+            var startDate = new Date(startSeconds*1000)
+              , start = startDate.toUTCString();
+
+            var tr = '<tr>'+
+                     '    <th>'+r.reservation_id+'</th>'+
+                     '    <th>'+r.user_id+'</th>'+
+                     '    <th>'+r.node_id+'</th>'+
+                     '    <th>'+start+'</th>'+
+                     '    <th>'+duration+'</th>'+
+                     '    <th>'+r.active+'</th>';
+            $('#reservationList > tbody:last').append(tr);
+        });
+    });
+}
+
+// function fillMachines(machines_path) {
+//     $.getJSON(machines_path, function(machines) { 
+//         machines.forEach(function(machine){
+//             var tr = '<tr>'+ 
+//                 '<th class="id">'+machine.node_id+'</th>'+
+//                 '<th class="ip">'+machine.current_ip+'</th>'+
+//                 '<th class="last_seen">'+machine.date_last_seen+'</th>'+
+//                 '<th class="status">'+machine.status+'</th>'+
+//                 '</tr>';
+//             $('#machinesList > tbody:last').append(tr);
+//         });
+//     });
+// }
+</script>
+
+<% include footer %>

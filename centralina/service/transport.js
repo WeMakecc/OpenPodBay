@@ -7,6 +7,6 @@ module.exports.setup = function(app){
 
     serverService = http.createServer(app);
     serverService.listen(p, function() {
-        console.log('Webpanel on port %d', serverService.address().port);
+        console.log('Service on port %d', serverService.address().port);
     });
 }

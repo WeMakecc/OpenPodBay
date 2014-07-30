@@ -10,6 +10,7 @@ var UserSchema = {
     username: String,
     group: String,
     status: Number,
+    credits: Number,
     active: Number
 };
 
@@ -29,13 +30,16 @@ var NodeSchema = {
     active: Number
 };
 
-var TokenSchema = {
-    token_id: Number,
-    token: String,
-    time: Number
-}
-
-var ReservationSchema = {};
+var ReservationSchema = {
+    reservation_id: Number,
+    user_id: Number,
+    node_id: Number,
+    expected_start: Number,
+    actual_start: Number,
+    expected_duration: Number,
+    actual_duration: Number,
+    active: Number
+};
 
 module.exports = {
     getUsers: function(callback) {
@@ -263,6 +267,32 @@ module.exports = {
             }
         });
     },
+    getReservationById: function(id, callback) {
+        var query = 'SELECT * FROM Reservation WHERE reservation_id='+id+';';
+        u.getLogger().db(query);
+
+        db.query(query, ReservationSchema, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > getReservationByID: '+err);
+                callback([]);
+            }
+            //console.log(rows);
+            callback(rows);
+        });
+    },
+    getReservations: function(callback) {
+        var query = 'SELECT * FROM Reservation;';
+        u.getLogger().db(query);
+
+        db.query(query, ReservationSchema, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > getReservations: '+err);
+                callback([]);
+            }
+            //console.log(rows);
+            callback(rows);
+        });
+    },
     // TODO: check user exists
     // TODO: check node exists
     // TODO: check start is valid start time (in the future)
@@ -326,6 +356,32 @@ module.exports = {
         db.query(query, function(err, rows) {
             if(err) {
                 u.getLogger().db('error','DB error: model.js > modifyReservation: '+err);
+                callback(false);
+            } else {
+                callback(false);
+            }
+        });
+    },
+    modifyOrInsertReservation: function(reservation_id, user_id, node_id, expected_start, actual_start, expected_duration, actual_duration, active, callback) {
+        var query = 'INSERT OR REPLACE INTO Reservation (reservation_id, '+
+                                                        'user_id, '+
+                                                        'node_id, '+
+                                                        'expected_start, '+
+                                                        'expected_duration, '+
+                                                        'actual_duration, '+
+                                                        'active) '+
+                    'VALUES ( '+reservation_id+','
+                               +user_id+','
+                               +node_id+','
+                               +expected_start+','
+                               +expected_duration+','
+                               +actual_duration+','
+                               +active+');';
+        u.getLogger().db(query);
+
+        db.query(query, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > modifyOrInsertReservation: '+err);
                 callback(false);
             } else {
                 callback(false);
@@ -461,29 +517,5 @@ module.exports = {
     },
     findAllReservationByUsername: function(username, callback) {
 
-    },
-    setToken: function(token, callback) {
-        var query = 'INSERT OR REPLACE INTO Token(token_id, token) VALUES (0, "'+token+'");';
-        db.query(query, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > setToken: '+err);
-                callback(false);
-            } else {
-                callback(rows);
-            }
-        });  
-    },
-    getToken: function(callback) {
-        var query = 'SELECT * FROM Token';
-        db.query(query, TokenSchema, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > getToken: '+err);
-                callback(false);
-            } else {
-                callback(rows[0]);
-            }
-        });  
     }
-
-
 }

@@ -1,5 +1,5 @@
 auth = require('basic-auth'),
-        localAuth = require('../config').getLocalAuth();
+       localAuth = require('../config').getLocalAuth();
         
 module.exports.setup = function(app) {
 
