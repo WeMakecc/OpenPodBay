@@ -18,17 +18,28 @@ function onClickSearch(e) {
         $('.control-group').removeClass('has-error');
     }
 
-
-
     var users_path = '/api/search-by-tag/'+tag_value;
     var users_list = new UsersList(users_path);
 
     return false;
 }
 
+function askTagToServer() {
+    
+    var path = DATA_URL+'/askTagToDeskNode';
+    console.log(path)
+    $.getJSON(path, function(tag) {
+        console.log(tag);
+        $('#form-tag-value').val(tag.value);    
+    }).fail(function(e) {
+        console.log( "search_user_by_tag > askTagToServer > error" );
+    })
+    
+}
+
 $(document).ready(function() {
     $("#readTag").click(function(e) {
-        console.log('not implemented yet..');
+        askTagToServer();
         return false;
     });
     $('#form-user-search').click(onClickSearch);

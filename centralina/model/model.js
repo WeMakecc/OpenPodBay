@@ -214,6 +214,18 @@ module.exports = {
             callback(rows);
         })
     },
+    getMachine: function(id, callback) {
+        var query = 'SELECT * FROM Node WHERE node_id='+id+';'
+        u.getLogger().db(query);
+
+        db.query(query, NodeSchema, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > getMachine: '+err);
+                callback([]);
+            }
+            callback(rows);
+        })        
+    },
     addMachine: function(machine_id, current_ip, callback) {
         current_ip = '"'+current_ip+'"';
         var params = [machine_id, current_ip, u.getNow(), 0, 1];
