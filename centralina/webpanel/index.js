@@ -9,11 +9,11 @@ module.exports = function() {
         app = express();
 
     [
+        'transport.js',
+        'authentication.js',
         'api.js',
         'external.js',
-        'authentication.js',
-        'viewer.js',
-        'transport.js'
+        'viewer.js'
     ].map (function(controllerName) {
         controller = require('./' + controllerName);
         controller.setup(app)

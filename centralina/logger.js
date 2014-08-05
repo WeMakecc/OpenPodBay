@@ -35,6 +35,13 @@ function initLogger() {
           new (winston.transports.File)({ filename: './log/network.log' })
         ]
     });
+
+    loginLogger = new (winston.Logger)({
+        transports: [
+          new (winston.transports.Console)(),
+          new (winston.transports.File)({ filename: './log/login.log' })
+        ]
+    });
 }
 
 initLogger();
@@ -69,6 +76,14 @@ Logger.network = function(t, n) {
         networkLogger.log(t, n);
     } else {
         networkLogger.info(t);
+    }
+};
+
+Logger.login = function(t, n) {
+    if(n) {
+        loginLogger.log(t, n);
+    } else {
+        loginLogger.info(t);
     }
 };
 

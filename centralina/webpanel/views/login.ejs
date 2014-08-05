@@ -1,0 +1,67 @@
+<% include header.ejs %>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+    $('#submit-login').click(function(e){
+        
+        var $inputs = $('form :input');
+        var values = {};
+        $.each($('form').serializeArray(), function(i, field) {
+            values[field.name] = field.value;
+        });
+
+        $.ajax({
+            url: '/session/login',
+            type: 'post',
+            data: values,
+            dataType: 'json',
+            success: function(data) {
+                var message = '';
+                message += '<p>';
+                message += 'Logged! redirect to home in few seconds..';
+                message += '</p>';
+                $('#message').html(message);
+                window.setTimeout(function(){
+                    window.location.href = '/';
+                }, 2000);
+            }, 
+            error: function(jqXHR, textStatus, errorThrown) {
+                var message = '';
+                message += '<p>';
+                message += 'Something is wrong..<br>';
+                message += jqXHR.status+' : '+JSON.parse(jqXHR.responseText).message;
+                if(jqXHR.status == 401) {
+                    message += '<br> maybe <a href="/login">login</a>?';
+                }
+                message += '</p>';
+                $('#message').html(message);
+            }
+        });
+
+        // prevent reload
+        return false;
+    });
+});
+</script>
+
+<!-- <form name="login" action="/login" method="post" accept-charset="utf-8">  -->
+<form name="login" accept-charset="utf-8">
+    <ul>  
+        <li>
+            <label for="username">User name</label>  
+            <input type="username" name="username" placeholder="Mr. Dudee" required>
+        </li>  
+        <li>
+            <label for="password">Password</label>  
+            <input type="password" name="password" placeholder="password" required>
+        </li>  
+        <li>  
+            <input id="submit-login" type="submit" value="Login">
+        </li>  
+    </ul>  
+</form>
+
+<div id="message"></div>
+
+<% include footer.ejs %>

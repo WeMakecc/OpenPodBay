@@ -4,7 +4,9 @@ function getUserDataFromForm() {
     var user_json = {   
         'userName': $('#form-user-name').val(),
         'active': $('#checkbox-user-active').is(':checked') ? 1 : 0,
-        'group': $('.dropdown .btn').text()
+        'group': $('.dropdown .btn').text(),
+        'status': parseInt($('#form-status').val()),
+        'credits': parseInt($('#form-credits').val()),
     };
     console.log('user_form.ejs > getUserDataFromForm > user_json: '+user_json);
     return user_json;
@@ -21,6 +23,8 @@ function fillUserForm(user_json) {
         $('#checkbox-user-active').prop('checked', true);    
     }
     $(".dropdown .btn").html(user_json.group + '  <span class="caret"></span>')
+    $("#form-status").val(user_json.status);
+    $("#form-credits").val(user_json.credits);
 }
 
 $(document).ready(function() {
@@ -57,6 +61,15 @@ $(document).ready(function() {
             <input type="checkbox" value="" id="checkbox-user-active" data-toggle="checkbox">
             Active
         </label>
+
+        <div class="form-status-class">
+            <input type="text" class="form-control" id="form-status" placeholder="Status number">
+        </div><br/>
+
+        <div class="form-credits-class">
+            <input type="text" class="form-control" id="form-credits" placeholder="Credits number">
+        </div>
+
     </div>
     <button type="submit" class="btn btn-primary" id="form-user-submit" click="return false">Submit</button>
 </form>

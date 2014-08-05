@@ -66,9 +66,9 @@ module.exports = {
             callback(rows);
         })
     },
-    addUser: function(username, group, callback) {
+    addUser: function(username, group, status, credits, callback) {
 
-        var params = [username, group, 1]
+        var params = [username, group, status, credits, 1]
                         .map(function(s){return '"'+s+'"';});
 
         var query = 'INSERT INTO "User" VALUES( (SELECT max(user_id)+1 FROM "User"), '+params.join(', ')+');';
