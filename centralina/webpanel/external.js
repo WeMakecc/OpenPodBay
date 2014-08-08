@@ -5,8 +5,7 @@ var rootPath = require('path').dirname(require.main.filename),
     cript = require(rootPath+'/wordpress.js');
 
 var bodyParser = require('body-parser'),
-    url = require('url'),
-    Promise = require('bluebird');
+    url = require('url');
 
 var QueryUserSchema = {
     user_id: Number,

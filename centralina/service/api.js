@@ -65,7 +65,7 @@ module.exports.setup = function(app){
     });
 
     function forwardCheckinToWordpress(user_id, asset_id, actual_time_checkin) {
-        var url = 'http://'+wordpressAuth.ip+wordpressAuth.checkin +'?';
+        var url = wordpressAuth.ip+wordpressAuth.checkin +'?';
         var uri = 'user_id='+user_id+
                   '&asset_id='+asset_id+
                   '&actual_time_check='+actual_time_checkin+
@@ -110,7 +110,7 @@ module.exports.setup = function(app){
     });
 
     function forwardCheckoutToWordpress(user_id, asset_id, actual_time_checkin) {
-        var url = 'http://'+wordpressAuth.ip+wordpressAuth.checkout +'?';
+        var url = wordpressAuth.ip+wordpressAuth.checkout +'?';
         var uri = 'user_id='+user_id+
                   '&asset_id='+asset_id+
                   '&actual_time_check='+actual_time_checkin+
