@@ -5,7 +5,6 @@ var fs = require('fs'),
     wordpressAuth = JSON.parse( fs.readFileSync(rootPath+'/config/wordpress.auth', 'utf8') ),
     nodesAuth = JSON.parse( fs.readFileSync(rootPath+'/config/nodes.auth', 'utf8') );
 
-
 module.exports = {
 
     getLocalAuth: function() {

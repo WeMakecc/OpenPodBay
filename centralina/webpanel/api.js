@@ -84,8 +84,23 @@ module.exports.setup = function(app){
         })
     });
 
+    app.post('/api/reservations/add', authentication.ensureAuthenticated, function(req, res) {
+        var user_id = req.body.userId,
+            asset_id = req.body.assetId,
+            start_time = req.body.start,
+            duration = req.body.duration;
+
+        model.addReservation(user_id, asset_id, start_time, duration, function(_res) {
+            if(!_res) {
+                res.json(_res).end(400);    
+            }
+            res.json(_res).end(200);
+        })
+    });
+
     app.get('/api/askTagToDeskNode', authentication.ensureAuthenticated, function(req, res) {
-        model.getMachine(3, function(_res) {
+        var deskNodeId = 3;
+        model.getMachine(deskNodeId, function(_res) {
             var ip = _res[0].current_ip;
             
             var username = config.getNodesAuth()['username'];

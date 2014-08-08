@@ -1,0 +1,105 @@
+<% include header.ejs %>
+
+<script type="text/javascript">
+    var DATA_URL = '<%= api_url %>';
+    var VIEW_URL = '<%= resources_url %>';
+    $.ajaxSetup({ cache: false });
+
+    $( document ).ready(function() {
+        $('#datetimepicker-start').datetimepicker();
+        $('#datetimepicker-end').datetimepicker();
+
+        $('#form-add-reservation').click(function(e) {
+
+            e.preventDefault();
+            var user_id = $('#form-user-id').val();
+            var asset_id = $('#form-asset-id').val();
+            var start_time = $('#datetimepicker-start').data("DateTimePicker").getDate();
+            var end_time = $('#datetimepicker-end').data("DateTimePicker").getDate();
+            var duration = end_time.diff(start_time, 'seconds');
+
+            var reservationJson = {
+                userId: user_id,
+                assetId: asset_id,
+                start: start_time.unix(),
+                duration: duration
+            };
+
+            console.log(reservationJson);
+            
+            addReservation(reservationJson);
+            
+            return false;
+        });
+    });
+
+    function addReservation(reservationJson) {
+        $.ajax({
+            url: DATA_URL+'/reservations/add', 
+            type: "POST",
+            data: reservationJson,
+            success: function(data, textStatus, jqXHR) { 
+                console.log("POST resposne:"); 
+                console.log(textStatus);
+                // TODO: modal appear
+                //location.reload();
+            },
+            error: function(a,e,o) {
+                console.log(a,e,o);
+            }
+        });
+    }
+
+</script>
+<script src="<%= resources_url %>/js/adduser.js"></script>
+
+<div id="container">
+    <div id="alerttt-placeholder"></div>
+    <div class="breadcrumbs">
+        <a href="/">Home</a> > <%= title %>
+    </div>
+    <h1 class="page-header" id="page-header-title">Add a new reservation</h1>
+
+    <script src="<%= resources_url %>/lib/datetimepicker/moment-locale.js"></script>
+    <script src="<%= resources_url %>/lib/datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="<%= resources_url %>/lib/datetimepicker/bootstrap-datetimepicker.min.css"></link>
+
+    <div>
+        <div class="form-group">
+            <label for="form-user-id">User id</label>
+            <input type="text" class="form-control" id="form-user-id" placeholder="1">
+        </div>
+        <div class="form-group">
+            <label for="form-asset-id">Asset id</label>
+            <input type="text" class="form-control" id="form-asset-id" placeholder="1">
+        </div>
+        <div class="form-group">
+            <label for="datetimepicker-start">Expected Start</label>
+
+            <div class="input-group date" id="datetimepicker-start">
+                <input type="text" class="form-control" />
+                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                </span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="datetimepicker-end">Expected Duration</label>
+
+            <div class="input-group date" id="datetimepicker-end">
+                <input type="text" class="form-control" />
+                <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span>
+                </span>
+            </div>
+        </div>
+        
+        <form role="form">
+            <button type="submit" class="btn btn-primary" id="form-add-reservation" click="return false">Add reservation</button>
+        </form>
+
+    </div>
+
+</div>
+
+
+<% include footer.ejs %>

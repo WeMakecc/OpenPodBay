@@ -67,7 +67,11 @@ module.exports.setup = function(app) {
     });
 
     app.get('/reservations', authentication.ensureAuthenticated, function(req, res){
-        res.render('reservations.ejs', path('Machine list', req));
+        res.render('reservations.ejs', path('Reservation list', req));
+    });
+
+    app.get('/reservations/add', authentication.ensureAuthenticated, function(req, res){
+        res.render('add_reservation.ejs', path('Add reservation', req));
     });
 
     //---------------------------------------------------------------- log viewer

@@ -1,7 +1,6 @@
 #include <Bridge.h>
 #include <YunServer.h>
 #include <YunClient.h>
-#include <HttpClient.h>
 
 #include <Wire.h>
 #include <Adafruit_NFCShield_I2C.h>

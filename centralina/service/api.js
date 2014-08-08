@@ -4,19 +4,14 @@ var bodyParser = require('body-parser'),
 
 var rootPath = require('path').dirname(require.main.filename),
     u = require(rootPath+'/utils.js'),
-    model = require(rootPath+'/model/model.js');
+    model = require(rootPath+'/model/model.js'),
+    config = require(rootPath+'/config');
 
 var cript = require(rootPath+'/wordpress.js');
 
+var wordpressAuth = config.getWordpressAuth()
 
 module.exports.setup = function(app){
-
-    console.log('\n\n------------------------');
-    console.log(wordpressAuth);
-    console.log('------------------------\n\n');
-
-
-
     app.use(bodyParser()); // get information from html forms
 
     app.post('/notifyStatus', function(req, res) {
@@ -29,6 +24,8 @@ module.exports.setup = function(app){
         model.modifyMachine(body.id, ip, u.getNow(), body.status, 1, function(result) {
             if(result == false) {
                 u.getLogger().error('Service > parse node status '+body.id+' '+ip+' '+body.status);
+            } else {
+                u.getLogger().network('the machine #'+body.id+' at '+ip+' is alive with status: '+body.status);
             }
         });
 
