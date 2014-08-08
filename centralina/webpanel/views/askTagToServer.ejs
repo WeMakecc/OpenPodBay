@@ -1,0 +1,30 @@
+<form role="form">
+    <button type="submit" class="btn btn-primary" id="readTag" click="return false">Read tag from reader</button>
+    <br><br>
+    <div class="form-group">
+        <input type="text" class="form-control" id="form-tag-value" placeholder="Tag value">
+    </div>
+</form>
+
+<script type="text/javascript">
+
+function askTagToServer() {
+    
+    var path = DATA_URL+'/askTagToDeskNode';
+    console.log(path)
+    $.getJSON(path, function(tag) {
+        console.log(tag);
+        $('#form-tag-value').val(tag.value);    
+    }).fail(function(e) {
+        console.log( "search_user_by_tag > askTagToServer > error" );
+    })
+}
+
+$(document).ready(function() {
+    $("#readTag").click(function(e) {
+        askTagToServer();
+        return false;
+    });
+});
+
+</script>

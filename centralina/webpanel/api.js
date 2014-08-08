@@ -90,11 +90,37 @@ module.exports.setup = function(app){
             
             var username = config.getNodesAuth()['username'];
             var password = config.getNodesAuth()['password'];
-            request('http://'+ip+'/data/get/uidString',
+
+            u.getLogger().network('server is asking /data/get/uidString to '+ip);
+
+            var options = {
+                timeout: 1000,
+                url: 'http://'+ip+'/data/get/uidString'
+            };
+
+            request(options,
                 function (error, response, body){
+                    if(error) {
+                        u.getLogger().error('ERROR WEBPANEL: /api/askTagToDeskNode some error in the request to '+ip+' '+error);
+                        res.end(404);
+                    }
+                    console.log(body);
+                    if(!body) {
+                        res.end(404);
+                    }
                     body = JSON.parse(body);
                     res.json({value: body.value});
                 }).auth(username, password);
+        });
+    });
+
+    app.get('/api/resetMachine', authentication.ensureAuthenticated, function(req, res) {
+        model.resetMachine(function(_res) {
+            if(_res) {
+                res.json({'reset':'ok'}).end(200);
+            } else {
+                res.end(404);
+            }
         });
     });
 

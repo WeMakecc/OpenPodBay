@@ -279,6 +279,19 @@ module.exports = {
             }
         });
     },
+    resetMachine: function(callback) {
+        var query = 'DELETE FROM Node;';
+        u.getLogger().db(query);
+
+        db.query(query, function(err, rows) {        
+            if(err) {
+                callback(false);
+                return;
+            }
+            callback(true);
+            return;
+        });
+    },
     getReservationById: function(id, callback) {
         var query = 'SELECT * FROM Reservation WHERE reservation_id='+id+';';
         u.getLogger().db(query);

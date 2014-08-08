@@ -13,6 +13,12 @@
     </div>
     
     <h1 class="page-header">Machines list</h1>
+
+    <form role="form">
+        <button type="submit" class="btn btn-danger" id="deleteNodes" click="return false">Reset machine table</button>
+        <br>
+    </form>
+
     <table class="table table-hover" id="machinesList">
         <thead>
             <tr>
@@ -32,7 +38,15 @@ $(document).ready(function() {
 
     fillMachines(machines_path);
 
-    var path = '/api'
+    var path = '/api';
+
+    $('#deleteNodes').click(function(e) {
+        var reset_machine_path = DATA_URL+'/resetMachine';
+        $.getJSON(reset_machine_path, function(result) { 
+            location.reload();
+        });
+        return false;
+    });
 });
 
 function fillMachines(machines_path) {

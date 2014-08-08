@@ -24,24 +24,7 @@ function onClickSearch(e) {
     return false;
 }
 
-function askTagToServer() {
-    
-    var path = DATA_URL+'/askTagToDeskNode';
-    console.log(path)
-    $.getJSON(path, function(tag) {
-        console.log(tag);
-        $('#form-tag-value').val(tag.value);    
-    }).fail(function(e) {
-        console.log( "search_user_by_tag > askTagToServer > error" );
-    })
-    
-}
-
 $(document).ready(function() {
-    $("#readTag").click(function(e) {
-        askTagToServer();
-        return false;
-    });
     $('#form-user-search').click(onClickSearch);
 });
 
@@ -56,17 +39,16 @@ $(document).ready(function() {
     </div>
     <h1>Search user by tag</h1>
     <div class="control-group">
-        <form role="form">
-            <button type="submit" class="btn btn-default" id="readTag" click="return false">Read tag from reader</button>
-            <br><br>
-            <div class="form-group">
-                <input type="text" class="form-control" id="form-tag-value" placeholder="Tag value">
-            </div>
+
+        <% include askTagToServer.ejs %>
+
+        <form role="form">  
             <button type="submit" class="btn btn-primary" id="form-user-search" click="return false">Search</button>
         </form>
     </div>
 
-    <% include users_list.ejs %>    
+    <% include users_list.ejs %>
+
 
 </div>
 <% include footer.ejs %>

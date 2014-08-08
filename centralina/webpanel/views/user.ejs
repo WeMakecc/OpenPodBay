@@ -6,6 +6,7 @@
     $.ajaxSetup({ cache: false });
 
     var userId = <%= id %>;
+
 </script>
 <script src="<%= resources_url %>/js/user.js"></script>
 
@@ -38,6 +39,16 @@
             </thead>
             <tbody></tbody>
         </table>
+    </div>
+
+    <div id="add_tag_container">
+        <h1 class="page-header" id="add-tag-title">Add tag to user</h1>
+
+        <% include askTagToServer.ejs %>
+        
+        <form role="form">
+            <button type="submit" class="btn btn-primary" id="form-user-search" click="return false">Add tag to user</button>
+        </form>
     </div>
 </div> 
 

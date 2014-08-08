@@ -6,12 +6,12 @@ def basic_authorization(user, password):
     s = user + ":" + password
     return "Basic " + s.encode("base64").rstrip()
 
-#curl -H 'Content-type: application/json' -d '{"id":0, "status":1 }' http://localhost:5001/notifyStatus -ucentralina:wemakemilano!
+#curl -H 'Content-type: application/json'  -d '{"tag_id":"_FD_A4_F3_69", "asset_id":11}' http://localhost:5001/checkin -u"centralina:wemakemilano\!"
 
 localauth = json.load( open('/root/local.auth') )
 ipAddress = localauth['serverAddress']
-uri = "/notifyStatus"
-json_status = json.dumps( {"id":localauth["id"], "status":sys.argv[1] } )
+uri = "/checkin"
+json_checkin = json.dumps( {"tag_id":sys.argv[1], "asset_id":localauth["id"] } )
 authString = basic_authorization(localauth['username'], localauth['password'])
 
 req = urllib2.Request( ipAddress+uri,
@@ -19,7 +19,7 @@ req = urllib2.Request( ipAddress+uri,
                            "Authorization": authString,
                            "Content-Type": "application/json"
                        },
-                       data = json_status )
+                       data = json_checkin )
 
 f = urllib2.urlopen(req)
 print f.read()

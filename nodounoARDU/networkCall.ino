@@ -3,76 +3,54 @@ void serveIncomingRequest() {
   if (client) {
     String url = client.readString();
     String command = getTrimValue(url, '/', 0);
-    Serial.println("-------- incoming connection ------->");
+    Serial.println(F("-------- incoming connection ------->"));
     Serial.println(command);
     command.trim();
-    if(command == "status") {
-      sendStatus(client);
-      Serial.print("should set the server ip: ");
-      Serial.println( getTrimValue(url, '/', 1) );
-      Serial.print("should set the timestamp in seconds from epoch:");
-      String timestamp = getTrimValue(url, '/', 2);
-      Serial.println(timestamp);
-    } else if(command == "doortick") {
-      Serial.println('rough door tick');
+    if(command == "doortick") {
+      Serial.println(F("rough door tick"));
       doTheCheckIn();
-      client.println("Status:200");
+      client.println(F("Status:200"));
     }
     client.stop();
-    Serial.println("-------- connection closed -------<");
+    Serial.println(F("-------- connection closed -------<"));
   }
   delay(50);
 }
 
-void sendStatus(YunClient &client) {
-  
-  // test from a remote address:
-  // date +%s | xargs -I % curl -u root:password http://192.168.1.10/arduino/status/1.1.1.1/%
-  
-  Serial.println("-------- status recieved.. responding with the json --------");
-  client.println("Status:200");
-  client.println("content-type:application/json");
-  client.println();
-  client.print("{ \"status\": \"OK\"");
-  client.print(", \"nodeId\": "); client.print(NODE_ID);
-  client.println("}");
-}
-
 void askPermission() {
-  HttpClient client;
-  
-  String url = serverAddress+"/api/checkin/"+ uidString +"/"+"2000"+"/"+ String(NODE_ID);
-  //String url = ipServer+"/api/users";
-  
-  Serial.println(url);
-  client.get(url);
+  Process p;
+  p.begin(F("python"));
+  p.addParameter(F("/root/askPermission.py"));
+  p.addParameter(uidString);
+  p.run();
 
-  String response = "";
-  String serverIp, port;
-
-  while (client.available()) {
-    response += (char)client.read();
+  Serial.println(F("askPermission: "));  
+  while (p.available()>0) {
+    char c = p.read();
+    Serial.print(c);
+    
+    if(c=='y') {
+      doTheCheckIn();
+    }
+    
   }
-  Serial.println(response);
   Serial.flush();
-  
-  if(response=="y") {
-    doTheCheckIn();
-  }
+  Serial.println();
 }
 
 void notifyServer() {
   
   Process p;
-  p.begin("python");
-  p.addParameter("/root/notifyStatus.py");
+  p.begin(F("python"));
+  p.addParameter(F("/root/notifyStatus.py"));
   p.addParameter("8");
   p.run();
 
-  Serial.println("notifyStatus: ");  
+  Serial.println(F("notifyStatus: "));  
   while (p.available()>0) {
     char c = p.read();
     Serial.print(c);
   }
+  Serial.flush();
   Serial.println();
 }

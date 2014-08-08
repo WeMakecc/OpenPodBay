@@ -3,7 +3,7 @@
 void setupNFC() {
   
   delay(1000);
-  Serial.println("Setup nfc..");
+  Serial.println(F("Setup nfc.."));
 
   nfc.begin();
   uint32_t versiondata = nfc.getFirmwareVersion();
@@ -35,7 +35,7 @@ void readNFC() {
     
     if(uidString_last != uidString) {
       if(uidLength <= 0) {
-        Serial.println("tag removed..");
+        Serial.println(F("tag removed.."));
         //Bridge.put("uidLength", String(""));
         //Bridge.put("uidString", String(""));
       } else {
@@ -70,11 +70,11 @@ void readNFC_uid() {
 }
 
 void printUID() {
-  Serial.println("\n>--------------------");
+  Serial.println(F("\n>--------------------"));
   
-  Serial.println("Found an ISO14443A card");
-  Serial.print("  UID Length: ");Serial.print(uidLength, DEC);Serial.println(" bytes");
-  Serial.print("  UID Value: ");
+  Serial.println(F("Found an ISO14443A card"));
+  Serial.print(F("  UID Length: "));Serial.print(uidLength, DEC);Serial.println(F(" bytes"));
+  Serial.print(F("  UID Value: "));
   nfc.PrintHex(uid, uidLength); 
   
   switch(uidLength) {
@@ -83,5 +83,5 @@ void printUID() {
   }
   Serial.println(uidString);
     
-  Serial.println("--------------------<");
+  Serial.println(F("--------------------<"));
 }

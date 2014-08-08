@@ -11,6 +11,12 @@ var cript = require(rootPath+'/wordpress.js');
 
 module.exports.setup = function(app){
 
+    console.log('\n\n------------------------');
+    console.log(wordpressAuth);
+    console.log('------------------------\n\n');
+
+
+
     app.use(bodyParser()); // get information from html forms
 
     app.post('/notifyStatus', function(req, res) {
@@ -40,15 +46,17 @@ module.exports.setup = function(app){
         var tag_id = body.tag_id;
         var actual_time_checkin = u.getNow();
 
+
         // TODO: double check that the ip correspond to the given node id
         //var asset_id_from_db = model.getNodeId(ip);
         //if(asset_id_from_db != asset_id) { error(...) }
         
-        var user_id = model.findUserByTagValue(tag_id, function(result) {
+        model.findUserByTagValue(tag_id, function(result) {
             // TODO: if a tag is associated to more then one user.. BOOM
             if(result.length==0) {
                 u.getLogger().error('SERVICE API: /checkin > asking for a tag without user '+tag_id);
-                res.send(404);
+                res.send('n').end(200);
+                return;
             }
 
             var user_id = result[0].user_id;
@@ -58,7 +66,7 @@ module.exports.setup = function(app){
             //model.checkReservation....
             //.. res.send(200)
             //.. or res.send(404)
-            res.send(200);
+            res.send('y').end(200);
 
             forwardCheckinToWordpress(user_id, asset_id, actual_time_checkin); //@
         });
@@ -128,6 +136,8 @@ module.exports.setup = function(app){
             url: url + cript.cript(uri)
         };
 
+        console.log(options.url);
+
         request(options, function (error, response, body) {
             if (error) {
                 u.getLogger().error('WORDPRESS > problem in callling '+type+' '+error);
@@ -136,7 +146,7 @@ module.exports.setup = function(app){
 
             console.log('forwardToWordpress > response:'+body);
             body = JSON.parse(body);
-            if(body.errors.length>0 ) {
+            if(body.errors && body.errors.length>0 ) {
                 if(body.response=='y') {
                     console.log('forwardToWordpress > OK');
                 } else {

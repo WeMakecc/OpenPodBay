@@ -3,22 +3,22 @@
 void initSerialBridge() {
   Serial.begin(115200);
 
-  Serial.println("Starting bridge..");
+  Serial.println(F("Starting bridge.."));
   Bridge.begin();
   delay(1000);
 
-  Serial.println("Starting YunServer..");
+  Serial.println(F("Starting YunServer.."));
   server.listenOnLocalhost();
   server.begin();
   delay(1000);
 
-  Serial.println("Starting FileSystem communication..");
+  Serial.println(F("Starting FileSystem communication.."));
   FileSystem.begin();
   delay(1000);
 }
 
 void initPinModes() {
-  Serial.println("Set the pins..");
+  Serial.println(F("Set the pins.."));
 
   // pin modes
   pinMode(shieldOKled, OUTPUT);
@@ -26,16 +26,16 @@ void initPinModes() {
 
 }
 
-String serverAddress = "";
-const char* settings_file = "/root/settings";
+//String serverAddress = "";
+//const char* settings_file = "/root/settings";
 void initConfigs() {
-  File settings = FileSystem.open(settings_file, FILE_READ);
-  
-  while(settings.available()) {
-    char inByte = (char)settings.read();
-    if(inByte != '\n' && inByte != '\r')
-      serverAddress += inByte;
-  }
-  
-  Serial.println(serverAddress);
+//  File settings = FileSystem.open(settings_file, FILE_READ);
+//  
+//  while(settings.available()) {
+//    char inByte = (char)settings.read();
+//    if(inByte != '\n' && inByte != '\r')
+//      serverAddress += inByte;
+//  }
+//  
+//  Serial.println(serverAddress);
 }

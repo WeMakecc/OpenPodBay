@@ -42,7 +42,7 @@ void setup(void) {
   initConfigs();
   setupNFC();
 
-  Serial.println("Hello!");
+  Serial.println(F("Hello!"));
   
   timer.setInterval(60000, notifyServer);
 }
@@ -52,6 +52,7 @@ void loop(void) {
   if (shieldOK) {
     digitalWrite(shieldOKled, HIGH);
     readNFC();
+    delay(500);
   } else {
     digitalWrite(shieldOKled, LOW);
   }
