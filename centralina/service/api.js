@@ -58,14 +58,62 @@ module.exports.setup = function(app){
 
             var user_id = result[0].user_id;
 
+
+
+
+
+
+
+
+            var tagValue = tag_id,
+                
+                nodeId = asset_id,
+                remoteAddress = ip;
+
+            console.log('app.get---> /checkin\n'+
+                        '            tag: '+tagValue+', '+'asset: '+nodeId+',\n'+
+                        '            from: '+remoteAddress);
+
+
+            function paddy(n, p, c) {
+                var pad_char = typeof c !== 'undefined' ? c : '0';
+                var pad = new Array(1 + p).join(pad_char);
+                return (pad + n).slice(-pad.length);
+            }
+
+            var now = new Date().now;
+            // var timestamp_sql_format = '';
+            // timestamp_sql_format += now.getFullYear()+'-';
+            // timestamp_sql_format += paddy(now.getMonth(), 2)+'-';
+            // timestamp_sql_format += paddy(now.getDate(), 2)+' ';
+            // timestamp_sql_format += paddy(now.getHours(), 2)+':';
+            // timestamp_sql_format += paddy(now.getMinutes(), 2);
+
+            model.askReservation(timestamp_sql_format, tagValue, nodeId, function(err, _res) {
+                res.send(_res).status(200).end();
+                if(_res=='y') {
+                    forwardCheckinToWordpress(user_id, asset_id, actual_time_checkin); //@    
+                }
+            })
+
+
+
+
+
+
+
+
+
+
+
             // TODO: check in the db if the tag is associated to a reservation 
             //       and send back a response to the node/machine/asset
             //model.checkReservation....
             //.. res.send(200)
             //.. or res.send(404)
-            res.send('y').end(200);
+            //res.send('y').end(200);
 
-            forwardCheckinToWordpress(user_id, asset_id, actual_time_checkin); //@
+            
         });
     });
 

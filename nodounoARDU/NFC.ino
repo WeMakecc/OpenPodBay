@@ -69,10 +69,8 @@ void readNFC_uid() {
   }
 }
 
-void printUID() {
-  Serial.println(F("\n>--------------------"));
-  
-  Serial.println(F("Found an ISO14443A card"));
+void printUID() {  
+  Serial.println(F("\nFound an ISO14443A card"));
   Serial.print(F("  UID Length: "));Serial.print(uidLength, DEC);Serial.println(F(" bytes"));
   Serial.print(F("  UID Value: "));
   nfc.PrintHex(uid, uidLength); 
@@ -82,6 +80,4 @@ void printUID() {
     case MIFARE_ULTRA: Serial.println("MiFare ultralight"); break;
   }
   Serial.println(uidString);
-    
-  Serial.println(F("--------------------<"));
 }

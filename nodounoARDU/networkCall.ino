@@ -3,16 +3,15 @@ void serveIncomingRequest() {
   if (client) {
     String url = client.readString();
     String command = getTrimValue(url, '/', 0);
-    Serial.println(F("-------- incoming connection ------->"));
+    Serial.println(F("incoming connection"));
     Serial.println(command);
     command.trim();
     if(command == "doortick") {
-      Serial.println(F("rough door tick"));
       doTheCheckIn();
       client.println(F("Status:200"));
     }
     client.stop();
-    Serial.println(F("-------- connection closed -------<"));
+    Serial.println(F("connection closed"));
   }
   delay(50);
 }
@@ -39,7 +38,6 @@ void askPermission() {
 }
 
 void notifyServer() {
-  
   Process p;
   p.begin(F("python"));
   p.addParameter(F("/root/notifyStatus.py"));

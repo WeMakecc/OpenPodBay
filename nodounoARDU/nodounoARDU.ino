@@ -7,8 +7,6 @@
 
 #include <SimpleTimer.h>
 
-#define NODE_ID 1
-
 #define IRQ   (6)
 #define RESET (7)  // Not connected by default on the NFC Shield
 
@@ -41,7 +39,7 @@ void setup(void) {
   initConfigs();
   setupNFC();
 
-  Serial.println(F("Hello!"));
+  Serial.println(F("."));
   
   timer.setInterval(60000, notifyServer);
 }
@@ -51,7 +49,7 @@ void loop(void) {
   if (shieldOK) {
     digitalWrite(shieldOKled, HIGH);
     readNFC();
-    delay(500);
+    delay(100);
   } else {
     digitalWrite(shieldOKled, LOW);
   }

@@ -542,5 +542,36 @@ module.exports = {
     },
     findAllReservationByUsername: function(username, callback) {
 
+    },
+    askReservation: function(timestamp, tagValue, nodeId, callback) {
+        var query = '';
+        query = 'SELECT * FROM Reservation WHERE '+
+                '("'+timestamp+'" BETWEEN expected_start AND (expected_start+expected_duration)) AND'+
+                ' User_Id = (SELECT User_Id FROM Tag WHERE Value="'+tagValue+'") AND'+
+                ' Node_Id = "'+nodeId+'";'
+        u.getLogger().db(query);
+        
+        db.query(query, function(err, rows) {
+            
+            if(err) {
+                //console.log('    > ERROR: '+err);
+                u.getLogger().error('models.js > askReservation > error: '+err);
+                callback(err, 'n'); 
+            }
+
+            switch(rows.length) {
+                case 0: 
+                    console.log('    > NO, response: '+rows);
+                    callback(err, 'n'); 
+                    break;
+                case 1: 
+                    console.log('    > YES, response: '+rows);
+                    callback(err, 'y'); 
+                    break;
+                default:
+                    callback(err, 'n');
+                    break;
+            }
+        });
     }
 }
