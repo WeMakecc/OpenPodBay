@@ -62,6 +62,10 @@ module.exports.setup = function(app) {
         res.render('user.ejs', p);
     });
 
+    app.get('/groups', authentication.ensureAuthenticated, function(req, res) {
+        res.render('groups.ejs', path('Group list', req));
+    });
+
     app.get('/machines', authentication.ensureAuthenticated, function(req, res){
         res.render('machines.ejs', path('Machine list', req));
     });

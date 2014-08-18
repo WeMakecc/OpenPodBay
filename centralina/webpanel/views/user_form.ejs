@@ -1,10 +1,21 @@
 <script type="text/javascript">
 
+var _groups = null;
+
+function _retriveGroupId() {
+    var group_description = $('#dropdown-group .btn').text();
+    for(g in _groups) {
+        if(_groups[g].description===group_description)
+            return g;
+    }
+    return -1;
+}
+
 function getUserDataFromForm() {
     var user_json = {   
         'userName': $('#form-user-name').val(),
         'active': $('#checkbox-user-active').is(':checked') ? 1 : 0,
-        'group': $('.dropdown .btn').text(),
+        'group': _retriveGroupId(),
         'status': parseInt($('#form-status').val()),
         'credits': parseInt($('#form-credits').val()),
     };
@@ -14,26 +25,47 @@ function getUserDataFromForm() {
 
 function resetUserForm() {
     $('#form-user-name').val('');
-    $(".dropdown .btn").html('Group' + '  <span class="caret"></span>');
+    $(".dropdown .btn").html('Group' + '<span class="caret"></span>');
 }
 
 function fillUserForm(user_json) {
+
+    var path = DATA_URL+'/groups';
+    $.getJSON(path, function(groups) {
+        var g = groups[user_json.group].description
+        $(".dropdown .btn").html(g + '<span class="caret"></span>')
+    });
+
     $('#form-user-name').val(user_json.username);
     if(user_json.active) {
         $('#checkbox-user-active').prop('checked', true);    
     }
-    $(".dropdown .btn").html(user_json.group + '  <span class="caret"></span>')
     $("#form-status").val(user_json.status);
     $("#form-credits").val(user_json.credits);
 }
 
 $(document).ready(function() {
     // code to change the dropdown menu on click
-    $(".dropdown-menu li a").click(function(e){
-      $(".btn:first-child").html($(this).text() + '  <span class="caret"></span>');
-      $(".btn:first-child").val($(this).text());
-      $("#dropDown").dropdown("toggle");
-   });
+
+    var groupPath = DATA_URL+'/groups';
+    $.getJSON(groupPath, function(groups) {
+        _groups = groups;
+        groups.forEach(function(group) {
+            var h = '<li role="presentation">'+
+                    '<a role="menuitem" tabindex="-1" href="#">'+group.description
+                    '</a></li>';
+            var r = $('#dropdown_ul').append(h);
+            var l = r.children().last();
+            console.log(l);
+
+            $(l).bind('click',function(e){
+                $("#dropdownMenu1:first-child")
+                    .html($(this).text() + '<span class="caret"></span>');
+                $("#dropdownMenu1:first-child").val($(this).text());
+                $("#dropDown").dropdown("toggle");
+            });
+        });
+    });
 });
 
 </script>
@@ -44,16 +76,11 @@ $(document).ready(function() {
         <input type="text" class="form-control" id="form-user-name" placeholder="Name">
 
         <br>
-        <div class="dropdown">
+        <div class="dropdown" id="dropdown-group">
             <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">Group
               <span class="caret"></span>
             </button>
-            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-              <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Maker 1</a></li>
-              <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Maker 2</a></li>
-              <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Maker 3</a></li>
-              <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Staff</a></li>
-              <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Admin</a></li>
+            <ul id="dropdown_ul" class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
             </ul>
         </div>
 

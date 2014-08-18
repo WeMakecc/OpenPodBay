@@ -15,7 +15,7 @@ var rootPath = require('path').dirname(require.main.filename),
 //----------------------------------------------------------- the local strategy
 
 var localStrategy = new localStrategy( function(username, password, done) {
-    console.log('authentication.js > init local strategy.');
+    //console.log('authentication.js > init local strategy.');
 
     var auth = config.getLocalAuth();
     if(username==auth.username && password==auth.password) {
@@ -35,7 +35,7 @@ function serializeUser(user, done) {
 exports.serializeUser = serializeUser;
 
 function deserializeUser(id, done) {
-    console.log('authentication.js > deserializeUser > id:'+id);
+    //console.log('authentication.js > deserializeUser > id:'+id);
     done(null, {'authentication':'true'});
 };
 exports.deserializeUser = deserializeUser;
@@ -57,7 +57,7 @@ function login(req, res, next) {
             if (err) {
                 return next(err);
             }
-            u.getLogger().login(ip+' asking '+req.originalUrl+' > login ok.');
+            //u.getLogger().login(ip+' asking '+req.originalUrl+' > login ok.');
             res.json(200, user);
         });
 
@@ -78,11 +78,11 @@ function ensureAuthenticated(req, res, next) {
     var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     if (req.isAuthenticated()) {
         //console.log('authentication.js > ensureAuthenticated logged.');
-        u.getLogger().login(ip+' asking '+req.originalUrl+' > ensureAuthenticated logged.');
+        //u.getLogger().login(ip+' asking '+req.originalUrl+' > ensureAuthenticated logged.');
         return next();
     } else {
         //console.log('authentication.js > ensureAuthenticated invalid credentials.');
-        u.getLogger().login(ip+' asking '+req.originalUrl+' > ensureAuthenticated invalid credentials.');
+        //u.getLogger().login(ip+' asking '+req.originalUrl+' > ensureAuthenticated invalid credentials.');
         return res.send(401);
     }
 };

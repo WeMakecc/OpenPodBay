@@ -51,9 +51,14 @@ module.exports.setup = function(app){
         var userName = req.body.userName,
             group = req.body.group,
             active = req.body.active,
-            id = req.body.userId;
+            id = req.body.userId,
+            status = req.body.status,
+            credits = req.body.credits;
 
-        model.modifyUser(id, userName, group, active, function(_res) {
+        console.log(req.body);
+
+        // id, username, group, status, credits, active,
+        model.modifyUser(id, userName, group, status, credits, active, function(_res) {
             res.send(res ? 200 : 404);
         })
     });
@@ -70,6 +75,20 @@ module.exports.setup = function(app){
         model.findUserByTagValue(tag_value, function(_res) {
             res.json(_res);
         })
+    });
+
+    app.get('/api/groups', authentication.ensureAuthenticated, function(req, res) {
+        model.getGroups(function(_res) {
+            res.json(_res);
+        });
+    });
+
+    app.post('/api/groups/add', function(req, res) {
+        var groupName = req.body.groupName;
+
+        model.addGroup(groupName, function(result) {
+            res.send(result ? 200 : 404);
+        });
     });
 
     app.get('/api/machines', authentication.ensureAuthenticated, function(req, res) {
@@ -91,6 +110,7 @@ module.exports.setup = function(app){
             duration = req.body.duration;
 
         model.addReservation(user_id, asset_id, start_time, duration, function(_res) {
+            console.log('api.js > /api/reservations/add > '+_res);
             if(!_res) {
                 res.json(_res).end(400);    
             }

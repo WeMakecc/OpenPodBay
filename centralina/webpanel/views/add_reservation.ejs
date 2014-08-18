@@ -24,8 +24,6 @@
                 start: start_time.unix(),
                 duration: duration
             };
-
-            console.log(reservationJson);
             
             addReservation(reservationJson);
             
@@ -40,9 +38,9 @@
             data: reservationJson,
             success: function(data, textStatus, jqXHR) { 
                 console.log("POST resposne:"); 
-                console.log(textStatus);
+                console.log(data, textStatus, jqXHR);
                 // TODO: modal appear
-                //location.reload();
+               addReservationSuccess(data);
             },
             error: function(a,e,o) {
                 console.log(a,e,o);
@@ -50,8 +48,24 @@
         });
     }
 
+    function addReservationSuccess(data) {
+        var id = data;
+        $('#alerttt-placeholder').append(
+            '<div id="'+id+'"'+
+            '    class="alert alert-success" '+
+            '     data-alert="alert" style="display:none; "> Reservation correctly added</div>');
+        $('#'+id).slideDown().fadeIn();
+
+        setTimeout(function() {
+            $('#'+id).fadeTo('slow', 0.00, function(){ //fade
+                 $(this).slideUp('slow', function() { //slide up
+                     $(this).remove(); //then remove from the DOM
+                 });
+             });
+        }, 3000);
+    }
+
 </script>
-<script src="<%= resources_url %>/js/adduser.js"></script>
 
 <div id="container">
     <div id="alerttt-placeholder"></div>
@@ -78,17 +92,19 @@
 
             <div class="input-group date" id="datetimepicker-start">
                 <input type="text" class="form-control" />
-                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
                 </span>
             </div>
         </div>
 
         <div class="form-group">
-            <label for="datetimepicker-end">Expected Duration</label>
+            <label for="datetimepicker-end">Expected End</label>
 
             <div class="input-group date" id="datetimepicker-end">
                 <input type="text" class="form-control" />
-                <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span>
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-time"></span>
                 </span>
             </div>
         </div>
@@ -98,6 +114,11 @@
         </form>
 
     </div>
+
+    <br>
+    <hr>
+    <br>
+    <a href="/reservations">Reservations list</a>
 
 </div>
 

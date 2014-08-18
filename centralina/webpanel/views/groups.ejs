@@ -1,0 +1,96 @@
+<% include header.ejs %>
+
+<script type="text/javascript">
+    var DATA_URL = '<%= api_url %>';
+    var VIEW_URL = '<%= resources_url %>';
+    $.ajaxSetup({ cache: false });
+</script>
+
+<div id="container">
+    <div id="alerttt-placeholder"></div>
+    <div class="breadcrumbs">
+        <a href="/">Home</a> > <%= title %>
+    </div>
+    
+    <h1 class="page-header">Group list</h1>
+
+    <table class="table table-hover" id="groupsList">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <h1 class="page-header">Add group</h1>
+
+    <div>
+        <label for="form-group-name">Group name:</label>
+        <input type="text" class="form-control" id="form-group-name" placeholder="MyGroup">
+        <br/>
+        <button type="submit" class="btn btn-primary" id="form-group-submit" click="return false">Submit</button>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    fillGroups();
+    controlForm();
+});
+
+function fillGroups() {
+    var groups_path = DATA_URL+'/groups';
+    $.getJSON(groups_path, function(groups) {
+        console.log(groups);
+        groups.forEach(function(g) {
+            var tr = '<tr>'+ 
+                '<th class="id">'+g.group_id+'</th>'+
+                '<th class="description">'+g.description+'</th>'
+                '</tr>';
+            $('#groupsList > tbody:last').append(tr);
+        })
+    });
+}
+
+function controlForm() {
+    $('#form-group-submit').bind('click', function() {
+        var g = $('input#form-group-name').val(),
+            path = DATA_URL+'/groups/add';
+
+        $.ajax({
+            url: path,
+            type: 'post',
+            data: {groupName: g},
+            dataType: 'json',
+            complete: _addSuccess
+        });
+    })
+}
+
+function _addSuccess() {
+    console.log('done');
+    var id = 'alert-add-group-success'+Math.floor((Math.random() * 100) + 1);
+
+    $('#alerttt-placeholder').append(
+        '<div id="'+id+'" '+
+        '     class="alert alert-success" '+
+        '     data-alert="alert" style="display:none; "> Group '+$('input#form-group-name').val()+' added correctly.</div>');
+    $('#'+id).slideDown().fadeIn();
+
+    setTimeout(function() {
+        $('#'+id).fadeTo('slow', 0.00, function(){ //fade
+             $(this).slideUp('slow', function() { //slide up
+                 $(this).remove(); //then remove from the DOM
+             });
+         });
+    }, 3000);
+
+    $('#groupsList tbody').html('');
+    fillGroups();
+}
+</script>
+
+<% include footer %>

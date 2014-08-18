@@ -19,7 +19,7 @@ function onClickSearch(e) {
     }
 
     var users_path = '/api/search-by-tag/'+tag_value;
-    var users_list = new UsersList(users_path);
+    var users_list = new UsersList(DATA_URL);
 
     return false;
 }

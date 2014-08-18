@@ -3,13 +3,23 @@ BEGIN TRANSACTION;
 CREATE TABLE User (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT,
-    groups TEXT,
+    group_id INTEGER,
     status INTEGER,
     credits INTEGER,
     active INTEGER
 );
-INSERT INTO User VALUES(0, 'admin', 'ADMIN', 5, 0, 1);
-INSERT INTO User VALUES(1, 'user', 'USER', 5, 0, 1);
+INSERT INTO User VALUES(0, 'admin', 0, 5, 0, 1);
+INSERT INTO User VALUES(1, 'user', 1, 5, 0, 1);
+COMMIT;
+
+-- SQL for Group table
+BEGIN TRANSACTION;
+CREATE TABLE Groups (
+    group_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT
+);
+INSERT INTO Groups VALUES(0, 'admin');
+INSERT INTO Groups VALUES(1, 'user');
 COMMIT;
 
 -- SQL for Tag table
@@ -35,7 +45,8 @@ CREATE TABLE Node(node_id INTEGER PRIMARY KEY AUTOINCREMENT,
                   current_ip TEXT,
                   date_last_seen INTEGER,
                   status INTEGER,
-                  active INTEGER);
+                  active INTEGER,
+                  type INTEGER);
 INSERT INTO Node VALUES(6, '192.168.1.148', '12345', '0', '1');
 INSERT INTO Node VALUES(8, '192.168.1.155', '12345', '0', '1');
 COMMIT;

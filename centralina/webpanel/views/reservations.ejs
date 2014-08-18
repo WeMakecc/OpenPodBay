@@ -4,19 +4,6 @@
     var DATA_URL = '<%= api_url %>';
     var VIEW_URL = '<%= resources_url %>';
     $.ajaxSetup({ cache: false });
-
-
-
-//     reservation_id: Number,
-//     user_id: Number,
-//     node_id: Number,
-//     expected_start: Number,
-//     actual_start: Number,
-//     expected_duration: Number,
-//     actual_duration: Number,
-//     active: Number
-
-
 </script>
 
 <div id="container">
@@ -26,6 +13,7 @@
     </div>
     
     <h1 class="page-header">Reservations list</h1>
+    <a href="/reservations/add">Add reservation</a>
     <table class="table table-hover" id="reservationList">
         <thead>
             <tr>
@@ -74,20 +62,6 @@ function fillReservations(path) {
         });
     });
 }
-
-// function fillMachines(machines_path) {
-//     $.getJSON(machines_path, function(machines) { 
-//         machines.forEach(function(machine){
-//             var tr = '<tr>'+ 
-//                 '<th class="id">'+machine.node_id+'</th>'+
-//                 '<th class="ip">'+machine.current_ip+'</th>'+
-//                 '<th class="last_seen">'+machine.date_last_seen+'</th>'+
-//                 '<th class="status">'+machine.status+'</th>'+
-//                 '</tr>';
-//             $('#machinesList > tbody:last').append(tr);
-//         });
-//     });
-// }
 </script>
 
 <% include footer %>

@@ -8,7 +8,7 @@ var dblite = require('dblite'),
 var UserSchema = {
     user_id: Number,
     username: String,
-    group: String,
+    group: Number,
     status: Number,
     credits: Number,
     active: Number
@@ -41,7 +41,37 @@ var ReservationSchema = {
     active: Number
 };
 
+var GroupSchema = {
+    group_id: Number,
+    description: String
+}
+
 module.exports = {
+    getGroups: function(callback) {
+        var query = 'SELECT * FROM Groups';
+        u.getLogger().db(query);
+
+        db.query(query, GroupSchema, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > getGroups: '+err);
+                callback([]);
+            }
+            callback(rows);
+        })
+    },
+    addGroup: function(groupName, callback) {
+        var query = 'INSERT INTO "Groups" VALUES( (SELECT max(group_id)+1 FROM "Groups"), "'+groupName+'");';
+        u.getLogger().db(query);
+
+        db.query(query, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > addGroup: '+err);
+                callback(false);
+            } else {
+                callback(true);
+            }
+        });
+    },
     getUsers: function(callback) {
         var query = 'SELECT * FROM User';
         u.getLogger().db(query);
@@ -111,7 +141,7 @@ module.exports = {
     },
     modifyUser: function(id, username, group, status, credits, active, callback) {
         var query = 'UPDATE User SET username="'+username+
-                                  '", groups="'+group+
+                                  '", group_id="'+group+
                                   '", status="'+status+
                                   '", credits="'+credits+
                                   '", active="'+active+'" WHERE user_id='+id+';';

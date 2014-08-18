@@ -1,19 +1,47 @@
 <script type="text/javascript">
 
 function UsersList(path) {
-    this.path = path;
+    this.path_users = path+'/users';
+    this.path_groups = path+'/groups';
     this.loadAjax();
 }
 
 UsersList.prototype.loadAjax = function() {
     var that = this;
-    $.getJSON(this.path, function(users) {
+
+    async.parallel(
+        [
+        function(callback) {
+            $.getJSON(that.path_users, function(n){ 
+                callback(null, n) 
+            }).error(myFailure);
+        },
+        function(callback) {
+            $.getJSON(that.path_groups, function(n){ 
+                callback(null, n) 
+            }).error(myFailure);
+        } ], doneAjax
+    );
+
+    function myFailure(err) {
+        var id = 'alert-get-users-error'+Math.floor((Math.random() * 100) + 1);
+
+        $('#alerttt-placeholder').append(
+            '<div id="'+id+'" '+
+            '     class="alert alert-danger" '+
+            '     data-alert="alert" style="display:none;"> Cannot get json from the server '+
+            err.responseText+
+            '</div>');
+        $('#'+id).slideDown().fadeIn();
+    }
+
+    function doneAjax(err, result) {
         $('#userList > tbody').empty();
-        that.fillUsers(users);
-    });
+        that.fillUsers(result[0], result[1]);
+    }
 };
 
-UsersList.prototype.fillUsers = function(users) {
+UsersList.prototype.fillUsers = function(users, groups) {
 
     function _partial_getUserControl() {
         var s = '<a class="user_control delete"'+
@@ -24,6 +52,14 @@ UsersList.prototype.fillUsers = function(users) {
         return s;
     }
 
+    function _getGroup(user) {
+        try {
+            return groups[user.group].description;
+        } catch(e) {
+            return user.group;
+        }
+    }
+
     function _partial_fillUserTr(user, controlOption) {
         var s = '<tr class="'+(user.active?'':'inactive')+'">'+ 
                 '    <th class="id">'+user.user_id+'</th>'+
@@ -31,7 +67,7 @@ UsersList.prototype.fillUsers = function(users) {
                 '        <a class="user_control modify"'+
                 '           href="/users/'+user.user_id+'">'+user.username+'</a>'+
                 '    </th>'+
-                '    <th class="group">'+user.group+'</th>'+
+                '    <th class="group">'+_getGroup(user)+'</th>'+
                 '    <th class="status">'+user.status+'</th>'+
                 '    <th class="credits">'+user.credits+'</th>'+
                 '    <th class="user_active">'+user.active+'</th>'+
