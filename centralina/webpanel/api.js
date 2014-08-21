@@ -159,4 +159,54 @@ module.exports.setup = function(app){
         });
     });
 
+    app.get('/api/calendar', authentication.ensureAuthenticated, function(req, res) {
+        model.getCalendars(function(_res) {
+            if(_res) {
+                res.json(_res).end(200);
+            } else {
+                res.end(400);
+            }
+        });
+    });
+
+    app.get('/api/calendar/:group', authentication.ensureAuthenticated, function(req, res) {
+        var group_id = req.params.group;
+        model.getCalendar(group_id, function(_res) {
+            if(_res) {
+                res.json(_res).end(200);
+            } else {
+                res.end(400);
+            }
+        });
+    });
+
+    app.post('/api/calendar/add', authentication.ensureAuthenticated, function(req, res) {
+        var calendar_id = req.body.id,
+            group_id = req.body.group_id,
+            node_id = req.body.node,
+            day = req.body.day,
+            start = req.body.start,
+            end = req.body.end,
+            active = req.body.ractive;  
+        console.log(req.body);
+
+        if(calendar_id=='') calendar_id='NULL';
+
+        model.modifyOrInsertCalendar(calendar_id, group_id, node_id, day, start, end, active, function(_res) {
+            if(!_res) {
+                res.send(400);    
+            }
+            res.json(_res).end(200);
+        });
+    });
+
+    app.delete('/api/calendar/id/:id', authentication.ensureAuthenticated, function(req, res) {
+        var calendar_id = req.params.id;
+        model.deleteCalendar(calendar_id, function(_res) {
+            if(!_res) {
+                res.send(400);    
+            }
+            res.json(_res).end(200);
+        })
+    });
 }

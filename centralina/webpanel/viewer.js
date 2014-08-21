@@ -78,6 +78,10 @@ module.exports.setup = function(app) {
         res.render('add_reservation.ejs', path('Add reservation', req));
     });
 
+    app.get('/calendar', authentication.ensureAuthenticated, function(req, res){
+        res.render('calendar_list.ejs', path('Calendar list', req));
+    });
+
     //---------------------------------------------------------------- log viewer
     function getLogView(title, log_path, req, res) {
         var id = req.params.id,

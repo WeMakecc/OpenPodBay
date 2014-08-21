@@ -46,6 +46,16 @@ var GroupSchema = {
     description: String
 }
 
+var CalendarSchema = {
+    calendar_id: Number,
+    group_id: Number,
+    node_id: Number,
+    day: String,
+    start: Number,
+    end: Number,
+    active: Number
+}
+
 module.exports = {
     getGroups: function(callback) {
         var query = 'SELECT * FROM Groups';
@@ -413,7 +423,7 @@ module.exports = {
                 u.getLogger().db('error','DB error: model.js > modifyReservation: '+err);
                 callback(false);
             } else {
-                callback(false);
+                callback(true);
             }
         });
     },
@@ -439,7 +449,7 @@ module.exports = {
                 u.getLogger().db('error','DB error: model.js > modifyOrInsertReservation: '+err);
                 callback(false);
             } else {
-                callback(false);
+                callback(true);
             }
         });
     },
@@ -454,7 +464,7 @@ module.exports = {
 
                 callback(false);
             } else {
-                callback(false);
+                callback(true);
             }
         });
     },
@@ -468,7 +478,7 @@ module.exports = {
                 u.getLogger().db('error','DB error: model.js > setReservationActive: '+err);
                 callback(false);
             } else {
-                callback(false);
+                callback(true);
             }
         });
     },
@@ -482,7 +492,7 @@ module.exports = {
                 u.getLogger().db('error','DB error: model.js > setReservationActualStartTime: '+err);
                 callback(false);
             } else {
-                callback(false);
+                callback(true);
             }
         });
     },
@@ -601,6 +611,74 @@ module.exports = {
                 default:
                     callback(err, 'n');
                     break;
+            }
+        });
+    },
+    getCalendars: function(callback) {
+        var query = '';
+        query = 'SELECT * FROM Calendar;';
+        u.getLogger().db(query);
+
+        db.query(query, CalendarSchema, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > getCalendars: '+err);
+                callback([]);
+            }
+            callback(rows);
+        });
+    },
+    getCalendar: function(group_id, callback) {
+        var query = '';
+        query = 'SELECT * FROM Calendar WHERE group_id='+group_id+';';
+        u.getLogger().db(query);
+
+        db.query(query, CalendarSchema, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > getCalendar: '+err);
+                callback([]);
+            }
+            callback(rows);
+        });
+    },
+    // insertOrModifyCalendar(calendar_id, group_id, node_id, day, start, end, active, function(_res) 
+    modifyOrInsertCalendar: function(calendar_id, group_id, node_id, day, start, end, active, callback) {
+
+        var query = 'INSERT OR REPLACE INTO Calendar (calendar_id, '+
+                                        'group_id, '+
+                                        'node_id, '+
+                                        'day, '+
+                                        'start, '+
+                                        'end, '+
+                                        'active) '+
+        'VALUES ( '+calendar_id+','
+                   +group_id+','
+                   +node_id+','
+                   +'"'+day+'"'+','
+                   +start+','
+                   +end+','
+                   +active+');';
+        u.getLogger().db(query);
+
+        db.query(query, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > modifyOrInsertCalendar: '+err);
+                callback(false);
+            } else {
+                callback(true);
+            }
+        });
+
+    },
+    deleteCalendar: function(calendar_id, callback) {
+        var query = 'DELETE FROM "Calendar" WHERE "calendar_id"='+calendar_id+';';
+        u.getLogger().db(query);
+
+        db.query(query, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > deleteCalendar: '+err);
+                callback(false);
+            } else {
+                callback(true);
             }
         });
     }

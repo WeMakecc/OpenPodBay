@@ -101,6 +101,7 @@ UsersList.prototype.addControlToUsersTable = function(current_tr, user) {
 
 UsersList.prototype.clickOnControlDelete = function(user) {
     var that = this;
+    console.log('UsersList.prototype.clickOnControlDelete > !');
 
     $('#confirm-delete').on('show.bs.modal', function(e) {
         $('.user-to-delete').html(
