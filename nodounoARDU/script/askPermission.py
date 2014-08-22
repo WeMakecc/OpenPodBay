@@ -8,25 +8,32 @@ def basic_authorization(user, password):
 
 #curl -H 'Content-type: application/json'  -d '{"tag_id":"_FD_A4_F3_69", "asset_id":11}' http://localhost:5001/checkin -u"centralina:wemakemilano\!"
 
-try:
-    localauth = json.load( open('/root/local.auth') )
-except Exception as e:
-    pass
+def askPermission(tag, path):
+    try:
+        localauth = json.load( open(path) )
+    except Exception as e:
+        print 'n'
+        return
 
-ipAddress = localauth['serverAddress']
-uri = "/checkin"
-json_checkin = json.dumps( {"tag_id":sys.argv[1], "asset_id":localauth["id"] } )
-authString = basic_authorization(localauth['username'], localauth['password'])
+    ipAddress = localauth['serverAddress']
+    uri = "/checkin"
+    json_checkin = json.dumps( {"tag_id":tag, "node_id":localauth["id"] } )
+    authString = basic_authorization(localauth['username'], localauth['password'])
 
-req = urllib2.Request( ipAddress+uri,
-                       headers = {
-                           "Authorization": authString,
-                           "Content-Type": "application/json"
-                       },
-                       data = json_checkin )
+    req = urllib2.Request( ipAddress+uri,
+                           headers = {
+                               "Authorization": authString,
+                               "Content-Type": "application/json"
+                           },
+                           data = json_checkin )
 
-try:
-    f = urllib2.urlopen(req)
-    print f.read()
-except Exception as e:
-    print 'n'
+    try:
+        f = urllib2.urlopen(req)
+        print f.read()
+    except Exception as e:
+        print 'n'
+
+if __name__ == "__main__":
+    #path = '/root/local.auth'
+    path = './local.auth'
+    askPermission(sys.argv[1], path)
