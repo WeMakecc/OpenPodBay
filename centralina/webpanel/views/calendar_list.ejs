@@ -60,149 +60,160 @@ var nodes = [];
 var new_row_to_add = -1;
 
 $(document).ready(function() {
-
-    var node_path = DATA_URL+'/machines';
-    $.getJSON(node_path, function(_nodes) {
+    $.getJSON( DATA_URL+'/machines' , function(_nodes) {
         nodes = _nodes;
-
-        loadGroups();
-    });
+    }).then( loadGroups );
 });
 
 function loadGroups() {
-    // load groups and for each groups..
-    var groups_path = DATA_URL+'/groups';
-    $.getJSON(groups_path, function(groups) {
+    $.getJSON( DATA_URL+'/groups' , function(groups) {
         groups.forEach(function(g) {
-            // generate
-            var tableId = generateGroupCalendar(g);
-
-            // fill with json
-            var calendar_path = DATA_URL+'/calendar/'+g.group_id;
-            $.getJSON(calendar_path, function(calendars) { 
-                for(var i=0; i<calendars.length; i++) {
-                    var c = calendars[i];
-                    var rowId = generateCalendarRows(tableId, c.calendar_id, g);
-                    fillCalendarRow(rowId, g, c);
-                }
-                // add on more clean row for further insertion
-                generateCalendarRows(tableId, new_row_to_add--, g);
-            });
+            generateGroupCalendar(g);
         });
     });
 }
 
 function generateGroupCalendar(g) {
-    var tableId = 'calendarList'+g.group_id;
-    var th = '<h2>'+g.description+'</h2>'+
-            '<table class="table table-hover" id="'+tableId+'">'+
-            '    <thead>'+
-            '        <tr>'+
-            '            <th>#</th>'+
-            '            <th>Gateway</th>'+
-            '            <th>Day</th>'+
-            '            <th>Start</th>'+
-            '            <th>End</th>'+
-            '            <th>Active</th>'+
-            '            <th></th>'+
-            '        </tr>'+
-            '    </thead>'+
-            '    <tbody></tbody>'+
-            '</table>'+
-            '<br/>';
-    $('#tables').append(th);
-    return tableId;
+
+    function _generateGroupCalendarTableHeader() {
+        var tableId = 'calendarList'+g.group_id;
+        var th = '<h2>'+g.description+'</h2>'+
+                '<table class="table table-hover" id="'+tableId+'">'+
+                '    <thead>'+
+                '        <tr>'+
+                '            <th>#</th>'+
+                '            <th>Gateway</th>'+
+                '            <th>Day</th>'+
+                '            <th>Start</th>'+
+                '            <th>End</th>'+
+                '            <th>Active</th>'+
+                '            <th></th>'+
+                '        </tr>'+
+                '    </thead>'+
+                '    <tbody></tbody>'+
+                '</table>'+
+                '<br/>';
+        $('#tables').append(th);
+        return tableId;
+    }
+
+    var tableId = _generateGroupCalendarTableHeader();
+    var calendar_path = DATA_URL+'/calendar/'+g.group_id;
+    $.getJSON(calendar_path, function(calendars) { 
+        for(var i=0; i<calendars.length; i++) {
+            var c = calendars[i];
+            var rowId = generateCalendarRow(tableId, c.calendar_id, g);
+            fillCalendarRowFromJSON(rowId, g, c);
+        }
+        // add one more empty row for further insertion
+        generateCalendarRow(tableId, new_row_to_add--, g);
+    });
 }
 
-function generateCalendarRows(tableId, calendar_id, g) {
-    var rowId = 'calendarRow'+calendar_id;
-    var tr = '<tr id="'+rowId+'">'+
-             '    <th class="calendar-row id">'+(calendar_id>=0?calendar_id:'')+'</th>'+
-             '    <th class="calendar-row node">'+getNodeDropdown()+'</th>'+
-             '    <th class="calendar-row day">'+getDayDropdwon()+'</th>'+
-             '    <th class="calendar-row start">'+getHoursDropDown()+'</th>'+
-             '    <th class="calendar-row end">'+getHoursDropDown()+'</th>'+
-             '    <th class="calendar-row ractive">'+getActive()+'</th>'+
-             '    <th class="calendar-row submit"><a><span class="glyphicon glyphicon-ok"></span></a></th>';
-    if(calendar_id>=0) {
-        tr += addDeleteModal();
-    }
-    tr += '</tr>';
-    $('#'+tableId+' > tbody:last').append(tr);
+function generateCalendarRow(tableId, calendar_id, g) {
 
-    // add mouse listener to dropdown
-    var dropdown = $('#'+tableId+' > tbody tr th div.dropdown');
-    var a_for_click = $(dropdown).find("ul.dropdown-menu li a");
-    a_for_click.click(function(){
-        var current_dropdown = $(this).closest('div.dropdown');
-        var current_dropdown_button = current_dropdown.find('button');
-        $(current_dropdown_button).html( $(this).text()+' <span class="caret"></span>' );
-        current_dropdown.find('ul li a').removeClass('btn-primary');
-        $(this).addClass('btn-primary');
-        var current_th = $(this).closest('th'); // .data( 'db', $(this.data('db')) );
-        $(current_th).data( 'db', ''+$(this).data('db') );
-    });
-
-    // add mouse listener to the submit button
-    var submit = $('#'+rowId+' > th.submit');
-    submit.click(function() {
-        var selected_values = {};
-
-        var row = $(this).closest('tr');
-        var ths = row.find('th');
-
-        for(var i=0; i<ths.length; i++) {
-            var th = $(ths[i]);
-            var key = th.attr('class').split(' ')[1];
-            var value = th.data('db');
-            selected_values[key] = th.data('db');
+    function _generateRowDOM(tableId) {
+        var rowId = 'calendarRow'+calendar_id;
+        var tr = '<tr id="'+rowId+'">'+
+                 '    <th class="calendar-row id">'+(calendar_id>=0?calendar_id:'')+'</th>'+
+                 '    <th class="calendar-row node">'+getNodeDropdown()+'</th>'+
+                 '    <th class="calendar-row day">'+getDayDropdwon()+'</th>'+
+                 '    <th class="calendar-row start">'+getHoursDropDown()+'</th>'+
+                 '    <th class="calendar-row end">'+getHoursDropDown()+'</th>'+
+                 '    <th class="calendar-row ractive">'+getActiveDropdown()+'</th>'+
+                 '    <th class="calendar-row submit"><a><span class="glyphicon glyphicon-ok"></span></a></th>';
+        if(calendar_id>=0) {
+            tr += _addDeleteModal();
         }
+        tr += '</tr>';
+        $('#'+tableId+' > tbody:last').append( tr );
+        return rowId;
+    }
 
-        selected_values['group_id'] = g.group_id;
-        selected_values['id'] = $(ths[0]).text();
-        delete selected_values['submit'];
-        delete selected_values['delete'];
+    function _addDeleteModal(tr) {
+        var deleteTr = '';
+        deleteTr += '    <th class="calendar-row delete">';
+        deleteTr += '<a data-toggle="modal" data-target="#confirm-delete">';
+        deleteTr += '<span class="glyphicon glyphicon-trash"></span></a></th>';
+        return deleteTr;
+    }
 
-        sendToTheServer(selected_values);
-    });
+    function _addDropdownMouseControls(tableId) {
+        
+        var dropdown = $('#'+rowId+' div.dropdown');
+        var a_for_click = $(dropdown).find("ul.dropdown-menu li a");
+        a_for_click.click(function(){
+            console.log('dudee');
+            var current_dropdown = $(this).closest('div.dropdown');
+            var current_dropdown_button = current_dropdown.find('button');
+            $(current_dropdown_button).html( $(this).text()+' <span class="caret"></span>' );
+            current_dropdown.find('ul li a').removeClass('btn-primary');
+            $(this).addClass('btn-primary');
+            var current_th = $(this).closest('th'); // .data( 'db', $(this.data('db')) );
+            $(current_th).data( 'db', ''+$(this).data('db') );
+        });
+    }
 
-    var del = $('#'+rowId+' > th.delete');
-    del.click(function() {
-        var row = $(this).closest('tr');
-        var ths = row.find('th');
+    function _addSubmitMouseControl(rowId) {
+        var submit = $('#'+rowId+' > th.submit');
+        submit.click(function() {
+            var selected_values = {};
+            var row = $(this).closest('tr');
+            var ths = row.find('th');
+            for(var i=0; i<ths.length; i++) {
+                var th = $(ths[i]);
+                var key = th.attr('class').split(' ')[1];
+                var value = th.data('db');
+                selected_values[key] = th.data('db');
+            }
+            selected_values['group_id'] = g.group_id;
+            selected_values['id'] = $(ths[0]).text();
+            delete selected_values['submit'];
+            delete selected_values['delete'];
 
-        $('#confirm-delete').on('show.bs.modal', function() {
-            var btnDelete = $('#confirm-delete').find('.btn.danger');
-            btnDelete.unbind("click");
-            btnDelete.click(function(e) {
-                e.preventDefault();
-                $('#confirm-delete').modal('hide');
-                
-                    var path_to_delete = DATA_URL+'/calendar/id/'+$(ths[0]).text();
-                    console.log('should call: '+path_to_delete);
-                    $.ajax({
-                        url: path_to_delete,
-                        type: 'DELETE',
-                        success: function() {
-                            onSuccess('Calendar timetable correctly deleted', false);
-                            row.remove();
-                        }
-                    });
+            sendToTheServer(selected_values);
+        });
+    }
+    
+    function _addDeleteMouseControlModal(rowId) {
+        var del = $('#'+rowId+' > th.delete');
+        del.click(function() {
+            var row = $(this).closest('tr');
+            var ths = row.find('th');
 
-                return false;
-            });
-        });       
-    });
+            $('#confirm-delete').on('show.bs.modal', function() {
+                var btnDelete = $('#confirm-delete').find('.btn.danger');
+                btnDelete.unbind("click");
+                btnDelete.click(function(e) {
+                    e.preventDefault();
+                    $('#confirm-delete').modal('hide');
+                    
+                    sendDeleteAjax( $(ths[0]).text(), row);
+                    return false;
+                });
+            });       
+        });
+    }
+
+    var rowId = _generateRowDOM(tableId);
+    _addDropdownMouseControls(rowId);
+    _addSubmitMouseControl(rowId);
+    _addDeleteMouseControlModal(rowId);
 
     return rowId;
 }
 
-function addDeleteModal(tr) {
-    var deleteTr = '';
-    deleteTr += '    <th class="calendar-row delete">';
-    deleteTr += '<a data-toggle="modal" data-target="#confirm-delete">';
-    deleteTr += '<span class="glyphicon glyphicon-trash"></span></a></th>';
-    return deleteTr;
+function sendDeleteAjax(calendar_id, row) {
+    var path_to_delete = DATA_URL+'/calendar/id/'+calendar_id;
+    $.ajax({
+        url: path_to_delete,
+        type: 'DELETE',
+        success: function() {
+            onSuccess('Calendar timetable correctly deleted', false);
+            row.remove();
+        }
+    });
+
 }
 
 function onSuccess(message, flagRefresh) {
@@ -239,7 +250,7 @@ function sendToTheServer(values) {
     });
 }
 
-function fillCalendarRow(rowId, g, c) {
+function fillCalendarRowFromJSON(rowId, g, c) {
 
     function setDropDownItem(cls, n) {
         var row = $('#'+rowId);
@@ -267,6 +278,7 @@ function fillCalendarRow(rowId, g, c) {
     setDropDownItem('ractive', ''+c.active);
 }
 
+//--------------------------------------------------------------- dropdown factory
 function getNodeDropdown(g, c) {
     var labels = [];
     var values = [];
@@ -274,13 +286,13 @@ function getNodeDropdown(g, c) {
         values.push(nodes[i].node_id);
         labels.push(nodes[i].node_id);
     }
-    return getDropdownFromJSON('gateway', labels, values);
+    return getDropdownDOM('gateway', labels, values);
 }
 
 function getDayDropdwon(g, c) {
     var labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     var values = labels;
-    return getDropdownFromJSON('Day', labels, values);
+    return getDropdownDOM('Day', labels, values);
 }
 
 function getHoursDropDown(g, c) {
@@ -303,17 +315,16 @@ function getHoursDropDown(g, c) {
         labels.push(hours + ':' + minutes + ' ' + ampm); 
     }
 
-    return getDropdownFromJSON('Start', labels, values);
+    return getDropdownDOM('Start', labels, values);
 }
 
-function getActive(g,c) {
+function getActiveDropdown(g,c) {
     var labels = ['Active', 'Inactive'];
     var values = [1,0];
-    return getDropdownFromJSON('Status', labels, values);
+    return getDropdownDOM('Status', labels, values);
 }
 
-function getDropdownFromJSON(title, labels, values) {
-    
+function getDropdownDOM(title, labels, values) {
     var html = 
         '<div class="dropdown">'+
         '  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">'+

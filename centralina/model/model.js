@@ -1,10 +1,10 @@
 // TODO: consistent names with tables, santodio
-// TODO: logging strategy!
 
 var dblite = require('dblite'),
     db = dblite(__dirname+'/db/database.db'),
     u = require(__dirname+'/../utils.js');
 
+//---------------------------------------------------------------------------- schema
 var UserSchema = {
     user_id: Number,
     username: String,
@@ -27,7 +27,8 @@ var NodeSchema = {
     current_ip: String,
     date_last_seen: Number,
     status: Number,
-    active: Number
+    active: Number,
+    type: String
 };
 
 var ReservationSchema = {
@@ -56,7 +57,11 @@ var CalendarSchema = {
     active: Number
 }
 
+var days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
 module.exports = {
+
+    //---------------------------------------------------------------------------- groups
     getGroups: function(callback) {
         var query = 'SELECT * FROM Groups';
         u.getLogger().db(query);
@@ -82,6 +87,9 @@ module.exports = {
             }
         });
     },
+
+    //---------------------------------------------------------------------------- users
+
     getUsers: function(callback) {
         var query = 'SELECT * FROM User';
         u.getLogger().db(query);
@@ -199,6 +207,46 @@ module.exports = {
             }
         });
     },
+    findUserByUsername: function (username, callback) {
+        var rowType = {
+            id: Number,
+            username: String,
+            group: String
+        };
+        var query = 'SELECT * FROM User WHERE username = "'+username+'";';
+        u.getLogger().db(query);
+
+        db.query(query, rowType, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > findUserByUsername: '+err);
+                callback(false);
+            } else {
+                console.log('model > findUserByUsername: '+rows[0]);
+                callback(rows[0]);
+            }
+        });
+    },
+    findUserById: function (user_id, callback) {
+        var rowType = {
+            id: Number,
+            salt: String,
+            group: String
+        };
+        var query = 'SELECT * FROM User WHERE user_id = "'+user_id+'";';
+        u.getLogger().db(query);
+
+        db.query(query, rowType, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > findUserById: '+err);
+                callback(false);
+            } else {
+                callback(rows[0]);
+            }
+        });
+    },
+
+    //---------------------------------------------------------------------------- tag
+
     addTag: function(user_id, type, value, callback) {
         var params = [user_id, type, value, 1]
                         .map(function(s){return '"'+s+'"';});
@@ -242,6 +290,52 @@ module.exports = {
             }
         });
     },
+
+    findUserByTagValue: function(tag_value, callback) {
+        var query = 'SELECT * FROM User WHERE user_id ='+
+                    '(SELECT user_id From Tag WHERE value = "'+tag_value+'")';
+        u.getLogger().db(query);
+
+        db.query(query, UserSchema, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > findUserByTagValue: '+err);
+                callback(false);
+            } else {
+                callback(rows);
+            }
+        });  
+    },
+
+    findTagByUsername: function(username, callback) {
+        var query = 'SELECT * FROM Tag WHERE user_id = '+
+                    '(SELECT user_id FROM User WHERE username="'+username+'");';
+        u.getLogger().db(query);
+
+        db.query(query, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > findTagByUsername: '+err);
+                callback(false);
+            } else {
+                callback(rows);
+            }
+        });
+    },
+    findTagById: function(id, callback) {
+        var query = 'SELECT * FROM Tag WHERE user_id = '+id+';';
+        u.getLogger().db(query);
+
+        db.query(query, TagSchema, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > findTagById: '+err);
+                callback(false);
+            } else {
+                callback(rows);
+            }
+        });
+    },
+
+    //---------------------------------------------------------------------------- machines
+
     getMachines: function(callback) {
         var query = 'SELECT * FROM Node';
         u.getLogger().db(query);
@@ -332,6 +426,9 @@ module.exports = {
             return;
         });
     },
+
+    //---------------------------------------------------------------------------- reservations
+
     getReservationById: function(id, callback) {
         var query = 'SELECT * FROM Reservation WHERE reservation_id='+id+';';
         u.getLogger().db(query);
@@ -407,7 +504,9 @@ module.exports = {
             }
         });
     },
-    modifyReservation: function(reservation_id, user_id, node_id, expected_start, actual_start, expected_duration, actual_duration, active, callback) {
+    modifyReservation: function(reservation_id, user_id, node_id, expected_start, 
+                                actual_start, expected_duration, actual_duration, 
+                                active, callback) {
 
         var query = 'UPDATE Reservation SET user_id="'+user_id+'"'+
                                          ', node_id='+node_id+
@@ -427,7 +526,9 @@ module.exports = {
             }
         });
     },
-    modifyOrInsertReservation: function(reservation_id, user_id, node_id, expected_start, actual_start, expected_duration, actual_duration, active, callback) {
+    modifyOrInsertReservation: function(reservation_id, user_id, node_id, expected_start, 
+                                        actual_start, expected_duration, actual_duration, 
+                                        active, callback) {
         var query = 'INSERT OR REPLACE INTO Reservation (reservation_id, '+
                                                         'user_id, '+
                                                         'node_id, '+
@@ -496,93 +597,7 @@ module.exports = {
             }
         });
     },
-    findUserByUsername: function (username, callback) {
-        var rowType = {
-            id: Number,
-            username: String,
-            group: String
-        };
-        var query = 'SELECT * FROM User WHERE username = "'+username+'";';
-        u.getLogger().db(query);
 
-        db.query(query, rowType, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > findUserByUsername: '+err);
-                callback(false);
-            } else {
-                console.log('model > findUserByUsername: '+rows[0]);
-                callback(rows[0]);
-            }
-        });
-    },
-    findUserById: function (user_id, callback) {
-        var rowType = {
-            id: Number,
-            salt: String,
-            group: String
-        };
-        var query = 'SELECT * FROM User WHERE user_id = "'+user_id+'";';
-        u.getLogger().db(query);
-
-        db.query(query, rowType, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > findUserById: '+err);
-                callback(false);
-            } else {
-                callback(rows[0]);
-            }
-        });
-    },
-    findTagByUsername: function(username, callback) {
-        var query = 'SELECT * FROM Tag WHERE user_id = '+
-                    '(SELECT user_id FROM User WHERE username="'+username+'");';
-        u.getLogger().db(query);
-
-        db.query(query, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > findTagByUsername: '+err);
-                callback(false);
-            } else {
-                callback(rows);
-            }
-        });
-    },
-    findTagById: function(id, callback) {
-        var query = 'SELECT * FROM Tag WHERE user_id = '+id+';';
-        u.getLogger().db(query);
-
-        db.query(query, TagSchema, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > findTagById: '+err);
-                callback(false);
-            } else {
-                callback(rows);
-            }
-        });
-    },
-    findUserByTagValue: function(tag_value, callback) {
-        var query = 'SELECT * FROM User WHERE user_id ='+
-                    '(SELECT user_id From Tag WHERE value = "'+tag_value+'")';
-        u.getLogger().db(query);
-
-        db.query(query, UserSchema, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > findUserByTagValue: '+err);
-                callback(false);
-            } else {
-                callback(rows);
-            }
-        });  
-    },
-    findLastTagInMachine: function(machine_id, callback) {
-
-    },
-    findMachineUsedMore: function(machine_id, callback) {
-
-    },
-    findAllReservationByUsername: function(username, callback) {
-
-    },
     askReservation: function(timestamp, tagValue, nodeId, callback) {
         var query = '';
         query = 'SELECT * FROM Reservation WHERE '+
@@ -596,24 +611,27 @@ module.exports = {
             if(err) {
                 //console.log('    > ERROR: '+err);
                 u.getLogger().error('models.js > askReservation > error: '+err);
-                callback(err, 'n'); 
+                callback('n'); 
             }
 
             switch(rows.length) {
                 case 0: 
                     console.log('    > NO, response: '+rows);
-                    callback(err, 'n'); 
+                    callback('n'); 
                     break;
                 case 1: 
                     console.log('    > YES, response: '+rows);
-                    callback(err, 'y'); 
+                    callback('y'); 
                     break;
                 default:
-                    callback(err, 'n');
+                    callback('n');
                     break;
             }
         });
     },
+
+    //---------------------------------------------------------------------------- calendar
+
     getCalendars: function(callback) {
         var query = '';
         query = 'SELECT * FROM Calendar;';
@@ -681,5 +699,25 @@ module.exports = {
                 callback(true);
             }
         });
+    },
+    askCalendar: function(group_id, node_id, now, callback) {
+        var d = new Date(now*1000),
+            dayOfTheWeek = days[d.getDay()],
+            stamp = d.getSeconds() + d.getMinutes()*60 + d.getHours()*3600;
+
+        var query = 'SELECT * FROM Calendar WHERE node_id='+node_id+' AND '+
+                                                 'group_id='+group_id+' AND '+
+                                                 'start < '+stamp+' AND '+
+                                                 'end > '+stamp+';';
+        u.getLogger().db(query);
+        
+        db.query(query, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > askCalendar: '+err);
+                callback(false);
+            } else {
+                callback( rows.length>0 );
+            }
+        })                                        
     }
 }

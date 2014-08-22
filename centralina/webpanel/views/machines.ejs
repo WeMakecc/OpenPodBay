@@ -25,7 +25,8 @@
                 <th>#</th>
                 <th>Ip</th>
                 <th>Last seen</th>
-                <th>status</th>
+                <th>Status</th>
+                <th>Type</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -49,14 +50,23 @@ $(document).ready(function() {
     });
 });
 
+function datePrettyPrint(n) {
+    var ret = '';
+    var d = new Date(n*1000);
+    ret = d.toLocaleString();
+    return ret;
+}
+
 function fillMachines(machines_path) {
     $.getJSON(machines_path, function(machines) { 
         machines.forEach(function(machine){
+            console.log(machine);
             var tr = '<tr>'+ 
                 '<th class="id">'+machine.node_id+'</th>'+
                 '<th class="ip">'+machine.current_ip+'</th>'+
-                '<th class="last_seen">'+machine.date_last_seen+'</th>'+
+                '<th class="last_seen">'+datePrettyPrint(machine.date_last_seen)+'</th>'+
                 '<th class="status">'+machine.status+'</th>'+
+                '<th class="status">'+machine.type+'</th>'+
                 '</tr>';
             $('#machinesList > tbody:last').append(tr);
         });
