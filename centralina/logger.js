@@ -11,35 +11,35 @@ function initLogger() {
     genericLogger = new (winston.Logger)({
         transports: [
           new (winston.transports.Console)(),
-          new (winston.transports.File)({ filename: './log/error.log' })
+          new (winston.transports.File)({ filename: __dirname+'/log/error.log' })
         ]
     });
 
     dbLogger = new (winston.Logger)({
         transports: [
           new (winston.transports.Console)(),
-          new (winston.transports.File)({ filename: './log/db.log' })
+          new (winston.transports.File)({ filename: __dirname+'/log/db.log' })
         ]
     });
 
     viewLogger = new (winston.Logger)({
         transports: [
           new (winston.transports.Console)(),
-          new (winston.transports.File)({ filename: './log/view.log' })
+          new (winston.transports.File)({ filename: __dirname+'/log/view.log' })
         ]
     });
 
     networkLogger = new (winston.Logger)({
         transports: [
           new (winston.transports.Console)(),
-          new (winston.transports.File)({ filename: './log/network.log' })
+          new (winston.transports.File)({ filename: __dirname+'/log/network.log' })
         ]
     });
 
     loginLogger = new (winston.Logger)({
         transports: [
           new (winston.transports.Console)(),
-          new (winston.transports.File)({ filename: './log/login.log' })
+          new (winston.transports.File)({ filename: __dirname+'/log/login.log' })
         ]
     });
 }
