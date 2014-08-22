@@ -247,8 +247,8 @@ module.exports = {
 
     //---------------------------------------------------------------------------- tag
 
-    addTag: function(user_id, type, value, callback) {
-        var params = [user_id, type, value, 1]
+    addTag: function(user_id, tag_type, tag_value, callback) {
+        var params = [user_id, tag_type, tag_value, 1]
                         .map(function(s){return '"'+s+'"';});
 
         var query = 'INSERT INTO "Tag" VALUES( (SELECT max(tag_id)+1 FROM "Tag"), '+params.join(', ')+');';
@@ -293,7 +293,7 @@ module.exports = {
 
     findUserByTagValue: function(tag_value, callback) {
         var query = 'SELECT * FROM User WHERE user_id ='+
-                    '(SELECT user_id From Tag WHERE value = "'+tag_value+'")';
+                    '(SELECT user_id From Tag WHERE value = "'+tag_value+'");';
         u.getLogger().db(query);
 
         db.query(query, UserSchema, function(err, rows) {
@@ -391,11 +391,11 @@ module.exports = {
     },
     // TODO: check on ip already exists
     // TODO: check on id already exists
-    modifyMachine: function(machine_id, current_ip, last_seen, status, active, callback) {
+    modifyMachine: function(machine_id, current_ip, last_seen, status, type, active, callback) {
         var query = 'INSERT OR REPLACE INTO '+
-                    'Node (node_id, current_ip, date_last_seen, status, active)'+
+                    'Node (node_id, current_ip, date_last_seen, status, type, active)'+
                     ' VALUES ('+machine_id+', "'+current_ip+'",'+
-                    last_seen+', '+status+', '+active+');';
+                    last_seen+', '+status+', "'+type+'", '+active+');';
 
         // var query = 'UPDATE Node SET current_ip="'+current_ip+'"'+
         //                           ', date_last_seen='+last_seen+

@@ -70,6 +70,16 @@ module.exports.setup = function(app){
         })
     });
 
+    app.post('/api/tag/add', authentication.ensureAuthenticated, function(req, res) {
+        var user_id = req.body.user_id,
+            tag_type = req.body.tag_type,
+            tag_value = req.body.tag_value;
+
+        model.addTag(user_id, tag_type, tag_value, function(_res) {
+            res.json(_res);
+        })
+    });
+
     app.get('/api/search-by-tag/:tag_value', authentication.ensureAuthenticated, function(req, res) {
         var tag_value = req.params.tag_value;
         model.findUserByTagValue(tag_value, function(_res) {

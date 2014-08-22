@@ -23,11 +23,22 @@ module.exports.setup = function(app){
             req.connection.socket.remoteAddress;
         var body = req.body;
 
-        model.modifyMachine(body.id, ip, u.getNow(), body.status, 1, function(result) {
+        var node_id = body.node_id,
+            type = body.type,
+            status = body.status;
+
+        if( !node_id || !type || !status ) {
+            u.getLogger().error('SERVICE > bad checkin request from '
+                                 +ip+': '+JSON.stringify(req.body));
+            res.send(200);
+            return;
+        }
+
+        model.modifyMachine(node_id, ip, u.getNow(), status, type, 1, function(result) {
             if(result == false) {
-                u.getLogger().error('SERVICE > parse node status '+body.id+' '+ip+' '+body.status);
+                u.getLogger().error('SERVICE > parse node status '+node_id+' '+ip+' '+status);
             } else {
-                u.getLogger().network('the machine #'+body.id+' at '+ip+' is alive with status: '+body.status);
+                u.getLogger().network('the machine #'+node_id+' at '+ip+' is alive with status: '+status);
             }
         });
 
@@ -37,8 +48,9 @@ module.exports.setup = function(app){
     function checkinNegate(res) {
         res.send('n').end(200);
     }
-    function checkinAccess(res) {
+    function checkinAccess(res, user_id, node_id, now) {
         res.send('y').end(200);
+        forwardCheckinToWordpress(user_id, node_id, now); //@    
     }
 
     app.post('/checkin', function(req,res) {
@@ -63,6 +75,7 @@ module.exports.setup = function(app){
             },
             function(callback){
                 model.findUserByTagValue(tag_id, function(result) {
+                    console.log(result);
                     if(result.length>0) {
                         callback(null, result);
                     } else {
@@ -103,7 +116,7 @@ module.exports.setup = function(app){
         //     model.askReservation(now, tagValue, nodeId, function(_res) {
         //         res.send(_res).status(200).end();
         //         if(_res=='y') {
-        //             forwardCheckinToWordpress(user_id, asset_id, actual_time_checkin); //@    
+        //             
         //         }
         //     });
         // });
@@ -140,7 +153,7 @@ module.exports.setup = function(app){
 
     function askCalendar(node, user, res) {
         model.askCalendar(user.group, node.node_id, u.getNow(), function(_res) {
-            if(_res) checkinAccess(res);
+            if(_res) checkinAccess(res, user.user_id, node.node_id, u.getNow());
             else checkinNegate(res);
         });
     }

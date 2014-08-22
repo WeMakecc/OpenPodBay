@@ -9,6 +9,8 @@
 <script type="text/javascript">
 
 function onClickSearch(e) {
+    e.preventDefault();
+
     var tag_value = $('#form-tag-value').val();
     if(!tag_value) {
         $('.control-group').addClass('has-error');
@@ -19,7 +21,7 @@ function onClickSearch(e) {
     }
 
     var users_path = '/api/search-by-tag/'+tag_value;
-    var users_list = new UsersList(DATA_URL);
+    var users_list = new UsersList(DATA_URL, users_path);
 
     return false;
 }

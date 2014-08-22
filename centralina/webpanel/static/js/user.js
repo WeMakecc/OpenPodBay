@@ -18,6 +18,7 @@ $(document).ready(function() {
         e.preventDefault();
     });
     $('#form-add-tag-submit').click(function(e) {
+        e.preventDefault();
         onClickAddTag(userId);
         return false;
     });
@@ -152,19 +153,20 @@ function modifyUserSucess(user_json) {
 //---------------------------------------------------------------------------- mtag
 
 function onClickAddTag(userId) {
-    var tagType = $('#tagType').val()
-      , tagValue = $('#tagValue').val();
+    var tagType = $('#form-tag-type').val()
+      , tagValue = $('#form-tag-value').val();
 
     var tag_json = {
-        'userId': userId,
-        'type': tagType,
-        'value': tagValue
+        'user_id': userId,
+        'tag_type': tagType,
+        'tag_value': tagValue
     };
     addTagAjax(tag_json);
     return false;
 }
 
 function addTagAjax(tag_json) {
+    console.log("add tag to user: ",JSON.stringify(tag_json));
     $.ajax({
         url: DATA_URL+'/tag/add', 
         type: "POST",
@@ -183,7 +185,7 @@ function addTagSuccess(tag_json) {
     $('#alerttt-placeholder').append(
         '<div id="alert-add-user-success" '+
         '     class="alert alert-success" '+
-        '     data-alert="alert" style="display:none; "> Tag '+tag_json.value+' correctly added</div>')
+        '     data-alert="alert" style="display:none; "> Tag '+tag_json.tag_value+' correctly added</div>')
     $('#alert-add-user-success').slideDown().fadeIn(function() {
         $("html, body").animate({ scrollTop: 0 }, "slow");
     });

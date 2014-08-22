@@ -1,13 +1,14 @@
 <script type="text/javascript">
 
-function UsersList(path) {
-    this.path_users = path+'/users';
+function UsersList(path, path_users) {
+    this.path_users = path_users;
     this.path_groups = path+'/groups';
     this.loadAjax();
 }
 
 UsersList.prototype.loadAjax = function() {
     var that = this;
+    console.log(this.path_users, this.path_groups);
 
     async.parallel(
         [
