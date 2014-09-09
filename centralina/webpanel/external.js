@@ -143,7 +143,7 @@ module.exports.setup = function(app){
                 model.modifyOrInsertUser(elements.user_id, elements.username, 
                                          elements.role, elements.status, 
                                          elements.credits, 1, function(result) {
-                    res.json( makeResponse(errors, true) );
+                    res.json( makeResponse(errors, result) );
                 });
             }
         });
@@ -178,7 +178,7 @@ module.exports.setup = function(app){
                                             -1, elements.duration,
                                             -1, 1,
                                             function(result) {
-                res.send( makeResponse(errors, true) );
+                res.send( makeResponse(errors, result) );
             });
         });
     });

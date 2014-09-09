@@ -62,6 +62,9 @@ var days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 
 module.exports = {
 
     //---------------------------------------------------------------------------- groups
+    //---------------------------------------------------------------------------- groups
+    //---------------------------------------------------------------------------- groups
+
     getGroups: function(callback) {
         var query = 'SELECT * FROM Groups';
         u.getLogger().db(query);
@@ -87,7 +90,22 @@ module.exports = {
             }
         });
     },
+    getGroup: function(groupname, callback) {
+        var query = 'SELECT * FROM Groups WHERE groupname ="'+groupname+'";';
+        u.getLogger().db(query);
 
+        db.query(query, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > getGroup: '+err);
+                callback(false);
+            } else {
+                callback(rows);
+            }
+        });
+    },
+
+    //---------------------------------------------------------------------------- users
+    //---------------------------------------------------------------------------- users
     //---------------------------------------------------------------------------- users
 
     getUsers: function(callback) {
@@ -175,23 +193,37 @@ module.exports = {
         });
     },
     modifyOrInsertUser: function(user_id, username, group, status, credits, active, callback) {
-        var query = 'INSERT OR REPLACE INTO User (user_id, username, groups, status, credits, active) '+
-                    'VALUES ( '+user_id+','
-                               +'"'+username+'"'+','
-                               +'"'+group+'"'+','
-                               +status+','
-                               +credits+','
-                               +active+');'
-        u.getLogger().db(query);
 
-        db.query(query, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > modifyOrInsertUser: '+err);
-                callback(false);
+        var that = this;
+
+        // first get the group, then update the user
+        that.getGroup(group, function(g) {
+            if(g.length==0) {
+                that.addGroup(group, _updateUser);
             } else {
-                callback(true);
+                _updateUser();
             }
-        });
+        })
+
+        function _updateUser() {
+            var query = 'INSERT OR REPLACE INTO User (user_id, username, group_id, status, credits, active) '+
+                        'VALUES ( '+user_id+','
+                                   +'"'+username+'"'+','
+                                   +'(SELECT group_id FROM Groups WHERE groupname="'+group+'")'+','
+                                   +status+','
+                                   +credits+','
+                                   +active+');'
+            u.getLogger().db(query);
+
+            db.query(query, function(err, rows) {
+                if(err) {
+                    u.getLogger().db('error','DB error: model.js > modifyOrInsertUser: '+err);
+                    callback(false);
+                } else {
+                    callback(true);
+                }
+            });
+        }
     },
     setUserName: function(id, username, callback) {
         var query = 'UPDATE User SET username="'+username+
@@ -245,6 +277,8 @@ module.exports = {
         });
     },
 
+    //---------------------------------------------------------------------------- tag
+    //---------------------------------------------------------------------------- tag
     //---------------------------------------------------------------------------- tag
 
     addTag: function(user_id, tag_type, tag_value, callback) {
@@ -334,6 +368,8 @@ module.exports = {
         });
     },
 
+    //---------------------------------------------------------------------------- machines
+    //---------------------------------------------------------------------------- machines
     //---------------------------------------------------------------------------- machines
 
     getMachines: function(callback) {
@@ -427,6 +463,8 @@ module.exports = {
         });
     },
 
+    //---------------------------------------------------------------------------- reservations
+    //---------------------------------------------------------------------------- reservations
     //---------------------------------------------------------------------------- reservations
 
     getReservationById: function(id, callback) {
@@ -630,6 +668,8 @@ module.exports = {
         });
     },
 
+    //---------------------------------------------------------------------------- calendar
+    //---------------------------------------------------------------------------- calendar
     //---------------------------------------------------------------------------- calendar
 
     getCalendars: function(callback) {

@@ -16,7 +16,7 @@ COMMIT;
 BEGIN TRANSACTION;
 CREATE TABLE Groups (
     group_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT
+    groupname TEXT
 );
 INSERT INTO Groups VALUES(0, 'admin');
 INSERT INTO Groups VALUES(1, 'user');
