@@ -1,5 +1,5 @@
 var rootPath = require('path').dirname(require.main.filename),
-    model = require(rootPath+'/model/model.js'),
+    model = require(rootPath+'/model'),
     u = require(rootPath+'/utils.js'),
     _ = require('underscore'),
     cript = require(rootPath+'/wordpress.js');
@@ -57,7 +57,7 @@ module.exports.setup = function(app){
     }
 
     function checkDeleteUser(res, query, _callback) {
-        var params_for_deleteuser = [query.role, query.username, query.status, query.credits, query.timestamp];
+        var params_for_deleteuser = [query.role, query.username, query.status, query.credits];
         var delete_user = _.every(params_for_deleteuser, function(n) {
             return n=='-1';
         });

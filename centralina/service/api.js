@@ -6,7 +6,7 @@ var bodyParser = require('body-parser'),
 
 var rootPath = require('path').dirname(require.main.filename),
     u = require(rootPath+'/utils.js'),
-    model = require(rootPath+'/model/model.js'),
+    model = require(rootPath+'/model'),
     config = require(rootPath+'/config');
 
 var cript = require(rootPath+'/wordpress.js');

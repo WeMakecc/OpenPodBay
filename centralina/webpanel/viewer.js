@@ -1,6 +1,6 @@
 var rootPath = require('path').dirname(require.main.filename),
     fs = require('fs'),
-    model = require(rootPath+'/model/model.js'),
+    model = require(rootPath+'/model'),
     u = require(rootPath+'/utils.js'),
     authentication = require('./authentication.js')
 
