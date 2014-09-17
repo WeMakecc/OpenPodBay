@@ -34,11 +34,16 @@ module.exports.setup = function(app){
             return;
         }
 
-        model.modifyMachine(node_id, ip, u.getNow(), status, type, 1, function(result) {
-            if(result == false) {
-                u.getLogger().error('SERVICE > parse node status '+node_id+' '+ip+' '+status);
+        model.getMachine(node_id, function(res) {
+            if(res.length!=0) {
+                model.modifyMachine(node_id, ip, u.getNow(), status, type, 1, function(result) {
+                    u.getLogger().network('the machine #'+node_id+' at '+ip+' is alive with status: '+status);
+                });
             } else {
-                u.getLogger().network('the machine #'+node_id+' at '+ip+' is alive with status: '+status);
+                var defaultLabel = type+node_id;
+                model.addMachine(node_id, ip, u.getNow(), status, type, 1, defaultLabel, function(result) {
+                   u.getLogger().network('the machine #'+node_id+' at '+ip+' is new with status: '+status); 
+                });
             }
         });
 

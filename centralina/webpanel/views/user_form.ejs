@@ -72,11 +72,14 @@ $(document).ready(function() {
 
 <form role="form">
     <div class="form-group">
-        <label for="form-user-name">Name:</label>
-        <input type="text" class="form-control" id="form-user-name" placeholder="Name">
+        <div>
+            <label for="form-user-name">Name:</label>
+            <input type="username" class="form-control" id="form-user-name" placeholder="Name">
+        </div>
 
         <br>
         <div class="dropdown" id="dropdown-group">
+            <label for="dropdownMenu1">Group:</label><br/>
             <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">Group
               <span class="caret"></span>
             </button>
@@ -84,16 +87,20 @@ $(document).ready(function() {
             </ul>
         </div>
 
-        <label class="checkbox" for="checkbox-user-active">
-            <input type="checkbox" value="" id="checkbox-user-active" data-toggle="checkbox">
-            Active
-        </label>
+        <div>
+            <label class="checkbox" for="checkbox-user-active">
+                <input type="checkbox" value="" id="checkbox-user-active" data-toggle="checkbox">
+                Active
+            </label>
+        </div>
 
         <div class="form-status-class">
+            <label for="form-status">Status:</label>
             <input type="text" class="form-control" id="form-status" placeholder="Status number">
         </div><br/>
 
         <div class="form-credits-class">
+            <label for="form-credits">Credits:</label>
             <input type="text" class="form-control" id="form-credits" placeholder="Credits number">
         </div>
 

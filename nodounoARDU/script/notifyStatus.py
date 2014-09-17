@@ -34,6 +34,6 @@ def notifyStatus(status, path):
         print 'n'
 
 if __name__ == "__main__":
-    #path = '/root/local.auth'
-    path = './local.auth'
+    path = '/root/local.auth'
+    #path = './local.auth'
     notifyStatus(sys.argv[1], path)

@@ -1,5 +1,8 @@
 <% include header.ejs %>
 
+<link href="/lib/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet">
+<script src="/lib/bootstrap3-editable/js/bootstrap-editable.js"></script>
+
 <script type="text/javascript">
     var DATA_URL = '<%= api_url %>';
     var VIEW_URL = '<%= resources_url %>';
@@ -27,6 +30,7 @@
                 <th>Last seen</th>
                 <th>Status</th>
                 <th>Type</th>
+                <th>Label</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -61,14 +65,23 @@ function fillMachines(machines_path) {
     $.getJSON(machines_path, function(machines) { 
         machines.forEach(function(machine){
             console.log(machine);
+            var url_to_update_label = DATA_URL + '/machines/label/'+machine.node_id;
             var tr = '<tr>'+ 
                 '<th class="id">'+machine.node_id+'</th>'+
                 '<th class="ip">'+machine.current_ip+'</th>'+
                 '<th class="last_seen">'+datePrettyPrint(machine.date_last_seen)+'</th>'+
                 '<th class="status">'+machine.status+'</th>'+
                 '<th class="status">'+machine.type+'</th>'+
+                '<th class="status">'+
+                '    <a href="#" id="machine_label'+machine.node_id+'"'+
+                '       data-type="text" '+
+                '       data-pk="'+machine.node_id+'" '+
+                '       data-url="'+url_to_update_label+'" '+
+                '       data-title="Enter label">'+machine.label+'</a>'
+                '</th>'+
                 '</tr>';
             $('#machinesList > tbody:last').append(tr);
+            $('#machine_label'+machine.node_id).editable();
         });
     });
 }

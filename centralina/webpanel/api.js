@@ -107,6 +107,24 @@ module.exports.setup = function(app){
         })
     });
 
+    app.get('/api/machines/gateway', authentication.ensureAuthenticated, function(req, res) {
+        model.getMachines(function(_res) {
+            gateways = _res.filter(function(machine) {
+                return machine.type=='gateway';
+            });
+            res.json(gateways);
+        })
+    });
+
+    app.post('/api/machines/label/:id', authentication.ensureAuthenticated, function(req, res) {
+        var id = req.params.id;
+        var label = req.body.value; // the field value is passed by x-editable plugin
+
+        model.setMachineLabel(id, label, function(_res) {
+            res.send(_res ? 200 : 404);
+        });
+    });
+
     app.get('/api/reservations', authentication.ensureAuthenticated, function(req, res) {
         model.getReservations(function(_res) {
             res.json(_res);
@@ -191,18 +209,30 @@ module.exports.setup = function(app){
     });
 
     app.post('/api/calendar/add', authentication.ensureAuthenticated, function(req, res) {
-        var calendar_id = req.body.id,
-            group_id = req.body.group_id,
-            node_id = req.body.node,
+        var group_id = req.body.group_id,
+            node_id = req.body.node_id,
             day = req.body.day,
             start = req.body.start,
-            end = req.body.end,
-            active = req.body.ractive;  
-        console.log(req.body);
+            end = req.body.end;
 
-        if(calendar_id=='') calendar_id='NULL';
+        model.addCalendar(group_id, node_id, day, start, end, function(_res) {
+            if(!_res) {
+                res.send(400);    
+            }
+            res.json(_res).end(200);
+        });
+    });
 
-        model.modifyOrInsertCalendar(calendar_id, group_id, node_id, day, start, end, active, function(_res) {
+    app.post('/api/calendar/modify', authentication.ensureAuthenticated, function(req, res) {
+        console.log('/api/calendar/modify', req.body);
+        var calendar_id = req.body.calendar_id,
+            group_id = req.body.group_id,
+            node_id = req.body.node_id,
+            day = req.body.day,
+            start = req.body.start,
+            end = req.body.end;
+
+        model.modifyCalendar(calendar_id, group_id, node_id, day, start, end, function(_res) {
             if(!_res) {
                 res.send(400);    
             }

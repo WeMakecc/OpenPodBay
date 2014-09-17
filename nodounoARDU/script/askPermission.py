@@ -34,6 +34,6 @@ def askPermission(tag, path):
         print 'n'
 
 if __name__ == "__main__":
-    #path = '/root/local.auth'
-    path = './local.auth'
+    path = '/root/local.auth'
+    #path = './local.auth'
     askPermission(sys.argv[1], path)

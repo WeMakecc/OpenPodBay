@@ -23,7 +23,8 @@ module.exports = {
         date_last_seen: Number,
         status: Number,
         active: Number,
-        type: String
+        type: String,
+        label:String
     },
 
     ReservationSchema : {
@@ -47,8 +48,8 @@ module.exports = {
         group_id: Number,
         node_id: Number,
         day: String,
-        start: Number,
-        end: Number,
+        start: String,
+        end: String,
         active: Number
     }
 

@@ -79,7 +79,7 @@ module.exports.setup = function(app) {
     });
 
     app.get('/calendar', authentication.ensureAuthenticated, function(req, res){
-        res.render('calendar_list.ejs', path('Calendar list', req));
+        res.render('calendar_list2.ejs', path('Calendar list', req));
     });
 
     //---------------------------------------------------------------- log viewer

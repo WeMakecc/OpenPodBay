@@ -1,0 +1,355 @@
+<% include header.ejs %>
+
+<script type="text/javascript">
+    var DATA_URL = '<%= api_url %>';
+    var VIEW_URL = '<%= resources_url %>';
+    $.ajaxSetup({ cache: false });
+</script>
+
+<link href='/lib/fullcalendar/fullcalendar.css' rel='stylesheet' />
+<link href='/lib/fullcalendar/fullcalendar.print.css' rel='stylesheet' media='print' />
+<script src='/lib/fullcalendar/moment.min.js'></script>
+<script src='/lib/fullcalendar/jquery-ui.custom.min.js'></script>
+<script src='/lib/fullcalendar/fullcalendar.min.js'></script>
+
+<div id="container">
+
+    <div class="modal fade" 
+        id="confirm-delete" 
+        tabindex="-1" 
+        role="dialog" 
+        aria-labelledby="myModalLabel" 
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" 
+                        class="close" 
+                        data-dismiss="modal" 
+                        aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" 
+                            id="myModalLabel">Confirm Delete</h4>
+                </div>
+
+                <div class="modal-body">
+                    <p>You are about to delete the calendar time-table, this procedure is irreversible.</p>
+                    <p>Do you want to proceed?</p>
+                    <p class="user-to-delete"></p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" 
+                        class="btn btn-default" 
+                        data-dismiss="modal">Cancel</button>
+                    <a id="the-delete-timetable-btn" href="" class="btn btn-danger danger">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="alerttt-placeholder"></div>
+    <div class="breadcrumbs">
+        <a href="/">Home</a> > <%= title %>
+    </div>
+    
+    <h1 class="page-header">Calendar list</h1>
+    <br/>
+    
+    <h4>Select Group</h4>
+    <div class="dropdown" id="dropdown-groups" >
+        <button class="btn btn-default dropdown-toggle" 
+                type="button" 
+                id="dropdown-groups-btn" 
+                data-toggle="dropdown">
+        Select a group
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdown-groups-btn">
+        </ul>
+    </div>
+    <hr>
+
+    <div id="c-container">
+        <div id="calendar"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+    loadGroupsIntoDropdown();
+});
+
+function loadGroupsIntoDropdown() {
+    $.getJSON(DATA_URL+'/groups', function( groups ) {
+        groups.forEach( function(g){
+            addDropdownItem(g);
+        } );
+    });
+}
+
+function addDropdownItem(g) {
+    var ul = $('#dropdown-groups > ul');
+    var li = '<li id="'+g.group_id+'" role="presentation"><a role="menuitem" tabindex="-1" href="#">'+
+             g.description+
+             '</a></li>';
+    ul.append(li);
+
+    $('#dropdown-groups > ul > #'+g.group_id).bind('click', function() {
+        $('#c-container').html('<div id="calendar"></div>');
+        loadGroupCalendar(g);
+    });
+}
+
+function loadGroupCalendar(g) {
+    async.parallel(
+    [
+        function(callback) {
+            $.getJSON(DATA_URL+'/calendar/'+g.group_id, function(data) {
+                callback(null, data);
+            });
+        }, 
+        function(callback) {
+            $.getJSON(DATA_URL+'/machines/gateway', function(data) {
+                callback(null, data);
+            });
+        }
+    ] , function(err, results) {
+        if(err) {
+            console.log('loadGroupCalendar > error, not handled, bye bye');
+            return;
+        }
+
+        var calendar = results[0];
+        var machines = results[1];
+
+        var events = makeEvents(calendar, machines);
+        initCalendar(g, events, machines);
+    });
+}
+
+function makeEvents(calendar, machines) {
+    var events = [];
+    // IMPORTANT: this is an hack do tue the fact the fullcalendar got no generic weeks so
+    // the particular week is considered starting from 2014-09-08
+    var days = {'Monday':'08', 'Tuesday':'09', 'Wednesday':'10', 
+                'Thursday':'11', 'Friday':'12', 'Saturday':'13', 'Sunday':'14'};
+    calendar.forEach(function(c) {
+
+        e = {};
+        e.id = c.calendar_id;
+
+        e.title = "undefined gateway";
+        for(var i=0; i<machines.length; i++) {
+            var m = machines[i];
+            if(m.node_id == c.node_id) {
+                e.title = m.label;
+                e.node_id = m.node_id;
+            }
+        }
+        
+        var d = '2014-09-'+days[c.day];
+        e.start = d+'T'+c.start;
+        e.end = d+'T'+c.end;
+        events.push(e);
+    });
+    return events;
+}
+
+function addGatewayList(g, machines) {
+    var s = '';
+    s += '<div id="external-events">';
+    s += '    <h4>Gateway list</h4>';
+    machines.forEach( function(m){
+        s += '    <div class="fc-event" ';
+        s += '         data-node_id='+m.node_id+' >';
+        s += '        '+m.label;
+        s += '    </div>';
+    } );
+    s += '</div><br><hr><h4>'+g.description+'</h4><br>';
+    $('#c-container').prepend(s);
+}
+
+function initCalendar(g, events, machines) {
+
+    addGatewayList(g, machines);
+
+    $('#external-events .fc-event').each(function() {
+        var eventObject = {
+            title: $.trim($(this).text()) // use the element's text as the event title
+        };
+        $(this).data('eventObject', eventObject);            
+        $(this).draggable({
+            zIndex: 999,
+            revert: true,      // will cause the event to go back to its
+            revertDuration: 0  //  original position after the drag
+        });
+    });
+
+    $('#calendar').fullCalendar({
+        header: false,
+        defaultDate: '2014-09-08',
+        defaultView: 'agendaWeek',
+        editable: true,
+        firstDay: 1,
+        eventLimit: true, // allow "more" link when too many events
+        allDaySlot: false,
+        droppable: true,
+        columnFormat: {
+            month: 'ddd',
+            week: 'ddd',
+            day: 'dddd M/d'
+        },
+        eventDrop: function( event, delta, revertFunc, jsEvent, ui, view ) {
+            modifyCalendar(event, g);
+        },
+        eventResize: function( event, delta, revertFunc, jsEvent, ui, view ) {
+            modifyCalendar(event, g);
+        },
+        eventClick: function (event, jsEvent, view) {           
+            console.log('delete event --', event);
+            deleteCalendar(event);
+        },
+        drop: function(date, jsEvent, ui) { // this function is called when something is dropped
+            addCalendarToServer(date, jsEvent, ui, g, this)
+        }
+    });
+    $('#calendar').fullCalendar('addEventSource', events);
+}
+
+function deleteCalendar(event) {
+
+    $('#confirm-delete').modal('show');
+
+    
+    var btnDelete = $('#confirm-delete').find('.btn.danger');
+    console.log(btnDelete);
+    btnDelete.unbind("click");
+    btnDelete.click(function(e) {
+        e.preventDefault();
+        $('#confirm-delete').modal('hide');
+        
+        sendDeleteAjax( event );    
+        
+        return false;
+    });
+ 
+}
+
+function sendDeleteAjax(event) {
+
+    $.ajax({
+        url: DATA_URL+'/calendar/id/'+event.id,
+        type: 'DELETE',
+        success: function(result) {
+            console.log('done delete');
+            $('#calendar').fullCalendar('removeEvents', event._id);
+        }
+    });
+}
+
+function addCalendarToServer(date, jsEvent, ui, g, that) {
+    var originalEventObject = $(that).data('eventObject');
+    var copiedEventObject = $.extend({}, originalEventObject);
+    copiedEventObject.start = date;
+    copiedEventObject.node_id = $(that).data('node_id');
+
+    var objectToServer = buildObjectToServer(copiedEventObject, '', g);
+
+    $.post( DATA_URL+'/calendar/add', objectToServer, function( data ) {
+
+        copiedEventObject.id = data[0];
+        $('#calendar').fullCalendar('renderEvent', copiedEventObject, true);
+        if ($('#drop-remove').is(':checked')) {
+            $(this).remove();
+        }
+    });
+}
+
+function buildObjectToServer(copiedEventObject, calendar_id, g) {
+    var objectToServer = {};
+    objectToServer.group_id = g.group_id,
+    objectToServer.node_id = copiedEventObject.node_id;
+    var days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    objectToServer.calendar_id = calendar_id;
+    objectToServer.day = days[copiedEventObject.start.day()-1];
+    objectToServer.start = paddy( copiedEventObject.start.hours(), 2)+':'+
+                           paddy( copiedEventObject.start.minutes(), 2)+':00';
+    if(calendar_id=='') {
+        // creating the object, 'end' property could not be set yet
+        objectToServer.end = paddy(copiedEventObject.start.hours() + 2, 2)+':'+
+                             paddy( copiedEventObject.start.minutes(), 2)+':00';
+    } else {
+        objectToServer.end = paddy(copiedEventObject.end.hours(), 2)+':'+
+                             paddy( copiedEventObject.end.minutes(), 2)+':00';
+    }
+    return objectToServer;
+}
+
+function modifyCalendar( event, g ) {
+
+    var objectToServer = buildObjectToServer(event, event.id, g);
+    console.log('modifyCalendar > ',objectToServer);
+
+    $.post( DATA_URL+'/calendar/modify', objectToServer, function( data ) {
+        console.log('done!');        
+    });
+}
+
+
+// some utils
+function paddy(n, p, c) {
+    var pad_char = typeof c !== 'undefined' ? c : '0';
+    var pad = new Array(1 + p).join(pad_char);
+    return (pad + n).slice(-pad.length);
+}
+
+</script>
+
+<style>
+
+    body {
+        margin: 40px 10px;
+        padding: 0;
+        font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+        font-size: 14px;
+    }
+
+    #calendar {
+        max-width: 900px;
+        width: 500px;
+        height: 1800px;
+        margin: 50px;
+    }
+
+    #external-events {
+        float: left;
+        width: 150px;
+        padding: 0 10px;
+        border: 1px solid #ccc;
+        background: #eee;
+        text-align: left;
+        margin: 50px;
+    }
+        
+    #external-events h4 {
+        font-size: 16px;
+        margin-top: 0;
+        padding-top: 1em;
+    }
+        
+    #external-events .fc-event {
+        margin: 10px 0;
+        cursor: pointer;
+    }
+        
+    #external-events p {
+        margin: 1.5em 0;
+        font-size: 11px;
+        color: #666;
+    }
+
+</style>
+
+<% include footer %>

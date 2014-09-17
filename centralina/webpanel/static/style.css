@@ -22,3 +22,12 @@ td.api {
     padding: 5px;
     min-width: 50px; 
 }
+
+/*-------------------------------- internal */
+.internal, .internal > a {
+    color: #999;
+}
+
+.notsync, .notsync > a {
+    color: #f0ad4e;
+}

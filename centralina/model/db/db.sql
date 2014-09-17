@@ -18,8 +18,9 @@ CREATE TABLE Groups (
     group_id INTEGER PRIMARY KEY AUTOINCREMENT,
     groupname TEXT
 );
-INSERT INTO Groups VALUES(0, 'admin');
-INSERT INTO Groups VALUES(1, 'user');
+INSERT INTO Groups VALUES(0, 'administrator');
+INSERT INTO Groups VALUES(1, 'member');
+INSERT INTO Groups VALUES(2, 'subscriber');
 COMMIT;
 
 -- SQL for Tag table
@@ -29,14 +30,10 @@ CREATE TABLE Tag(tag_id INTEGER PRIMARY KEY AUTOINCREMENT,
                  type TEXT,
                  value TEXT,
                  active INTEGER);
-INSERT INTO Tag VALUES(10, 0, 'MiFare classic', '_DD_78_90_11', 1);
-INSERT INTO Tag VALUES(11, 0, 'ATM badge', '_BB_05_79_39', 1);
-INSERT INTO Tag VALUES(12, 1, 'tessera wemake', '_FD_9E_F0_69', 1);
-INSERT INTO Tag VALUES(13, 2, 'MiFare classic', '_1D_7D_2A_3F', 1);
-INSERT INTO Tag VALUES(14, 2, 'ATM badge', '_07_BE_BA_16', 1);
-INSERT INTO Tag VALUES(16, 4, 'MiFare classic', '_07_BD_9F_18', 1);
-INSERT INTO Tag VALUES(17, 0, 'atm costantino', '_AE_8B_6C_FD', 1);
-INSERT INTO Tag VALUES(18, 1, 'tessera wemake', '_FD_A4_F3_69', 1);
+INSERT INTO Tag VALUES(10, 0, 'alberto wemake', '_FD_A4_F3_69', 1);
+INSERT INTO Tag VALUES(11, 1, 'ATM no sign', '_03_16_69_B5', 1);
+INSERT INTO Tag VALUES(12, 0, 'ATM costantino', '_AE_8B_6C_FD', 1);
+INSERT INTO Tag VALUES(13, 0, 'Ivan london', '_04_47_10_02_FC_2E_80', 1);
 COMMIT;
 
 BEGIN TRANSACTION;
@@ -45,9 +42,10 @@ CREATE TABLE Node(node_id INTEGER PRIMARY KEY AUTOINCREMENT,
                   date_last_seen INTEGER,
                   status INTEGER,
                   active INTEGER,
-                  type TEXT);
-INSERT INTO Node VALUES(3, '192.168.1.148', 1408565250, 0, 1, 'asset');
-INSERT INTO Node VALUES(8, '192.168.1.155', 1408565250, 0, 1, 'gateway');
+                  type TEXT,
+                  label TEXT);
+INSERT INTO Node VALUES(9, '192.168.1.148', 1408565250, 0, 1, 'gateway', 'porta ingresso');
+INSERT INTO Node VALUES(8, '192.168.1.155', 1408565250, 0, 1, 'asset', 'laserone');
 COMMIT;
 
 BEGIN TRANSACTION;
@@ -68,9 +66,14 @@ CREATE TABLE Calendar(calendar_id INTEGER PRIMARY KEY AUTOINCREMENT,
                       group_id INTEGER, 
                       node_id INTEGER, 
                       day TEXT,
-                      start INTEGER,
-                      end INTEGER,
+                      start TEXT,
+                      end TEXT,
                       active INTEGER);
-INSERT INTO Calendar VALUES(0, 0, 3, 'Monday', 36000, 64800, 1);
-INSERT INTO Calendar VALUES(1, 1, 3, 'Tuesday', 36000, 64800, 1);
+INSERT INTO Calendar VALUES(0, 0, 9, 'Monday', '06:00:00', '23:00:00', 1);
+INSERT INTO Calendar VALUES(1, 0, 9, 'Tuesday', '06:00:00', '23:00:00', 1);
+INSERT INTO Calendar VALUES(2, 0, 9, 'Wednesday', '06:00:00', '23:00:00', 1);
+INSERT INTO Calendar VALUES(3, 0, 9, 'Thursday', '06:00:00', '23:00:00', 1);
+INSERT INTO Calendar VALUES(4, 0, 9, 'Friday', '06:00:00', '23:00:00', 1);
+INSERT INTO Calendar VALUES(5, 0, 9, 'Saturday', '06:00:00', '23:00:00', 1);
+INSERT INTO Calendar VALUES(6, 0, 9, 'Sunday', '06:00:00', '23:00:00', 1);
 COMMIT;

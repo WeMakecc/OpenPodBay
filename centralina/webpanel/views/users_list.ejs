@@ -45,7 +45,7 @@ UsersList.prototype.loadAjax = function() {
 UsersList.prototype.fillUsers = function(users, groups) {
 
     function _partial_getUserControl() {
-        var s = '<a class="user_control delete"'+
+        var s = '<a class="user_control delete notsync"'+
                 '   data-toggle="modal" '+
                 '   data-target="#confirm-delete">'+
                 '       <span class="glyphicon glyphicon-trash"></span>'+
