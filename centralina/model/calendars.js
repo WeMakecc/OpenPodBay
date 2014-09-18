@@ -99,7 +99,7 @@ module.exports = function(super_module){
 
     super_module.askCalendar = function(group_id, node_id, now, callback) {
         var d = new Date(now*1000),
-            dayOfTheWeek = days[d.getDay()],
+            dayOfTheWeek = days[d.getDay()-1],
             stamp = d.getMinutes()*60 + d.getHours()*3600;
 
         var query = 'SELECT * FROM Calendar WHERE start<time("now") AND time("now")<end AND '+
