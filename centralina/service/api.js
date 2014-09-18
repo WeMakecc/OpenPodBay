@@ -73,7 +73,7 @@ module.exports.setup = function(app){
             checkinNegate(res);
             return;
         }
-        
+
         async.parallel([
             function(callback) {
                 callback(null, [ip, res]); // pass some additional argument to the async handler

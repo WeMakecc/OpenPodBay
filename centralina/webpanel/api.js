@@ -147,8 +147,9 @@ module.exports.setup = function(app){
     });
 
     app.get('/api/askTagToDeskNode', authentication.ensureAuthenticated, function(req, res) {
-        var deskNodeId = 3;
+        var deskNodeId = 8;
         model.getMachine(deskNodeId, function(_res) {
+
             var ip = _res[0].current_ip;
             
             var username = config.getNodesAuth()['username'];

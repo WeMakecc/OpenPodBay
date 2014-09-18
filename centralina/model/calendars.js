@@ -104,7 +104,8 @@ module.exports = function(super_module){
 
         var query = 'SELECT * FROM Calendar WHERE start<time("now") AND time("now")<end AND '+
                                                   'node_id='+node_id+' AND '+
-                                                  'group_id='+group_id+';';
+                                                  'group_id='+group_id+' AND '+
+                                                  'day="'+dayOfTheWeek+'";';
         u.getLogger().db(query);
         
         db.query(query, function(err, rows) {
