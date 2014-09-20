@@ -32,21 +32,23 @@ module.exports = function(super_module){
     };
 
     super_module.addUser = function(username, group, status, credits, callback) {
-
         var params = [username, group, status, credits, 1]
                         .map(function(s){return '"'+s+'"';});
 
         var query = 'INSERT INTO "User" VALUES( (SELECT max(user_id)+1 FROM "User"), '+params.join(', ')+');';
         u.getLogger().db(query);
 
-        db.query(query, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > addUser: '+err);
-                callback(false);
-            } else {
-                callback(true);
+        db.query('INSERT INTO "User" VALUES( (SELECT max(user_id)+1 FROM "User"), ?, ?, ?, ?, ?);'
+            , [username, group, status, credits, 1],
+            function(err, rows) {
+                if(err) {
+                    u.getLogger().db('error','DB error: model.js > addUser: '+err);
+                    callback(false);
+                } else {
+                    callback(true);
+                }
             }
-        });
+        );
     };
 
     super_module.deleteUserByUsername = function(username, callback) {
@@ -77,15 +79,35 @@ module.exports = function(super_module){
         });
     };
 
-    super_module.modifyUser = function(id, username, group, status, credits, active, callback) {
+    super_module.modifyUser = function(id, username, group_id, status, credits, active, callback) {
         var query = 'UPDATE User SET username="'+username+
-                                  '", group_id="'+group+
+                                  '", group_id="'+group_id+
                                   '", status="'+status+
                                   '", credits="'+credits+
                                   '", active="'+active+'" WHERE user_id='+id+';';
         u.getLogger().db(query);
 
-        db.query(query, function(err, rows) {
+        var querydata = {
+            user_id: id,
+            username: username,
+            group_id: group_id,
+            status: status,
+            credits: credits,
+            active: active
+        };
+        console.log(querydata);
+
+        db.query('UPDATE User SET username=$username, group_id=$group_id, status=$status, credits=$credits, active=$active '+
+                 'WHERE user_id=$user_id',
+        {
+            user_id: id,
+            username: username,
+            group_id: group_id,
+            status: status,
+            credits: credits,
+            active: active
+        }, 
+        function(err, rows) {
             if(err) {
                 u.getLogger().db('error','DB error: model.js > modifyUser: '+err);
                 callback(false);
@@ -118,7 +140,17 @@ module.exports = function(super_module){
                                    +active+');'
             u.getLogger().db(query);
 
-            db.query(query, function(err, rows) {
+            db.query(
+                'INSERT OR REPLACE INTO User (user_id, username, group_id, status, credits, active) ' +
+                'VALUES ($user_id, $username, (SELECT group_id FROM Groups WHERE groupname=$group), $status, $credits, $active)',
+                {
+                    user_id: user_id,
+                    username: username,
+                    group: group,
+                    status: status,
+                    credits: credits,
+                    active: active
+                }, function(err, rows) {
                 if(err) {
                     u.getLogger().db('error','DB error: model.js > modifyOrInsertUser: '+err);
                     callback(false);

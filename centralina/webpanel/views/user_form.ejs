@@ -3,7 +3,7 @@
 var _groups = null;
 
 function _retriveGroupId() {
-    var group_description = $('#dropdown-group .btn').text();
+    var group_description = $('#dropdown-group .btn').text().trim();
     for(g in _groups) {
         if(_groups[g].description===group_description)
             return g;
@@ -33,7 +33,7 @@ function fillUserForm(user_json) {
     var path = DATA_URL+'/groups';
     $.getJSON(path, function(groups) {
         var g = groups[user_json.group].description
-        $(".dropdown .btn").html(g + '<span class="caret"></span>')
+        $(".dropdown .btn").html(g + ' <span class="caret"></span>')
     });
 
     $('#form-user-name').val(user_json.username);
@@ -56,13 +56,11 @@ $(document).ready(function() {
                     '</a></li>';
             var r = $('#dropdown_ul').append(h);
             var l = r.children().last();
-            console.log(l);
 
             $(l).bind('click',function(e){
-                $("#dropdownMenu1:first-child")
-                    .html($(this).text() + '<span class="caret"></span>');
-                $("#dropdownMenu1:first-child").val($(this).text());
-                $("#dropDown").dropdown("toggle");
+                $("#dropdown-group .btn")
+                    .html($(this).text() + ' <span class="caret"></span>');
+                $("#dropdown-group:first-child").val($(this).text());
             });
         });
     });
