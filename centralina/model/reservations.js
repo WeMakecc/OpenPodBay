@@ -14,6 +14,7 @@ module.exports = function(super_module){
             if(err) {
                 u.getLogger().db('error','DB error: model.js > getReservationByID: '+err);
                 callback([]);
+                return;
             }
             //console.log(rows);
             callback(rows);
@@ -28,6 +29,7 @@ module.exports = function(super_module){
             if(err) {
                 u.getLogger().db('error','DB error: model.js > getReservations: '+err);
                 callback([]);
+                return;
             }
             //console.log(rows);
             callback(rows);
@@ -197,6 +199,7 @@ module.exports = function(super_module){
                 //console.log('    > ERROR: '+err);
                 u.getLogger().error('models.js > askReservation > error: '+err);
                 callback('n'); 
+                return;
             }
 
             switch(rows.length) {

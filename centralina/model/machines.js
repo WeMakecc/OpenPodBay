@@ -13,6 +13,7 @@ module.exports = function(super_module){
             if(err) {
                 u.getLogger().db('error','DB error: model.js > getMachines: '+err);
                 callback([]);
+                return;
             }
             callback(rows);
         })
@@ -28,6 +29,7 @@ module.exports = function(super_module){
             if(err) {
                 u.getLogger().db('error','DB error: model.js > addMachine: '+err);
                 callback(true);
+                return;
             }
             callback(false);
         });
@@ -42,6 +44,7 @@ module.exports = function(super_module){
             if(err) {
                 u.getLogger().db('error','DB error: model.js > getMachine: '+err);
                 callback([]);
+                return;
             }
             callback(rows);
         })        

@@ -16,6 +16,7 @@ module.exports = function(super_module){
             if(err) {
                 u.getLogger().db('error','DB error: model.js > getCalendars: '+err);
                 callback([]);
+                return;
             }
             callback(rows);
         });
@@ -30,6 +31,7 @@ module.exports = function(super_module){
             if(err) {
                 u.getLogger().db('error','DB error: model.js > getCalendar: '+err);
                 callback([]);
+                return;
             }
             callback(rows);
         });
@@ -51,6 +53,7 @@ module.exports = function(super_module){
             if(err) {
                 u.getLogger().db('error','DB error: model.js > addCalendar: '+err);
                 callback(-1);
+                return;
             } else {
                 var _query = 'SELECT calendar_id FROM "Calendar" WHERE calendar_id=(SELECT max(calendar_id) FROM "Calendar");'
                 db.query(_query, function(_err, _rows) {

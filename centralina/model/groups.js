@@ -17,6 +17,7 @@ module.exports = function(super_module){
             if(err) {
                 u.getLogger().db('error','DB error: model.js > getGroups: '+err);
                 callback([]);
+                return;
             }
             callback(rows);
         })
