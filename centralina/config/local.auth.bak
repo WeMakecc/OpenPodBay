@@ -1,0 +1,6 @@
+{
+    "username": "centralina",
+    "password": "password_for_both_webpaneladmin_and_for_arduinos",
+    "portWebpanel": 5000,
+    "portService": 5001
+}
