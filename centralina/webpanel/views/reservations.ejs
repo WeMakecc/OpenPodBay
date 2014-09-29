@@ -6,6 +6,9 @@
     $.ajaxSetup({ cache: false });
 </script>
 
+<script type="text/javascript" src="/lib/moment.min.js"></script>
+<script type="text/javascript" src="/lib/moment-timezone-with-data.min.js"></script>
+
 <div id="container">
     <div id="alerttt-placeholder"></div>
     <div class="breadcrumbs">
@@ -43,13 +46,12 @@ function fillReservations(path) {
             console.log(r);
             var durationSecond = r.expected_duration;
             var durationDate = new Date(durationSecond*1000)
-              , durationH = durationDate.getHours()
-              , durationM = durationDate.getMinutes()
+              , durationH = durationDate.getUTCHours()
+              , durationM = durationDate.getUTCMinutes()
               , duration = durationH +'h '+durationM+'m';
 
             var startSeconds = r.expected_start;
-            var startDate = new Date(startSeconds*1000)
-              , start = startDate.toUTCString();
+            var start = moment.unix(startSeconds).tz("Europe/Rome").format("YYYY-MM-DD hh:mm");
 
             var tr = '<tr>'+
                      '    <th>'+r.reservation_id+'</th>'+

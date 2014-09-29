@@ -28,7 +28,7 @@ def askPermission(tag, path):
                            data = json_checkin )
 
     try:
-        f = urllib2.urlopen(req)
+        f = urllib2.urlopen(req, timeout=5)
         print f.read()
     except Exception as e:
         print 'n'

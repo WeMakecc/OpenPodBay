@@ -31,3 +31,9 @@ td.api {
 .notsync, .notsync > a {
     color: #f0ad4e;
 }
+
+.btn-notsync {
+    color: #fff;
+    background-color: #f0ad4e;
+    border-color: #f0ad4e;
+}

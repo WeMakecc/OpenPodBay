@@ -8,8 +8,8 @@ CREATE TABLE User (
     credits INTEGER,
     active INTEGER
 );
-INSERT INTO User VALUES(0, 'admin', 0, 5, 0, 1);
-INSERT INTO User VALUES(1, 'user', 1, 5, 0, 1);
+INSERT INTO User VALUES(0, 'Bob', 0, 5, 0, 1);
+INSERT INTO User VALUES(1, 'Alice', 1, 5, 0, 1);
 COMMIT;
 
 -- SQL for Group table
@@ -20,7 +20,6 @@ CREATE TABLE Groups (
 );
 INSERT INTO Groups VALUES(0, 'administrator');
 INSERT INTO Groups VALUES(1, 'member');
-INSERT INTO Groups VALUES(2, 'subscriber');
 COMMIT;
 
 -- SQL for Tag table
@@ -44,7 +43,7 @@ CREATE TABLE Node(node_id INTEGER PRIMARY KEY AUTOINCREMENT,
                   active INTEGER,
                   type TEXT,
                   label TEXT);
-INSERT INTO Node VALUES(9, '192.168.1.148', 1408565250, 0, 1, 'gateway', 'porta ingresso');
+INSERT INTO Node VALUES(7, '192.168.1.148', 1408565250, 0, 1, 'gateway', 'porta ingresso');
 INSERT INTO Node VALUES(8, '192.168.1.155', 1408565250, 0, 1, 'asset', 'laserone');
 COMMIT;
 
@@ -57,8 +56,8 @@ CREATE TABLE Reservation(reservation_id INTEGER PRIMARY KEY AUTOINCREMENT,
                          expected_duration INTEGER,
                          actual_duration INTEGER,
                          active INTEGER);
-INSERT INTO Reservation VALUES(0, 1, 8, 1404905078, 1404905078, 7200, 7200, 1);
-INSERT INTO Reservation VALUES(1, 1, 8, 1404905078, 1404905085, 7200, 7200, 1);
+INSERT INTO Reservation VALUES(0, 1, 8, 1404905078, 120, 7200, 7200, 1);
+INSERT INTO Reservation VALUES(1, 1, 8, 1404905078, 120, 7200, 7200, 1);
 COMMIT;
 
 BEGIN TRANSACTION;

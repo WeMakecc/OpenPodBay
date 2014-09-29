@@ -1,6 +1,8 @@
 logger = require('./logger.js');
 
 module.exports = {
+
+    /* get now in second (unix timestamp) */
     getNow: function() {
         return Math.round(+new Date()/1000);
     },

@@ -1,8 +1,8 @@
-![MacDown logo](http://macdown.uranusjr.com/static/base/img/logo-160.png)
 
 *Open the pod bay doors, please, HAL. Open the pod bay doors, please, HAL.*
+# Open pod bay door
 
-## Open pod bay door
+## Intro
 
 Pod bay door is an opensource access control system designed and developed at [wemake.cc](http://wemake.cc), a makerspace in Miland, Italy.
 
@@ -40,7 +40,11 @@ You'll gonna find a README in (almost) each of the directory.
 
 Internet of things is about networked objects and during the development of this project the network represented a big issue, of course. We have to say that Arduino YUN, even if we are thinking that it is one of the best choices for such type of projects, is not bomb proof when you're talking about wirless connection stability. For debugging this problem we have implemented a **discovery/notification system** where the clients periodically pings the server. We have tried to use Bonjour/Zeroconf protocol, that is great for discovery but not as good for status notification so we choose to implement our own system.
 
-Moreover, the web-dev is a very fast road and things are growing very fast. We are not updated to the latest technology ever. We are aware of this. If you want to collaborate with us forking the repository and try to add one of the new MVC frameworks so popular right now.. we are happy if someone wants to join us in the development!
+Moreover, the web-dev is an highway and things are growing very fast. We are not updated to the latest technology ever. We are aware of this. If you want to collaborate with us forking the repository and try to add one of the new MVC frameworks so popular right now.. we are happy if someone wants to join us in the development!
+
+The frontend is tested only on Chrome and we decided to not care about any kind of browser cross-compatibility.
+
+
 
 ## Greetings
 

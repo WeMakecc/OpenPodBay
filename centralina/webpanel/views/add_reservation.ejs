@@ -1,69 +1,105 @@
 <% include header.ejs %>
 
 <script type="text/javascript">
-    var DATA_URL = '<%= api_url %>';
-    var VIEW_URL = '<%= resources_url %>';
-    $.ajaxSetup({ cache: false });
+    
+var DATA_URL = '<%= api_url %>';
+var VIEW_URL = '<%= resources_url %>';
+$.ajaxSetup({ cache: false });
 
-    $( document ).ready(function() {
-        $('#datetimepicker-start').datetimepicker();
-        $('#datetimepicker-end').datetimepicker();
+$( document ).ready(function() {
+    $('#datetimepicker-start').datetimepicker();
+    $('#datetimepicker-end').datetimepicker();
 
-        $('#form-add-reservation').click(function(e) {
+    $('#form-add-reservation').click(function(e) {
+        e.preventDefault();
+        var user_id = $('#form-user-id').val();
+        var asset_id = $("#dropdownAsset.btn").data('value-id');
+        var start_time = $('#datetimepicker-start').data("DateTimePicker").getDate();
+        var end_time = $('#datetimepicker-end').data("DateTimePicker").getDate();
+        var duration = end_time.diff(start_time, 'seconds');
 
-            e.preventDefault();
-            var user_id = $('#form-user-id').val();
-            var asset_id = $('#form-asset-id').val();
-            var start_time = $('#datetimepicker-start').data("DateTimePicker").getDate();
-            var end_time = $('#datetimepicker-end').data("DateTimePicker").getDate();
-            var duration = end_time.diff(start_time, 'seconds');
+        var reservationJson = {
+            userId: user_id,
+            assetId: asset_id,
+            start: start_time.unix(),
+            duration: duration
+        };
 
-            var reservationJson = {
-                userId: user_id,
-                assetId: asset_id,
-                start: start_time.unix(),
-                duration: duration
-            };
-            
-            addReservation(reservationJson);
-            
-            return false;
-        });
+        addReservation(reservationJson);
+        
+        return false;
     });
 
-    function addReservation(reservationJson) {
-        $.ajax({
-            url: DATA_URL+'/reservations/add', 
-            type: "POST",
-            data: reservationJson,
-            success: function(data, textStatus, jqXHR) { 
-                console.log("POST resposne:"); 
-                console.log(data, textStatus, jqXHR);
-                // TODO: modal appear
-               addReservationSuccess(data);
-            },
-            error: function(a,e,o) {
-                console.log(a,e,o);
-            }
+    $('#default-reservation').click(function(e) {
+        console.log('call ajax');
+        $.get( "/api/reservation/foralldays", function( data ) {
+            console.log('success');
         });
-    }
+        return false;
+    });
 
-    function addReservationSuccess(data) {
-        var id = data;
-        $('#alerttt-placeholder').append(
-            '<div id="'+id+'"'+
-            '    class="alert alert-success" '+
-            '     data-alert="alert" style="display:none; "> Reservation correctly added</div>');
-        $('#'+id).slideDown().fadeIn();
+    fillAssetDropdown();
+});
 
-        setTimeout(function() {
-            $('#'+id).fadeTo('slow', 0.00, function(){ //fade
-                 $(this).slideUp('slow', function() { //slide up
-                     $(this).remove(); //then remove from the DOM
-                 });
+function fillAssetDropdown() {
+
+    var path = DATA_URL+'/machines/asset';
+    $.getJSON(path, function(assets) {
+        assets.forEach(function(asset) {
+
+            console.log(asset);
+            var g = asset.label;
+            var h = '<li role="presentation">'+
+                    '<a role="menuitem" tabindex="-1" href="#" data-value-id='+asset.node_id+'>'+g
+                    '</a></li>';
+            var r = $('#dropdown_ul').append(h);
+            var l = r.children().last();
+
+            $(l).bind('click',function(e){
+                var node_id = l.find('a').data('value-id');
+                $("#dropdownAsset.btn")
+                    .html($(this).text() + ' <span class="caret"></span>');
+                $("#dropdownAsset.btn").data('value-id', node_id);
+                $("#dropdownAsset:first-child").val($(this).text());
+            });
+        });
+        
+    });
+}
+
+function addReservation(reservationJson) {
+    $.ajax({
+        url: DATA_URL+'/reservations/add', 
+        type: "POST",
+        data: reservationJson,
+        success: function(data, textStatus, jqXHR) { 
+            console.log("POST resposne:"); 
+            console.log(data, textStatus, jqXHR);
+            // TODO: modal appear
+           addReservationSuccess(data);
+        },
+        error: function(a,e,o) {
+            console.log(a,e,o);
+        }
+    });
+}
+
+function addReservationSuccess(data) {
+    var id = data;
+    $('#alerttt-placeholder').append(
+        '<div id="'+id+'"'+
+        '    class="alert alert-success" '+
+        '     data-alert="alert" style="display:none; "> Reservation correctly added</div>');
+    $('#'+id).slideDown().fadeIn();
+
+    setTimeout(function() {
+        $('#'+id).fadeTo('slow', 0.00, function(){ //fade
+             $(this).slideUp('slow', function() { //slide up
+                 $(this).remove(); //then remove from the DOM
              });
-        }, 3000);
-    }
+         });
+    }, 3000);
+}
 
 </script>
 
@@ -72,7 +108,7 @@
     <div class="breadcrumbs">
         <a href="/">Home</a> > <%= title %>
     </div>
-    <h1 class="page-header notsync" id="page-header-title">Add a new reservation</h1>
+    <h1 class="page-header notsync" id="page-header-title" >Add a new reservation</h1>
 
     <script src="<%= resources_url %>/lib/datetimepicker/moment-locale.js"></script>
     <script src="<%= resources_url %>/lib/datetimepicker/bootstrap-datetimepicker.min.js"></script>
@@ -80,13 +116,26 @@
 
     <div>
         <div class="form-group">
+            <button id="default-reservation" class="btn btn-notsync" id="form-user-submit">Default reservation</button>
+            <br/>
+        </div>
+
+        <div class="form-group">
             <label for="form-user-id">User id</label>
             <input type="text" class="form-control" id="form-user-id" placeholder="1">
         </div>
+
         <div class="form-group">
-            <label for="form-asset-id">Asset id</label>
-            <input type="text" class="form-control" id="form-asset-id" placeholder="1">
+            <div class="dropdown" id="dropdown-asset">
+                <label for="dropdownAsset">Group:</label><br/>
+                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownAsset" data-toggle="dropdown">Asset
+                  <span class="caret"></span>
+                </button>
+                <ul id="dropdown_ul" class="dropdown-menu" role="menu" aria-labelledby="dropdownAsset">
+                </ul>
+            </div>
         </div>
+
         <div class="form-group">
             <label for="datetimepicker-start">Expected Start</label>
 
@@ -110,7 +159,7 @@
         </div>
         
         <form role="form">
-            <button type="submit" class="btn btn-warning" id="form-add-reservation" click="return false">Add reservation</button>
+            <button type="submit" class="btn btn-notsync" id="form-add-reservation" click="return false">Add reservation</button>
         </form>
 
     </div>

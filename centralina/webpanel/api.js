@@ -116,6 +116,15 @@ module.exports.setup = function(app){
         })
     });
 
+    app.get('/api/machines/asset', authentication.ensureAuthenticated, function(req, res) {
+        model.getMachines(function(_res) {
+            assets = _res.filter(function(machine) {
+                return machine.type=='asset';
+            });
+            res.json(assets);
+        });
+    });
+
     app.post('/api/machines/label/:id', authentication.ensureAuthenticated, function(req, res) {
         var id = req.params.id;
         var label = req.body.value; // the field value is passed by x-editable plugin
@@ -131,6 +140,56 @@ module.exports.setup = function(app){
         })
     });
 
+    app.get('/api/reservation/default', authentication.ensureAuthenticated, function(req, res) {
+        console.log('make default reservation');
+
+        var user_id = 0,
+            asset_id = 8,
+            start_time = u.getNow()+60,
+            duration = 60*2*10;
+
+        model.addReservation(user_id, asset_id, start_time, duration, function(_res) {
+            console.log('api.js > /api/reservations/default > '+_res);
+            if(!_res) {
+                res.json(_res).end(400);    
+            }
+            res.json(_res).end(200);
+        });
+
+        var internal = require(rootPath+'/service/internal');
+        internal.checkAssetReservations();
+
+        res.send(200);
+    });
+
+    app.get('/api/reservation/foralldays', authentication.ensureAuthenticated, function(req, res) {
+        console.log('make some reservations for all the day long');
+
+        var now = new Date();
+        var startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        var timestamp = startOfDay / 1000;
+
+        for(var i=0; i<200; i++) {
+            var user_id = 0,
+                asset_id = 8,
+                start_time = timestamp + 9*60*60 + i*4*60,
+                duration = 60*3;
+
+            model.addReservation(user_id, asset_id, start_time, duration, function(_res) {
+                console.log('api.js > /api/reservations/default > '+_res);
+                if(!_res) {
+                    res.status(404);    
+                }
+                res.json(_res).end(200);
+            });
+
+            var internal = require(rootPath+'/service/internal');
+            internal.checkAssetReservations();
+        }
+
+        res.send(200);
+    });
+
     app.post('/api/reservations/add', authentication.ensureAuthenticated, function(req, res) {
         var user_id = req.body.userId,
             asset_id = req.body.assetId,
@@ -138,12 +197,11 @@ module.exports.setup = function(app){
             duration = req.body.duration;
 
         model.addReservation(user_id, asset_id, start_time, duration, function(_res) {
-            console.log('api.js > /api/reservations/add > '+_res);
-            if(!_res) {
-                res.json(_res).end(400);    
+            if(_res==false) {
+                res.status(404);
             }
             res.json(_res).end(200);
-        })
+        });
     });
 
     app.get('/api/askTagToDeskNode', authentication.ensureAuthenticated, function(req, res) {

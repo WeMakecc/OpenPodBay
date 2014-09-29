@@ -5,6 +5,20 @@ var dblite = require('dblite'),
 
 module.exports = function(super_module){
 
+    super_module.getReservationsByStarttime = function(start, callback) {
+        var query = 'SELECT * FROM Reservation WHERE (expected_start-60 < '+start+' AND '+start+' < expected_start+60 AND active=0);';
+        u.getLogger().db(query);
+
+        db.query(query, schema.ReservationSchema, function(err, rows) {
+            if(err) {
+                u.getLogger().db('error','DB error: model.js > getReservationsByStarttime: '+err);
+                callback([]);
+                return;
+            }
+            //console.log(rows);
+            callback(rows);
+        });
+    };
 
     super_module.getReservationById = function(id, callback) {
         var query = 'SELECT * FROM Reservation WHERE reservation_id='+id+';';
@@ -40,6 +54,7 @@ module.exports = function(super_module){
     // TODO: check node exists
     // TODO: check start is valid start time (in the future)
     // TODO: check expected duretion is valid duration time (in hours)
+    /* expected_start, expected_duration in second */
     super_module.addReservation = function(user_id, node_id, expected_start, expected_duration, callback) {
         var params = [
             parseInt(user_id), 
@@ -185,15 +200,15 @@ module.exports = function(super_module){
         });
     };
 
-    super_module.askReservation = function(timestamp, tagValue, nodeId, callback) {
+    super_module.askReservation = function(timestamp, userId, nodeId, callback) {
         var query = '';
         query = 'SELECT * FROM Reservation WHERE '+
-                '("'+timestamp+'" BETWEEN expected_start AND (expected_start+expected_duration)) AND'+
-                ' User_Id = (SELECT User_Id FROM Tag WHERE Value="'+tagValue+'") AND'+
-                ' Node_Id = "'+nodeId+'";'
+                '('+timestamp+' BETWEEN expected_start AND (expected_start+expected_duration)) AND'+
+                ' User_Id = '+userId+' AND'+
+                ' Node_Id = '+nodeId+';'
         u.getLogger().db(query);
         
-        db.query(query, function(err, rows) {
+        db.query(query, schema.ReservationSchema, function(err, rows) {
             
             if(err) {
                 //console.log('    > ERROR: '+err);
@@ -204,16 +219,35 @@ module.exports = function(super_module){
 
             switch(rows.length) {
                 case 0: 
-                    console.log('    > NO, response: '+rows);
+                    console.log('    > NO, response: ', rows);
                     callback('n'); 
                     break;
                 case 1: 
-                    console.log('    > YES, response: '+rows);
+                    console.log('    > YES, response: ', rows);
                     callback('y'); 
                     break;
                 default:
                     callback('n');
                     break;
+            }
+        });
+    };
+
+    super_module.askCurrentReservations = function(timestamp, callback) {
+        var query = '';
+        query = 'SELECT * FROM Reservation WHERE '+
+                '('+timestamp+' BETWEEN expected_start AND (expected_start+expected_duration));';
+        u.getLogger().db(query);
+        
+        db.query(query, schema.ReservationSchema, function(err, rows) {
+            
+            if(err) {
+                //console.log('    > ERROR: '+err);
+                u.getLogger().error('models.js > askReservation > error: '+err);
+                callback([]); 
+                return;
+            } else {
+                callback(rows);
             }
         });
     };

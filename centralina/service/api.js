@@ -146,6 +146,7 @@ module.exports.setup = function(app){
         switch (node.type) {
             case 'asset': 
                 console.log('ask reservation');
+                askReservation(node, user, res);
                 break;
             case 'gateway':
                 askCalendar(node, user, res);
@@ -154,6 +155,19 @@ module.exports.setup = function(app){
                 u.getLogger().error('SERVICE > checkin request from '+ip+' #'+node_id+':'+node.type+' but type is not recognized.');
                 break;
             }
+    }
+
+    function askReservation(node, user, res) {
+        model.askReservation(u.getNow(), user.user_id, node.node_id, function(_res) {
+            console.log('dudee ', _res);
+            if(_res=='n') {
+                console.log('nope');
+                res.send('n').end(200);
+            } else {
+                console.log('yope');
+                res.send('y60').end(200);
+            }
+        });
     }
 
     function askCalendar(node, user, res) {
