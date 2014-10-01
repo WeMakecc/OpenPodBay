@@ -6,11 +6,9 @@ void serveIncomingRequest() {
     Serial.println(F("incoming connection"));
     Serial.println(command);
     command.trim();
-    if(command == "doortick") {
-      doTheCheckIn();
-      client.println(F("Status:200"));
-      
-    } else if(command == "reserved") {
+    
+    // command to move the arduino in STATUS_RESERVED mode
+    if(command == "reserved") {
       String timeString = getTrimValue(url, '/', 1);
       char tarray[100]; 
       timeString.toCharArray(tarray, sizeof(tarray));
@@ -25,7 +23,6 @@ void serveIncomingRequest() {
   delay(50);
 }
 
-Process askPermissionProcess;
 void askPermission() {
   Serial.println(F("askPermission: "));  
   
@@ -33,7 +30,6 @@ void askPermission() {
   askPermissionProcess.addParameter(F("/root/askPermission.py"));
   askPermissionProcess.addParameter(uidString);
   askPermissionProcess.run();
-
 
   const int COMMAND_NONE = 0;
   const int COMMAND_N = 1;
@@ -55,11 +51,11 @@ void askPermission() {
     }
     
     if(command==COMMAND_NONE && c=='n') {
-      Serial.println("Command is N");
+      Serial.println("N");
       command = COMMAND_N;
       displayAccessDenied();
     } else if(command==COMMAND_NONE && c=='y') {
-      Serial.println("Command is Y");
+      Serial.println("Y");
       command = COMMAND_Y;
     }
   }
@@ -72,21 +68,11 @@ void askPermission() {
   Serial.println();
 }
 
-void displayAccessDenied() {
-  Serial.println("\ndisplayAccessDenied");
-  for(int i=0; i<3; i++) {
-    digitalWrite(pinRed, LOW);
-    delay(100);
-    digitalWrite(pinRed, HIGH);
-    delay(100);
-  } digitalWrite(pinRed, LOW);
-}
-
-Process notifyServerProcess;
 void notifyServer() {
   notifyServerProcess.begin(F("python"));
   notifyServerProcess.addParameter(F("/root/notifyStatus.py"));
-  notifyServerProcess.addParameter("8");
+  if(shieldOK) notifyServerProcess.addParameter("8");
+  else notifyServerProcess.addParameter("2");
   notifyServerProcess.run();
 
   Serial.println(F("notifyStatus: "));  

@@ -1,19 +1,17 @@
 #include <Bridge.h>
 #include <YunServer.h>
 #include <YunClient.h>
-
 #include <Wire.h>
 #include <Adafruit_NFCShield_I2C.h>
-
 #include <SimpleTimer.h>
 
+//---------------------------------------------- NFC
 #define IRQ   (6)
 #define RESET (7)  // Not connected by default on the NFC Shield
 
 Adafruit_NFCShield_I2C nfc(IRQ, RESET);
 
 bool shieldOK = false;
-int shieldOKled = 12;
 
 #define NOT_FOUND 0
 #define MIFARE_CLASSIC 4
@@ -24,39 +22,55 @@ uint8_t uidLength;
 String uidString = "";
 String uidString_last = "";
 
+//---------------------------------------------- communication to the Bridge
 SimpleTimer timer;
-
 YunServer server;
 
+Process askPermissionProcess;
+Process notifyServerProcess;
+
+//---------------------------------------------- door tick
 bool tick = false;
 int tickled = 5;
 
+//---------------------------------------------- setup
 void setup(void) {
   delay(2000);      // we're lazy
 
-  initSerialBridge();
-  initPinModes();
-  initConfigs();
+  Serial.begin(115200);
+
+  Serial.println(F("Bridge"));
+  Bridge.begin();
+  delay(1000);
+
+  Serial.println(F("YunServer"));
+  server.listenOnLocalhost();
+  server.begin();
+  delay(1000);
+
   setupNFC();
 
-  Serial.println(F("."));
-  
+  Serial.println(F("Pins"));
+  // pin modes
+  pinMode(tickled, OUTPUT);
+  analogWrite(tickled, 0);
+
   timer.setInterval(60000, notifyServer);
+
+  Serial.println(F("."));
 }
 
+//---------------------------------------------- loop
 void loop(void) {
   // try to read a new NFC tag
   if (shieldOK) {
-    digitalWrite(shieldOKled, HIGH);
     readNFC();
     delay(100);
-  } else {
-    digitalWrite(shieldOKled, LOW);
   }
 
   // accept connection from server that ask if a tag is present and respond with the current UID
   serveIncomingRequest();
-  
+
   // periodically notify the server
   timer.run();
 
@@ -64,9 +78,9 @@ void loop(void) {
   tickTheDoor();
 }
 
+//---------------------------------------------- door tick
 unsigned long tick_prevMillis = 0;
 const long tick_interval = 1000;
-
 
 void doTheCheckIn() {
   tick = true;
@@ -89,6 +103,19 @@ void tickTheDoor() {
 
   }
 }
+
+void doTheCheckInServo() {
+
+  Serial.println("move the servo");
+  analogWrite(tickled, 160);  
+  delay(1500);
+  
+  analogWrite(tickled, 10);
+  
+  Serial.println("end move the servo");
+}
+
+//---------------------------------------------- utils
 
 void uid_array2string2(String &s, const byte * pin, const uint8_t numBytes) {
   s = "_";

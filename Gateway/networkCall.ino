@@ -17,19 +17,19 @@ void serveIncomingRequest() {
 }
 
 void askPermission() {
-  Process p;
-  p.begin(F("python"));
-  p.addParameter(F("/root/askPermission.py"));
-  p.addParameter(uidString);
-  p.run();
+  askPermissionProcess.begin(F("python"));
+  askPermissionProcess.addParameter(F("/root/askPermission.py"));
+  askPermissionProcess.addParameter(uidString);
+  askPermissionProcess.run();
 
   Serial.println(F("askPermission: "));  
-  while (p.available()>0) {
-    char c = p.read();
+  while (askPermissionProcess.available()>0) {
+    char c = askPermissionProcess.read();
     Serial.print(c);
     
     if(c=='y') {
-      doTheCheckIn();
+      //doTheCheckIn();
+      doTheCheckInServo();
     }
     
   }
@@ -38,15 +38,15 @@ void askPermission() {
 }
 
 void notifyServer() {
-  Process p;
-  p.begin(F("python"));
-  p.addParameter(F("/root/notifyStatus.py"));
-  p.addParameter("8");
-  p.run();
+  notifyServerProcess.begin(F("python"));
+  notifyServerProcess.addParameter(F("/root/notifyStatus.py"));
+  if(shieldOK) notifyServerProcess.addParameter("8");
+  else notifyServerProcess.addParameter("2");
+  notifyServerProcess.run();
 
   Serial.println(F("notifyStatus: "));  
-  while (p.available()>0) {
-    char c = p.read();
+  while (notifyServerProcess.available()>0) {
+    char c = notifyServerProcess.read();
     Serial.print(c);
   }
   Serial.flush();

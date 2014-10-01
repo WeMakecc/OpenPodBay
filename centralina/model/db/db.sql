@@ -68,11 +68,11 @@ CREATE TABLE Calendar(calendar_id INTEGER PRIMARY KEY AUTOINCREMENT,
                       start TEXT,
                       end TEXT,
                       active INTEGER);
-INSERT INTO Calendar VALUES(0, 0, 9, 'Monday', '06:00:00', '23:00:00', 1);
-INSERT INTO Calendar VALUES(1, 0, 9, 'Tuesday', '06:00:00', '23:00:00', 1);
-INSERT INTO Calendar VALUES(2, 0, 9, 'Wednesday', '06:00:00', '23:00:00', 1);
-INSERT INTO Calendar VALUES(3, 0, 9, 'Thursday', '06:00:00', '23:00:00', 1);
-INSERT INTO Calendar VALUES(4, 0, 9, 'Friday', '06:00:00', '23:00:00', 1);
-INSERT INTO Calendar VALUES(5, 0, 9, 'Saturday', '06:00:00', '23:00:00', 1);
-INSERT INTO Calendar VALUES(6, 0, 9, 'Sunday', '06:00:00', '23:00:00', 1);
+INSERT INTO Calendar VALUES(0, 0, 7, 'Monday', '06:00:00', '23:00:00', 1);
+INSERT INTO Calendar VALUES(1, 0, 7, 'Tuesday', '06:00:00', '23:00:00', 1);
+INSERT INTO Calendar VALUES(2, 0, 7, 'Wednesday', '06:00:00', '23:00:00', 1);
+INSERT INTO Calendar VALUES(3, 0, 7, 'Thursday', '06:00:00', '23:00:00', 1);
+INSERT INTO Calendar VALUES(4, 0, 7, 'Friday', '06:00:00', '23:00:00', 1);
+INSERT INTO Calendar VALUES(5, 0, 7, 'Saturday', '06:00:00', '23:00:00', 1);
+INSERT INTO Calendar VALUES(6, 0, 7, 'Sunday', '06:00:00', '23:00:00', 1);
 COMMIT;

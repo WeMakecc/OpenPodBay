@@ -80,7 +80,6 @@ module.exports.setup = function(app){
             },
             function(callback){
                 model.findUserByTagValue(tag_id, function(result) {
-                    console.log(result);
                     if(result.length>0) {
                         callback(null, result);
                     } else {

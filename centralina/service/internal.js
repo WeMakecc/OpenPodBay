@@ -53,39 +53,6 @@ function sendReservationsToAsset(reservation, node) {
 }
 
 function checkAssetReservations() {
-    console.log('checkAssetReservations > ----------------------------------------');
-
-    // async.parallel([
-    //     function(callback){
-    //         model.askCurrentReservations(u.getNow(), function(currentReservations) {
-    //             callback(null, currentReservations);
-    //         });
-    //     },
-    //     function(callback){
-    //         model.getMachines(function(_res) {
-    //             assets = _res.filter(function(machine) {
-    //                 return machine.type=='asset';
-    //             });
-    //             callback(null, assets);
-    //         });
-    //     }
-    // ], function(err, results) {
-    //     console.log(results);
-    //     var current_reservations = results[0];
-    //     var assets = results[1];
-
-    //     var _reservations = []; // reservation to be send
-
-    //     for(var i=0; i<reservations.length; i++) {
-    //         var r = reservations[i];
-    //         if( notified_reservation.hasOwnProperty(r.reservation_id) ) {
-    //             // pass
-    //         } else {  
-    //             _reservations.push(r);
-    //         }
-    //     } 
-
-    // });
 
     var now = u.getNow();
     model.askCurrentReservations(now, function(reservations) {
