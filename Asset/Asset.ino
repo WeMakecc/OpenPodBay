@@ -6,6 +6,7 @@
 #include <Wire.h>
 #include <Adafruit_NFCShield_I2C.h>
 #include <SimpleTimer.h>
+#include <TimerOne.h>
 
 //---------------------------------------------- NFC
 #define IRQ   (6)
@@ -33,13 +34,17 @@ YunServer server;
 Process askPermissionProcess;
 Process notifyServerProcess;
 
+bool server_ok = false;
+
 //---------------------------------------------- led status notification
 #define STATUS_NOT_RESERVED 0
 #define STATUS_RESERVED 1
+#define STATUS_RESERVED_END 2
 
 int _status = STATUS_NOT_RESERVED;
 bool reservation_active = false;
 
+//
 int pinRed = 8;
 int pinGreen = 9;
 int pinYellow = 10;
@@ -51,6 +56,7 @@ long time_to_be_reserved = 0;
 void setup(void) {
   delay(2000);      // we're lazy
 
+  server_ok = false;
   tagOver = false;
   _status = STATUS_NOT_RESERVED;
 
@@ -64,6 +70,9 @@ void setup(void) {
   timer.setInterval(60000, notifyServer);
   notifyServer();
   
+  Timer1.initialize(1000000);
+  Timer1.attachInterrupt(blinkLED);
+
   Serial.println(F("."));
 }
 
@@ -83,7 +92,7 @@ void initSerialBridge() {
 //---------------------------------------------- loop
 void loop(void) {
   // try to read a new NFC tag
-  if ( shieldOK && _status == STATUS_RESERVED && !reservation_active ) {
+  if ( shieldOK ) { //&& _status == STATUS_RESERVED && !reservation_active ) {
     readNFC();
     delay(100);
   }
@@ -95,25 +104,39 @@ void loop(void) {
   timer.run();
 
   ledStatus();
-
-  if (_status == STATUS_RESERVED && millis() >= time_to_be_reserved) {
-    _status = STATUS_NOT_RESERVED;
-    reservation_active = false;
-  }
 }
 
 //---------------------------------------------- led handling
 
+int ledState = LOW;
+void blinkLED(void)
+{
+  if (ledState == LOW) {
+    ledState = HIGH;
+  } else {
+    ledState = LOW;
+  }
+  digitalWrite(pinRed, ledState);
+}
+
 void ledStatus() {
+  digitalWrite(pinRed, server_ok ? LOW : HIGH);
+  
   if (_status == STATUS_NOT_RESERVED) {
     statusNotReserved();
   } else if (_status == STATUS_RESERVED) {
     statusReserved();
+  } else if(_status == STATUS_RESERVED) {
+    statusReservedEnd();
   }
 }
 
+void statusReservedEnd() {
+  
+}
+
 void statusNotReserved() {
-  digitalWrite(pinGreen, HIGH);
+  analogWrite(pinGreen, 100);
   digitalWrite(pinYellow, LOW);
 }
 
@@ -135,7 +158,6 @@ void statusReserved() {
 }
 
 void displayAccessDenied() {
-  Serial.println("\nAccessDenied");
   for(int i=0; i<3; i++) {
     digitalWrite(pinRed, LOW);
     delay(100);

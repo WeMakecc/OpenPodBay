@@ -19,5 +19,8 @@ module.exports = function(port) {
     var timerId = setInterval(internal.checkAssetReservations , 10000); 
     internal.checkAssetReservations();
 
+    var timerId = setInterval(internal.checkAssetReservationsEnd , 10000); 
+    internal.checkAssetReservationsEnd();
+
     return app;
 }

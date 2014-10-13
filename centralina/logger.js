@@ -17,7 +17,7 @@ function initLogger() {
 
     dbLogger = new (winston.Logger)({
         transports: [
-          new (winston.transports.Console)(),
+          // new (winston.transports.Console)(),
           new (winston.transports.File)({ filename: __dirname+'/log/db.log' })
         ]
     });

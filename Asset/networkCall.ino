@@ -1,3 +1,4 @@
+//---------------------------------------------------------------------------- incoming connection
 void serveIncomingRequest() {
   YunClient client = server.accept();
   if (client) {
@@ -9,25 +10,27 @@ void serveIncomingRequest() {
     
     // command to move the arduino in STATUS_RESERVED mode
     if(command == "reserved") {
-      String timeString = getTrimValue(url, '/', 1);
-      char tarray[100]; 
-      timeString.toCharArray(tarray, sizeof(tarray));
-      time_to_be_reserved = millis() + atol(tarray)*1000;
       _status = STATUS_RESERVED;
-      
     }
+    
+    // command to move the arduino in STATUS_RESERVED_END mode
+    if(command == "reservedend") {
+      _status = STATUS_RESERVED_END;
+    }
+    
     client.stop();
     Serial.println(F("connection closed"));
-    
+    delay(15); 
   }
-  delay(50);
 }
 
+//---------------------------------------------------------------------------- ask permission
 void askPermission() {
   Serial.println(F("askPermission: "));  
   
   askPermissionProcess.begin(F("python"));
-  askPermissionProcess.addParameter(F("/root/askPermission.py"));
+  askPermissionProcess.addParameter(F("/root/callserver.py"));
+  askPermissionProcess.addParameter(F("2"));
   askPermissionProcess.addParameter(uidString);
   askPermissionProcess.run();
 
@@ -68,9 +71,11 @@ void askPermission() {
   Serial.println();
 }
 
+//---------------------------------------------------------------------------- notify server
 void notifyServer() {
   notifyServerProcess.begin(F("python"));
-  notifyServerProcess.addParameter(F("/root/notifyStatus.py"));
+  notifyServerProcess.addParameter(F("/root/callserver.py"));
+  notifyServerProcess.addParameter(F("1"));
   if(shieldOK) notifyServerProcess.addParameter("8");
   else notifyServerProcess.addParameter("2");
   notifyServerProcess.run();
@@ -79,6 +84,13 @@ void notifyServer() {
   while (notifyServerProcess.available()>0) {
     char c = notifyServerProcess.read();
     Serial.print(c);
+    
+    if(c=='y') {
+      server_ok = true;
+      break;  
+    } else {
+      server_ok = false;
+    }
   }
   Serial.flush();
   Serial.println();

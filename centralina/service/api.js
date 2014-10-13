@@ -28,7 +28,7 @@ module.exports.setup = function(app){
             status = body.status;
 
         if( !node_id || !type || !status ) {
-            u.getLogger().error('SERVICE > bad checkin request from '
+            u.getLogger().error('SERVICE > bad notification request from '
                                  +ip+': '+JSON.stringify(req.body));
             res.send(404);
             return;
@@ -48,7 +48,7 @@ module.exports.setup = function(app){
             }
         });
 
-        res.send(200);
+        res.send('y').end(200);
     });
 
     function checkinNegate(res) {
@@ -68,7 +68,9 @@ module.exports.setup = function(app){
         var node_id = req.body.node_id;
         var tag_id = req.body.tag_id;
 
+
         if( !node_id || !tag_id ) {
+
             u.getLogger().error('SERVICE > bad checkin request from '
                                  +ip+': '+JSON.stringify(req.body));
             checkinNegate(res);
@@ -102,29 +104,6 @@ module.exports.setup = function(app){
                 });
             }
         ], handleCheckinRequest );
-
-        // model.findUserByTagValue(tag_id, function(result) {
-        //     // TODO: if a tag is associated to more then one user.. BOOM
-        //     if(result.length==0) {
-        //         u.getLogger().error('SERVICE API: /checkin > asking for a tag without user '+tag_id);
-        //         res.send('n').end(200);
-        //         return;
-        //     }
-        //     var user_id = result[0].user_id;
-        //     var tagValue = tag_id,
-        //         nodeId = asset_id,
-        //         remoteAddress = ip;
-        //     var now = new Date().now;
-        //     console.log('app.get---> /checkin\n'+
-        //                 '            tag: '+tagValue+', '+'asset: '+nodeId+',\n'+
-        //                 '            from: '+remoteAddress);
-        //     model.askReservation(now, tagValue, nodeId, function(_res) {
-        //         res.send(_res).status(200).end();
-        //         if(_res=='y') {
-        //             
-        //         }
-        //     });
-        // });
     });
 
     function handleCheckinRequest(err, results) {
@@ -158,16 +137,23 @@ module.exports.setup = function(app){
     }
 
     function askReservation(node, user, res) {
-        model.askReservation(u.getNow(), user.user_id, node.node_id, function(_res) {
-            console.log('dudee ', _res);
-            if(_res=='n') {
-                console.log('nope');
-                res.send('n').end(200);
-            } else {
-                console.log('yope');
-                res.send('y60').end(200);
+        model.askReservation(
+            u.getNow(), 
+            user.user_id, 
+            node.node_id, 
+            function(_res) {
+                if(_res=='n') {
+                    
+                    res.send('n').end(200);
+                } else {
+                    console.log(_res);
+                    var actual_start = u.getNow() - _res.expected_start;
+                    var actual_duration = _res.expected_duration - actual_start;
+                    
+                    res.send('y'+actual_duration).end(200);
+                }
             }
-        });
+        );
     }
 
     function askCalendar(node, user, res) {
