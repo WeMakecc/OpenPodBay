@@ -30,18 +30,19 @@ module.exports.setup = function(app){
         if( !node_id || !type || !status ) {
             u.getLogger().error('SERVICE > bad checkin request from '
                                  +ip+': '+JSON.stringify(req.body));
-            res.send(200);
+            res.send(404);
             return;
         }
 
         model.getMachine(node_id, function(res) {
+
             if(res.length!=0) {
                 model.modifyMachine(node_id, ip, u.getNow(), status, type, 1, function(result) {
                     u.getLogger().network('the machine #'+node_id+' at '+ip+' is alive with status: '+status);
                 });
             } else {
                 var defaultLabel = type+node_id;
-                model.addMachine(node_id, ip, u.getNow(), status, type, 1, defaultLabel, function(result) {
+                model.addMachine(node_id, ip, u.getNow(), status, 1, type, defaultLabel, function(result) {
                    u.getLogger().network('the machine #'+node_id+' at '+ip+' is new with status: '+status); 
                 });
             }
@@ -263,4 +264,8 @@ module.exports.setup = function(app){
             }
         });
     }
+
+    console.log('dudee');
+    forwardCheckinToWordpress(3, 9, u.getNow());
+
 }

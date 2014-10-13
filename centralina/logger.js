@@ -10,7 +10,7 @@ function initLogger() {
     
     genericLogger = new (winston.Logger)({
         transports: [
-        //  new (winston.transports.Console)(),
+          new (winston.transports.Console)(),
           new (winston.transports.File)({ filename: __dirname+'/log/error.log' })
         ]
     });

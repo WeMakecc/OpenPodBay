@@ -45,6 +45,7 @@ function fillAssetDropdown() {
 
     var path = DATA_URL+'/machines/asset';
     $.getJSON(path, function(assets) {
+        console.log(assets);
         assets.forEach(function(asset) {
 
             console.log(asset);

@@ -8,83 +8,106 @@ module.exports = function(super_module){
     super_module.getMachines = function(callback) {
         var query = 'SELECT * FROM Node';
         u.getLogger().db(query);
-
-        db.query(query, schema.NodeSchema, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > getMachines: '+err);
-                callback([]);
-                return;
+        db.query(
+            query, 
+            schema.NodeSchema, 
+            function(err, rows) {
+                if(err) {
+                    u.getLogger().db('error','DB error: model.js > getMachines: '+err);
+                    callback([]);
+                    return;
+                }
+                callback(rows);
             }
-            callback(rows);
-        })
+        );
     };
 
     super_module.addMachine = function(node_id, current_ip, last_seen, status, active, type, label, callback) {
-        var params = [node_id, current_ip, last_seen, status, active, type, label]
-                        .map(function(s){return '"'+s+'"';});
-        var query = 'INSERT INTO "Node" VALUES( '+params.join(', ')+');';
-        u.getLogger().db(query);
+        var params = [node_id, current_ip, last_seen, status, active, type, label];
+        var query = 'INSERT INTO Node VALUES(?, ?, ?, ?, ?, ?, ?)';
+        u.getLogger().db(query+' '+params);
 
-        db.query(query, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > addMachine: '+err);
-                callback(true);
-                return;
+        console.log('=======????========== addMachine type: '+type);
+
+
+        db.query(
+            query, 
+            params, 
+            function(err, rows) {
+                if(err) {
+                    u.getLogger().db('error','DB error: model.js > addMachine: '+err);
+                    callback(true);
+                    return;
+                }
+                callback(false);
             }
-            callback(false);
-        });
-
-    }
+        );
+    };
 
     super_module.getMachine = function(id, callback) {
-        var query = 'SELECT * FROM Node WHERE node_id='+id+';'
+        var query = 'SELECT * FROM Node WHERE node_id = ?;';
         u.getLogger().db(query);
 
-        db.query(query, schema.NodeSchema, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > getMachine: '+err);
-                callback([]);
-                return;
+        db.query(
+            query, 
+            [id],
+            schema.NodeSchema, 
+            function(err, rows) {
+                if(err) {
+                    u.getLogger().db('error','DB error: model.js > getMachine: '+err);
+                    callback([]);
+                    return;
+                }
+                callback(rows);
             }
-            callback(rows);
-        })        
+        );        
     };
 
     // TODO: check on ip already exists
     // TODO: check on id already exists
     super_module.modifyMachine = function(node_id, current_ip, last_seen, status, type, active, callback) {
+        var params = [node_id, current_ip, last_seen, status, type, active, node_id];
         var query = 'UPDATE Node '+
-                    'SET node_id='+node_id+', '+
-                         'current_ip="'+current_ip+'", '+
-                         'date_last_seen='+last_seen+', '+
-                         'status='+status+', '+
-                         'type="'+type+'", '+
-                         'active='+active+' '+
-                    ' WHERE node_id='+parseInt(node_id)+';';
-        u.getLogger().db(query);
+                    'SET node_id = ?, '+
+                         'current_ip = ?, '+
+                         'date_last_seen = ?, '+
+                         'status = ?, '+
+                         'type = ?, '+
+                         'active = ? '+
+                    'WHERE node_id = ?';
+        u.getLogger().db(query, params);
 
-        db.query(query, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > modifyMachine: '+err);
-                callback(false);
-            } else {
-                callback(true);
+        db.query(
+            query, 
+            params,
+            function(err, rows) {
+                if(err) {
+                    u.getLogger().db('error','DB error: model.js > modifyMachine: '+err);
+                    callback(false);
+                } else {
+                    callback(true);
+                }
             }
-        });
+        );
     };
 
     super_module.setMachineLabel = function(id_machine, label, callback) {
-        var query = 'UPDATE Node SET label = "'+label+'" WHERE node_id='+id_machine+';';
+        var params = [label, id_machine];
+        var query = 'UPDATE Node SET label = ? WHERE node_id = ?';
         u.getLogger().db(query);
 
-        db.query(query, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > setMachineLabel: '+err);
-                callback(false);
-            } else {
-                callback(true);
+        db.query(
+            query,
+            params, 
+            function(err, rows) {
+                if(err) {
+                    u.getLogger().db('error','DB error: model.js > setMachineLabel: '+err);
+                    callback(false);
+                } else {
+                    callback(true);
+                }
             }
-        });
+        );
     }
 
     super_module.resetMachine = function(callback) {

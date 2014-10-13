@@ -5,36 +5,6 @@ var dblite = require('dblite'),
 
 module.exports = function(super_module){
 
-    super_module.getReservationsByStarttime = function(start, callback) {
-        var query = 'SELECT * FROM Reservation WHERE (expected_start-60 < '+start+' AND '+start+' < expected_start+60 AND active=0);';
-        u.getLogger().db(query);
-
-        db.query(query, schema.ReservationSchema, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > getReservationsByStarttime: '+err);
-                callback([]);
-                return;
-            }
-            //console.log(rows);
-            callback(rows);
-        });
-    };
-
-    super_module.getReservationById = function(id, callback) {
-        var query = 'SELECT * FROM Reservation WHERE reservation_id='+id+';';
-        u.getLogger().db(query);
-
-        db.query(query, schema.ReservationSchema, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > getReservationByID: '+err);
-                callback([]);
-                return;
-            }
-            //console.log(rows);
-            callback(rows);
-        });
-    };
-
     super_module.getReservations = function(callback) {
         var query = 'SELECT * FROM Reservation;';
         u.getLogger().db(query);
@@ -45,7 +15,6 @@ module.exports = function(super_module){
                 callback([]);
                 return;
             }
-            //console.log(rows);
             callback(rows);
         });
     };
@@ -56,78 +25,59 @@ module.exports = function(super_module){
     // TODO: check expected duretion is valid duration time (in hours)
     /* expected_start, expected_duration in second */
     super_module.addReservation = function(user_id, node_id, expected_start, expected_duration, callback) {
-        var params = [
-            parseInt(user_id), 
-            parseInt(node_id), 
-            parseInt(expected_start), 
-            -1, 
-            parseInt(expected_duration), 
-            -1, 
-            0];
-        var query = 'INSERT INTO "Reservation" VALUES( '+
-                    '(SELECT max(reservation_id)+1 FROM "Reservation"), '+
-                    params.join(', ')+');';
-        u.getLogger().db(query);
-        
-        db.query(query, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > addReservation: '+err);
+        var params = [user_id, node_id, expected_start, -1, expected_duration, -1, 0];
 
-                callback(false);
-            } else {
-                query = 'SELECT max(reservation_id) FROM "Reservation"';
-                db.query(query, function(err, rows) {
-                    if(err) {
-                        console.log('model.js > addReservation > inner > ... db error ...'+err);
-                        callback(false);
-                    } else {
-                        callback(rows[0]);
-                    }
-                });
-            }
-        });
+        var query = 'INSERT INTO Reservation '+
+                    'VALUES( (SELECT max(reservation_id)+1 FROM Reservation), '+
+                             '?, ?, ?, ?, ?, ?, ?)';
+        u.getLogger().db(query, params);
+        
+        db.query(
+            query, 
+            params,
+            function(err, rows) {
+                if(err) {
+                    u.getLogger().db('error','DB error: model.js > addReservation: '+err);
+                    callback(false);
+                } else {
+                    query = 'SELECT max(reservation_id) FROM "Reservation"';
+                    // return the id of the reservation just added
+                    db.query(query, function(err, rows) {
+                        if(err) {
+                            console.log('model.js > addReservation > inner > ... db error ...'+err);
+                            callback(false);
+                        } else {
+                            callback(rows[0]);
+                        }
+                    });
+                }
+            } // end callback
+        );
     };
 
     super_module.deleteReservation = function(reservation_id, callback) {
-        var query = 'DELETE FROM "Reservation" WHERE "reservation_id"='+reservation_id+';';
+        var query = 'DELETE FROM Reservation WHERE reservation_id = ?';
         u.getLogger().db(query);
 
-        db.query(query, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > deleteReservation: '+err);
-                callback(false);
-            } else {
-                callback(true);
+        db.query(
+            query,
+            [reservation_id], 
+            function(err, rows) {
+                if(err) {
+                    u.getLogger().db('error','DB error: model.js > deleteReservation: '+err);
+                    callback(false);
+                } else {
+                    callback(true);
+                }
             }
-        });
-    };
-
-    super_module.modifyReservation = function(reservation_id, user_id, node_id, expected_start, 
-                                actual_start, expected_duration, actual_duration, 
-                                active, callback) {
-
-        var query = 'UPDATE Reservation SET user_id="'+user_id+'"'+
-                                         ', node_id='+node_id+
-                                         ', expected_start='+expected_start+
-                                         ', actual_start='+actual_start+
-                                         ', expected_duration='+expected_duration+
-                                         ', actual_duration='+actual_duration+
-                                         ' WHERE reservation_id='+parseInt(reservation_id)+';';
-        u.getLogger().db(query);
-
-        db.query(query, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > modifyReservation: '+err);
-                callback(false);
-            } else {
-                callback(true);
-            }
-        });
+        );
     };
 
     super_module.modifyOrInsertReservation = function(reservation_id, user_id, node_id, expected_start, 
                                         actual_start, expected_duration, actual_duration, 
                                         active, callback) {
+
+        var params = [reservation_id, user_id, node_id, expected_start, expected_duration, actual_duration, active];
         var query = 'INSERT OR REPLACE INTO Reservation (reservation_id, '+
                                                         'user_id, '+
                                                         'node_id, '+
@@ -135,121 +85,140 @@ module.exports = function(super_module){
                                                         'expected_duration, '+
                                                         'actual_duration, '+
                                                         'active) '+
-                    'VALUES ( '+reservation_id+','
-                               +user_id+','
-                               +node_id+','
-                               +expected_start+','
-                               +expected_duration+','
-                               +actual_duration+','
-                               +active+');';
-        u.getLogger().db(query);
+                    'VALUES (?, ?, ?, ?, ?, ?, ?);';
+        u.getLogger().db(query+' '+params);
 
-        db.query(query, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > modifyOrInsertReservation: '+err);
-                callback(false);
-            } else {
-                callback(true);
+        db.query(
+            query, 
+            params, 
+            function(err, rows) {
+                if(err) {
+                    u.getLogger().db('error','DB error: model.js > modifyOrInsertReservation: '+err);
+                    callback(false);
+                } else {
+                    callback(true);
+                }
             }
-        });
+        );
     };
 
     super_module.setReservationActualDuration = function(reservation_id, actual_duration, callback) {
-        var query = 'UPDATE Reservation SET actual_duration='+actual_duration+
-                                         ' WHERE reservation_id='+parseInt(reservation_id)+';';
-        u.getLogger().db(query);
+        var params = [actual_duration, reservation_id];
+        var query = 'UPDATE Reservation SET actual_duration = ? '
+                                       'WHERE reservation_id = ?';
+        u.getLogger().db(query+' '+params);
 
-        db.query(query, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > setReservationActualDuration: '+err);
+        db.query(
+            query,
+            params,
+            function(err, rows) {
+                if(err) {
+                    u.getLogger().db('error','DB error: model.js > setReservationActualDuration: '+err);
 
-                callback(false);
-            } else {
-                callback(true);
+                    callback(false);
+                } else {
+                    callback(true);
+                }
             }
-        });
+        );
     };
 
     super_module.setReservationActive = function(reservation_id, active, callback) {
-        var query = 'UPDATE Reservation SET active='+active+
-                    ' WHERE reservation_id='+parseInt(reservation_id)+';';
-        u.getLogger().db(query);
+        var params = [active, reservation_id];
+        var query = 'UPDATE Reservation SET active = ? '+
+                    ' WHERE reservation_id = ?';
+        u.getLogger().db(query+' '+params);
 
-        db.query(query, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > setReservationActive: '+err);
-                callback(false);
-            } else {
-                callback(true);
+        db.query(
+            query,
+            params,
+            function(err, rows) {
+                if(err) {
+                    u.getLogger().db('error','DB error: model.js > setReservationActive: '+err);
+                    callback(false);
+                } else {
+                    callback(true);
+                }
             }
-        });
+        );
     };
 
     super_module.setReservationActualStartTime = function(reservation_id, actual_start, callback) {
-        var query = 'UPDATE Reservation SET actual_start='+actual_start+
-                    ' WHERE reservation_id='+parseInt(reservation_id)+';';
-        u.getLogger().db(query);
+        var params = [actual_start, reservation_id];
+        var query = 'UPDATE Reservation SET actual_start = ? '+
+                    ' WHERE reservation_id = ?';
+        u.getLogger().db(query+' '+params);
 
-        db.query(query, function(err, rows) {
-            if(err) {
-                u.getLogger().db('error','DB error: model.js > setReservationActualStartTime: '+err);
-                callback(false);
-            } else {
-                callback(true);
+        db.query(
+            query, 
+            params,
+            function(err, rows) {
+                if(err) {
+                    u.getLogger().db('error','DB error: model.js > setReservationActualStartTime: '+err);
+                    callback(false);
+                } else {
+                    callback(true);
+                }
             }
-        });
+        );
     };
 
     super_module.askReservation = function(timestamp, userId, nodeId, callback) {
+        var params = [timestamp, userId, nodeId];
         var query = '';
         query = 'SELECT * FROM Reservation WHERE '+
-                '('+timestamp+' BETWEEN expected_start AND (expected_start+expected_duration)) AND'+
-                ' User_Id = '+userId+' AND'+
-                ' Node_Id = '+nodeId+';'
-        u.getLogger().db(query);
+                '(? BETWEEN expected_start AND (expected_start+expected_duration)) AND'+
+                ' User_Id = ? AND'+
+                ' Node_Id = ?';
+        u.getLogger().db(query+' '+params);
         
-        db.query(query, schema.ReservationSchema, function(err, rows) {
-            
-            if(err) {
-                //console.log('    > ERROR: '+err);
-                u.getLogger().error('models.js > askReservation > error: '+err);
-                callback('n'); 
-                return;
-            }
-
-            switch(rows.length) {
-                case 0: 
-                    console.log('    > NO, response: ', rows);
+        db.query(
+            query, 
+            params,
+            schema.ReservationSchema, 
+            function(err, rows) {
+                if(err) {
+                    u.getLogger().error('models.js > askReservation > error: '+err);
                     callback('n'); 
-                    break;
-                case 1: 
-                    console.log('    > YES, response: ', rows);
-                    callback('y'); 
-                    break;
-                default:
-                    callback('n');
-                    break;
+                    return;
+                }
+                switch(rows.length) {
+                    case 0: 
+                        console.log('    > NO, response: ', rows);
+                        callback('n'); 
+                        break;
+                    case 1: 
+                        console.log('    > YES, response: ', rows);
+                        callback('y'); 
+                        break;
+                    default:
+                        callback('n');
+                        break;
+                }
             }
-        });
+        );
     };
 
     super_module.askCurrentReservations = function(timestamp, callback) {
-        var query = '';
-        query = 'SELECT * FROM Reservation WHERE '+
-                '('+timestamp+' BETWEEN expected_start AND (expected_start+expected_duration));';
-        u.getLogger().db(query);
+        var params = [timestamp];
+        var query = 'SELECT * FROM Reservation WHERE '+
+                    '(? BETWEEN expected_start AND (expected_start+expected_duration));';
+        u.getLogger().db(query+' '+params);
         
-        db.query(query, schema.ReservationSchema, function(err, rows) {
-            
-            if(err) {
-                //console.log('    > ERROR: '+err);
-                u.getLogger().error('models.js > askReservation > error: '+err);
-                callback([]); 
-                return;
-            } else {
-                callback(rows);
+        db.query(
+            query, 
+            params,
+            schema.ReservationSchema, 
+            function(err, rows) {
+                if(err) {
+                    u.getLogger().error('models.js > askReservation > error: '+err);
+                    callback([]); 
+                    return;
+                } else {
+                    callback(rows);
+                }
             }
-        });
+        );
     };
 
 }
