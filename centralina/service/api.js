@@ -225,7 +225,9 @@ module.exports.setup = function(app){
         console.log('forwardToWordpress > uri: '+uri);
         var options = {
             url: url + cript.cript(uri),
-            rejectUnauthorized: false
+            rejectUnauthorized: false,
+            requestCert: true,
+            agent: false
         };
 
         console.log(options.url);
