@@ -4,6 +4,7 @@
 #include <Wire.h>
 #include <Adafruit_NFCShield_I2C.h>
 #include <SimpleTimer.h>
+#include <TimerThree.h>
 
 //---------------------------------------------- NFC
 #define IRQ   (6)
@@ -23,96 +24,84 @@ String uidString = "";
 String uidString_last = "";
 
 //---------------------------------------------- communication to the Bridge
-SimpleTimer timer;
+SimpleTimer timerNotify;
 YunServer server;
 
 Process askPermissionProcess;
 Process notifyServerProcess;
 
-//---------------------------------------------- door tick
-bool tick = false;
-int tickled = 5;
+bool server_ok = false;
 
 //---------------------------------------------- setup
 void setup(void) {
   delay(2000);      // we're lazy
 
+  setupCustom();
+
   Serial.begin(115200);
 
+  // the bridge library
   Serial.println(F("Bridge"));
   Bridge.begin();
   delay(1000);
 
+  // the yun server
   Serial.println(F("YunServer"));
   server.listenOnLocalhost();
   server.begin();
   delay(1000);
 
+  // nfc
   setupNFC();
 
-  Serial.println(F("Pins"));
-  // pin modes
-  pinMode(tickled, OUTPUT);
-  analogWrite(tickled, 0);
+  // notify the server
+  timerNotify.setInterval(60000, notifyServer);
 
-  timer.setInterval(60000, notifyServer);
-
+  // the end
   Serial.println(F("."));
 }
 
 //---------------------------------------------- loop
 void loop(void) {
+  
   // try to read a new NFC tag
   if (shieldOK) {
     readNFC();
     delay(100);
   }
 
-  // accept connection from server that ask if a tag is present and respond with the current UID
-  serveIncomingRequest();
-
   // periodically notify the server
-  timer.run();
+  timerNotify.run();
 
-  // if the door has to be opened tick the relay
-  tickTheDoor();
+  // do the custom operation
+  loopCustom();
 }
 
-//---------------------------------------------- door tick
-unsigned long tick_prevMillis = 0;
-const long tick_interval = 1000;
+//---------------------------------------------- notifyServer
 
-void doTheCheckIn() {
-  tick = true;
-  tick_prevMillis = millis();
-}
+void notifyServer() {
+  notifyServerProcess.begin(F("python"));
+  notifyServerProcess.addParameter(F("/root/notifyStatus.py"));
+  if(shieldOK) notifyServerProcess.addParameter("8");
+  else notifyServerProcess.addParameter("2");
+  notifyServerProcess.run();
 
-void tickTheDoor() {
-  if (tick == false) {
-    digitalWrite(tickled, LOW);
-    return;
+  Serial.println(F("notifyStatus: "));  
+  while (notifyServerProcess.available()>0) {
+    char c = notifyServerProcess.read();
+    Serial.print(c);
+    
+    if(c=='y') {
+      server_ok = true;
+      Serial.print("OK");
+      break;  
+    } else {
+      //Serial.print("n");
+      server_ok = false;
+    }
   }
-  digitalWrite(tickled, HIGH);
-
-  unsigned long tick_currentMillis = millis();
-  if (tick_currentMillis - tick_prevMillis >= tick_interval) {
-    tick_prevMillis = tick_currentMillis;
-    tick = false;
-    Serial.println("tick closed");
-  } else {
-
-  }
-}
-
-void doTheCheckInServo() {
-
-  Serial.println("move the servo");
-  analogWrite(tickled, 160);  
-  delay(1500);
-  
-  analogWrite(tickled, 10);
-  
-  Serial.println("end move the servo");
+  Serial.flush();
+  Serial.println();
 }
 
 //---------------------------------------------- utils

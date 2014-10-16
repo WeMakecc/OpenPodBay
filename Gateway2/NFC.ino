@@ -15,6 +15,7 @@ void setupNFC() {
     Serial.print("Found chip PN5"); Serial.println((versiondata>>24) & 0xFF, HEX); 
     Serial.print("Firmware ver. "); Serial.print((versiondata>>16) & 0xFF, DEC); 
     Serial.print('.'); Serial.println((versiondata>>8) & 0xFF, DEC);
+    // configure board to read RFID tags
     nfc.SAMConfig();  
     nfc.setPassiveActivationRetries(5);
     Serial.println("Waiting for an ISO14443A Card ...");
@@ -26,30 +27,30 @@ unsigned long readNFC_prevMillis = 0;
 const long readNFC_interval = 1000;
 
 void readNFC() {
+  unsigned long readNFC_currentMillis = millis();
+  if(readNFC_currentMillis - readNFC_prevMillis >= readNFC_interval) {
+    readNFC_prevMillis = readNFC_currentMillis;
     
-  readNFC_uid();
-  
-  if(uidString_last != uidString) {
-    if(uidLength <= 0) {
-      Serial.println(F("tag removed.."));
-      tagOver = false;
-      //Bridge.put("uidLength", String(""));
-      //Bridge.put("uidString", String(""));
-    } else {
-      printUID();
-      tagOver = true;
-
-      displayTagOver();
-      
-      askPermission();
-      Bridge.put("uidLength", String(uidLength));
-      Bridge.put("uidString", String(uidString));
+    readNFC_uid();
+    
+    if(uidString_last != uidString) {
+      if(uidLength <= 0) {
+        Serial.println(F("tag removed.."));
+        //Bridge.put("uidLength", String(""));
+        //Bridge.put("uidString", String(""));
+      } else {
+        printUID();
+        askPermission();
+        Bridge.put("uidLength", String(uidLength));
+        Bridge.put("uidString", String(uidString));
+      }
     }
   }
 }
 
 //---------------------------------------------------------------------------- read and pring UID
 void readNFC_uid() {
+  //Serial.println("reading the nfc..");
   uint8_t success;  
 
   // zero the buffer

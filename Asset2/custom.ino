@@ -1,4 +1,32 @@
-//---------------------------------------------------------------------------- incoming connection
+#define STATUS_NOT_RESERVED 0
+#define STATUS_RESERVED 1
+#define STATUS_RESERVED_END 2
+
+int _status = STATUS_NOT_RESERVED;
+bool reservation_active = false;
+
+int pinRed = 8;
+int pinGreen = 9;
+int pinYellow = 10;
+
+//---------------------------------------------- setup
+
+void setupCustom() {
+  pinMode(pinRed, OUTPUT);
+  pinMode(pinGreen, OUTPUT);
+  pinMode(pinYellow, OUTPUT);
+}
+
+//---------------------------------------------- loop
+
+void loopCustom() {
+  // accept connection from server that ask if a tag is present and respond with the current UID
+  serveIncomingRequest();
+  
+  ledStatus();
+}
+
+//---------------------------------------------- serve request
 void serveIncomingRequest() {
   YunClient client = server.accept();
   if (client) {
@@ -24,7 +52,8 @@ void serveIncomingRequest() {
   }
 }
 
-//---------------------------------------------------------------------------- ask permission
+//---------------------------------------------- ask permission
+
 void askPermission() {
   Serial.println(F("askPermission: "));  
   
@@ -67,31 +96,6 @@ void askPermission() {
     reservation_active = true;
   }
   
-  Serial.flush();
-  Serial.println();
-}
-
-//---------------------------------------------------------------------------- notify server
-void notifyServer() {
-  notifyServerProcess.begin(F("python"));
-  notifyServerProcess.addParameter(F("/root/callserver.py"));
-  notifyServerProcess.addParameter(F("1"));
-  if(shieldOK) notifyServerProcess.addParameter("8");
-  else notifyServerProcess.addParameter("2");
-  notifyServerProcess.run();
-
-  Serial.println(F("notifyStatus: "));  
-  while (notifyServerProcess.available()>0) {
-    char c = notifyServerProcess.read();
-    Serial.print(c);
-    
-    if(c=='y') {
-      server_ok = true;
-      break;  
-    } else {
-      server_ok = false;
-    }
-  }
   Serial.flush();
   Serial.println();
 }
