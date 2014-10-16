@@ -1,0 +1,10 @@
+{
+    "username": "",
+    "password": "",
+    "ip": "https://ip.address/",
+    "checkin": "/api/makers/madeCheckin",
+    "checkout": "/api/makers/madeCheckout",
+    "login": "/api/makers/checkUser",
+    "key": "",
+    "iv": ""
+}

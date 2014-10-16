@@ -1,6 +1,9 @@
+var rootPath = require('path').dirname(require.main.filename),
+    config = require(rootPath+'/config');
+
 var crypto = require('crypto');
-var key = 'MySecretKey12345';
-var iv = '1234567890123456';
+var key = config.getWordpressAuth().key;
+var iv = config.getWordpressAuth().iv;
 var cipher = crypto.createCipheriv('aes-128-cbc', key, iv);
 var decipher = crypto.createDecipheriv('aes-128-cbc', key, iv);
  

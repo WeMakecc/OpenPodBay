@@ -2,7 +2,7 @@
 
 # See https://www.exratione.com/2013/02/nodejs-and-forever-as-a-service-simple-upstart-and-init-scripts-for-ubuntu/
 
-description "centralina for Pod Bay Door"
+description "centralina for Pod Bay Door 2"
 
 start on startup
 stop on shutdown
@@ -19,22 +19,21 @@ expect fork
 # Set the NODE_PATH to the Node.js main node_modules directory.
 # env NODE_PATH="/usr/local/lib/node_modules"
 # The application startup Javascript file path.
-# env APPLICATION_PATH="/home/node/my-application/start-my-application.js"
+# env APPLICATION_PATH="/root/podbay2/pod-bay-door/centralina/server.js"
 # Process ID file path.
-# env PIDFILE="/var/run/my-application.pid"
+# env PIDFILE="/var/run/centralina2.pid"
 # Log file path.
-# env LOG="/var/log/my-application.log"
+# env LOG="/home/c/centralina2.log"
 # Forever settings to prevent the application spinning if it fails on launch.
 # env MIN_UPTIME="5000"
 # env SPIN_SLEEP_TIME="2000"
 
 env NODE_BIN_DIR="/usr/bin/nodejs"
-env NODE_PATH="/home/c/Downloads/AccessControlSystem-master/centralina/node/node_modules/"
 env NODE_PATH="/usr/lib/node_modules/"
-env APPLICATION_PATH="/home/c/Downloads/AccessControlSystem-master/centralina/node/server.js"
-env DB_PATH="/home/c/Downloads/AccessControlSystem-master/centralina/node/"
+env APPLICATION_PATH="/root/podbay2/pod-bay-door/centralina/server.js"
+env DB_PATH="/root/podbay2/pod-bay-door/centralina/model/db"
 env PIDFILE="/var/run/centralina.pid"
-env LOG="/home/c/node_server.log"
+env LOG="/home/c/node_server2.log"
 env MIN_UPTIME="5000"
 env SPIN_SLEEP_TIME="2000"
 
