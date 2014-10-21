@@ -11,7 +11,7 @@ var rootPath = require('path').dirname(require.main.filename),
 
 var cript = require(rootPath+'/wordpress.js');
 
-var wordpressAuth = config.getWordpressAuth()
+var wordpressAuth = config.getWordpressAuth();
 
 module.exports.setup = function(app){
     app.use(bodyParser()); // get information from html forms
@@ -52,11 +52,15 @@ module.exports.setup = function(app){
     });
 
     function checkinNegate(res) {
+        console.log('checkin negate.');
         res.send('n').end(200);
     }
     function checkinAccess(res, user_id, node_id, now) {
         res.send('y').end(200);
-        forwardCheckinToWordpress(user_id, node_id, now); //@    
+
+        if(wordpressAuth.forward) {
+            forwardCheckinToWordpress(user_id, node_id, now); // @   
+        }        
     }
 
     app.post('/checkin', function(req,res) {
@@ -68,14 +72,14 @@ module.exports.setup = function(app){
         var node_id = req.body.node_id;
         var tag_id = req.body.tag_id;
 
-
         if( !node_id || !tag_id ) {
-
             u.getLogger().error('SERVICE > bad checkin request from '
                                  +ip+': '+JSON.stringify(req.body));
             checkinNegate(res);
             return;
         }
+
+        console.log('SERVICE > api.js > /checkin with tag: '+tag_id);
 
         async.parallel([
             function(callback) {
@@ -143,8 +147,7 @@ module.exports.setup = function(app){
             node.node_id, 
             function(_res) {
                 if(_res=='n') {
-                    
-                    res.send('n').end(200);
+                    checkinNegate(res);
                 } else {
                     console.log(_res);
                     var actual_start = u.getNow() - _res.expected_start;

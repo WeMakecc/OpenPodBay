@@ -7,12 +7,21 @@ int ledState = LOW;
 volatile unsigned long blinkCount = 0;
 
 void ledStatus() {
+  digitalWrite(pinRed, server_ok ? LOW : HIGH);
+  
   if(state==STATUS_OK) {
     digitalWrite(pinGreen, HIGH);
   } else if(state==STAUTS_NO_SERVER) {
     digitalWrite(pinRed, HIGH);
     digitalWrite(pinGreen, LOW);
   }
+}
+
+void displayAccessNegate() {
+  Serial.println("access negate"); 
+  digitalWrite(pinRed, HIGH);
+  delay(500);
+  digitalWrite(pinRed, LOW);
 }
 
 void blinkYellowLED(void) {

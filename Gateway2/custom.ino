@@ -1,8 +1,8 @@
 int tickled = 5;
 
-int pinRed = 8;
+int pinRed = 10;
 int pinGreen = 9;
-int pinYellow = 10;
+int pinYellow = 8;
 
 //---------------------------------------------- setup
 
@@ -20,7 +20,7 @@ void loopCustom() {
 
   // if the door has to be opened tick the relay
   tickTheDoor();
-  
+
   ledStatus();
 }
 
@@ -67,13 +67,15 @@ void serveIncomingRequest() {
 //---------------------------------------------- ask permission
 
 void askPermission() {
+  Timer3.initialize(100000);
+  Timer3.attachInterrupt(blinkYellowLED);
+
   askPermissionProcess.begin(F("python"));
   askPermissionProcess.addParameter(F("/root/askPermission.py"));
   askPermissionProcess.addParameter(uidString);
   askPermissionProcess.run();
 
-  Timer3.initialize(1000000);
-  Timer3.attachInterrupt(blinkYellowLED);
+  bool askPermissionResult = false;
 
   Serial.println(F("askPermission: "));
   while (askPermissionProcess.available() > 0) {
@@ -82,8 +84,17 @@ void askPermission() {
 
     if (c == 'y') {
       doTheCheckIn();
+      askPermissionResult = true;
+      break;
+    } else {
+      
     }
   }
+  
+  if(!askPermissionResult) {
+    displayAccessNegate();
+  }
+  
   Serial.flush();
   Serial.println();
 }

@@ -56,6 +56,7 @@ void setup(void) {
 
   // notify the server
   timerNotify.setInterval(60000, notifyServer);
+  notifyServer();
 
   // the end
   Serial.println(F("."));
@@ -96,10 +97,10 @@ void notifyServer() {
       Serial.print("OK");
       break;  
     } else {
-      //Serial.print("n");
       server_ok = false;
     }
   }
+  
   Serial.flush();
   Serial.println();
 }
