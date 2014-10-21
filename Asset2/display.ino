@@ -1,57 +1,76 @@
-int ledState = LOW;
+void blinkCardReceived(void) {
+  if (ledState1 == LOW) {
+    ledState1 = HIGH;
+    blinkCount1 = blinkCount1 + 1;  // increase when LED turns on
+  } else {
+    ledState1 = LOW;
+  }
+
+  if (blinkCount1 > 3) {
+    blinkCount1 = 0;
+    ledState1 = LOW;
+    Timer3.detachInterrupt();
+  }
+
+  digitalWrite(pinYellow, ledState1);
+}
+
+
+void blinkReservedUsage(void) {
+  if (ledState1 == LOW) {
+    ledState1 = HIGH;
+  } else {
+    ledState1 = LOW;
+  }
+  
+  digitalWrite(pinGreen, ledState1);
+}
+
+void blinkReservedAlarm(void) {
+  if (ledState1 == LOW) {
+    ledState1 = HIGH;
+  } else {
+    ledState1 = LOW;
+  }
+  
+  digitalWrite(pinYellow, ledState1);
+}
 
 void ledStatus() {
   digitalWrite(pinRed, server_ok ? LOW : HIGH);
-  
+
   if (_status == STATUS_NOT_RESERVED) {
     statusNotReserved();
   } else if (_status == STATUS_RESERVED) {
     statusReserved();
-  } else if(_status == STATUS_RESERVED) {
+  } else if (_status == STATUS_RESERVED_USE) {
+    statusReservedUse();
+  } else if (_status == STATUS_RESERVED_ALARM) {
     statusReservedEnd();
   }
 }
-void statusReservedEnd() {
-  
-}
 
 void statusNotReserved() {
-  analogWrite(pinGreen, 100);
+  digitalWrite(pinGreen, HIGH);
   digitalWrite(pinYellow, LOW);
 }
 
-unsigned long green_blink_previousMillis = 0;
-const long green_blink_interval = 500;
-int green_blink_ledState = LOW;
-
 void statusReserved() {
-  unsigned long green_blink_currentMillis = millis();
-  if (green_blink_currentMillis - green_blink_previousMillis >= green_blink_interval) {
-    green_blink_previousMillis = green_blink_currentMillis;
-    if (green_blink_ledState == LOW) green_blink_ledState = HIGH;
-    else green_blink_ledState = LOW;
-    digitalWrite(pinGreen, green_blink_ledState);
-  }
-
-  if (reservation_active) digitalWrite(pinYellow, HIGH);
-  else digitalWrite(pinYellow, LOW);
+  digitalWrite(pinGreen, LOW);
+  digitalWrite(pinYellow, HIGH);
 }
 
-void displayAccessDenied() {
-  for(int i=0; i<3; i++) {
-    digitalWrite(pinRed, LOW);
-    delay(100);
-    digitalWrite(pinRed, HIGH);
-    delay(100);
-  } digitalWrite(pinRed, LOW);
+void statusReservedUse() {
+  // done by the Timer3 interrup callback
 }
 
-void displayTagOver() {
-  for(int i=0; i<3; i++) {
-    digitalWrite(pinYellow, LOW);
-    delay(100);
-    digitalWrite(pinYellow, HIGH);
-    delay(100);
-  } digitalWrite(pinYellow, LOW);
+void statusReservedEnd() {
+  // done by the Timer3 interrup callback
 }
 
+void displayAccessNegate() {
+  Serial.println("access negate");
+  digitalWrite(pinRed, HIGH);
+  delay(500);
+  digitalWrite(pinRed, LOW);
+}

@@ -190,7 +190,9 @@ module.exports = function(super_module){
                     case 1: 
                         console.log('    > YES, response: ', rows);
                         if(rows.length>1) console.log('model.reservations > askReservation returned more then one active reservation on the asset and the same user.. what to do?');
-                        callback(rows[0]); 
+                        callback(rows[0]);
+                        var reservation_id = rows[0].reservation_id;
+                        setReservationActive(reservation_id, true, function() {});
                         break;
                     default:
                         callback('n');
@@ -222,7 +224,7 @@ module.exports = function(super_module){
         );
     };
 
-    super_module.askCurrentReservationsEnd = function(timestamp, time_alarm, callback) {
+    super_module.askCurrentReservationsAlarm = function(timestamp, time_alarm, callback) {
         var params = [timestamp];
         var query = 'SELECT * FROM Reservation WHERE '+
                     '(? BETWEEN expected_start+expected_duration-'+time_alarm+' AND (expected_start+expected_duration));';

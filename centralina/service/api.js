@@ -144,7 +144,8 @@ module.exports.setup = function(app){
         model.askReservation(
             u.getNow(), 
             user.user_id, 
-            node.node_id, 
+            node.node_id,
+
             function(_res) {
                 if(_res=='n') {
                     checkinNegate(res);
@@ -257,7 +258,6 @@ module.exports.setup = function(app){
         });
     }
 
-    console.log('dudee');
     forwardCheckinToWordpress(3, 9, u.getNow());
 
 }

@@ -82,7 +82,8 @@ void loop(void) {
 
 void notifyServer() {
   notifyServerProcess.begin(F("python"));
-  notifyServerProcess.addParameter(F("/root/notifyStatus.py"));
+  notifyServerProcess.addParameter(F("/root/callserver.py"));
+  notifyServerProcess.addParameter("1");
   if(shieldOK) notifyServerProcess.addParameter("8");
   else notifyServerProcess.addParameter("2");
   notifyServerProcess.run();

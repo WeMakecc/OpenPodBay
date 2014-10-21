@@ -71,7 +71,8 @@ void askPermission() {
   Timer3.attachInterrupt(blinkYellowLED);
 
   askPermissionProcess.begin(F("python"));
-  askPermissionProcess.addParameter(F("/root/askPermission.py"));
+  askPermissionProcess.addParameter(F("/root/callserver.py"));
+  askPermissionProcess.addParameter("2");
   askPermissionProcess.addParameter(uidString);
   askPermissionProcess.run();
 

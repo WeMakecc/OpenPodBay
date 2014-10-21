@@ -16,11 +16,13 @@ module.exports = function(port) {
         controller.setup(app)
     });
 
-    var timerId = setInterval(internal.checkAssetReservations , 10000); 
-    internal.checkAssetReservations();
+    var timerId = setInterval(function() {
+        internal.checkAssetReservations();
+        internal.checkAssetReservationsAlarm();
+    } , 10000); 
 
-    var timerId = setInterval(internal.checkAssetReservationsEnd , 10000); 
-    internal.checkAssetReservationsEnd();
+    internal.checkAssetReservations();
+    internal.checkAssetReservationsAlarm();
 
     return app;
 }

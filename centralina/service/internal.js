@@ -1,3 +1,5 @@
+// TODO: this should be a simple two-class module instead.
+
 var rootPath = require('path').dirname(require.main.filename),
     u = require(rootPath+'/utils.js'),
     model = require(rootPath+'/model'),
@@ -28,7 +30,6 @@ function sendReservationsToAssets(reservations) {
         model.getMachine(r.node_id, function(node) {
             sendReservationsToAsset(r, node);    
         });
-        
     });
 }
 
@@ -68,37 +69,37 @@ function sendReservationsToAsset(reservation, node) {
     }
 }
 
-//----------------------------------------------- Check reservation end
-var notified_reservationEnd = {};
+//----------------------------------------------- Check reservation alarm
+var notified_reservationAlarm = {};
 var time_alarm = 60;
 
-function checkAssetReservationsEnd() {
+function checkAssetReservationsAlarm() {
 
     var now = u.getNow();
-    model.askCurrentReservationsEnd(now, time_alarm, function(reservations) {
+    model.askCurrentReservationsAlarm(now, time_alarm, function(reservations) {
         var _reservations = [];
         for(var i=0; i<reservations.length; i++) {
             var r = reservations[i];
-            if( notified_reservationEnd.hasOwnProperty(r.reservation_id) ) {
+            if( notified_reservationAlarm.hasOwnProperty(r.reservation_id) ) {
                 // pass
             } else {
                 _reservations.push(r);
             }
         } 
-        sendReservationsToAssetsEnd(_reservations);
+        sendReservationsToAssetsAlarm(_reservations);
     });
 }
 
-function sendReservationsToAssetsEnd(reservations) {
+function sendReservationsToAssetsAlarm(reservations) {
     reservations.forEach(function(r) {
         model.getMachine(r.node_id, function(node) {
-            sendReservationsToAssetEnd(r, node);    
+            sendReservationsToAssetAlarm(r, node);    
         });
         
     });
 }
 
-function sendReservationsToAssetEnd(reservation, node) {
+function sendReservationsToAssetAlarm(reservation, node) {
     var timeoutId = setInterval(doSend, 1000);
 
     function doSend() {
@@ -118,22 +119,34 @@ function sendReservationsToAssetEnd(reservation, node) {
                         ' about the reservation '+reservation.reservation_id+
                         ' is out in '+time_alarm+' seconds! ');
             var request = require('request');
-            var url = 'http://'+node.current_ip+'/arduino/reservedend/'+d;
+            var url = 'http://'+node.current_ip+'/arduino/reservedalarm/';
             request(url, function (error, response, body) {
                 if (!error && response.statusCode == 200) {
-                    console.log('service > internal.js > received:',body);
+                    //console.log('service > internal.js > received:',body);
                 }
             }).auth(config.getNodesAuth().username, config.getNodesAuth().password, false);
-            doSentOK();
+            doSentOK(node);
         }
     }
 
-    function doSentOK () {
+    function doSentOK(node) {
         clearTimeout(timeoutId);
-        notified_reservationEnd[reservation.reservation_id] = true;
+        notified_reservationAlarm[reservation.reservation_id] = true;
+        setTimeout(function() {
+            console.log('service > internal.js > notify '+node.current_ip+
+                        ' about the end of the reservation');
+            var request = require('request');
+            var url = 'http://'+node.current_ip+'/arduino/reservedend/';
+            request(url, function (error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    //console.log('service > internal.js > received:',body);
+                }
+            }).auth(config.getNodesAuth().username, config.getNodesAuth().password, false);
+        }, time_alarm*1000);
     }
 }
 
 module.exports.sendReservationsToAssets = sendReservationsToAssets;
 module.exports.checkAssetReservations = checkAssetReservations;
-module.exports.checkAssetReservationsEnd = checkAssetReservationsEnd;
+module.exports.checkAssetReservationsAlarm = checkAssetReservationsAlarm;
+
