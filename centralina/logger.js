@@ -42,6 +42,13 @@ function initLogger() {
           new (winston.transports.File)({ filename: __dirname+'/log/login.log' })
         ]
     });
+
+    externalLogger = new (winston.Logger)({
+        transports: [
+          new (winston.transports.Console)(),
+          new (winston.transports.File)({ filename: __dirname+'/log/external.log' })
+        ]
+    });
 }
 
 initLogger();
@@ -86,5 +93,9 @@ Logger.login = function(t, n) {
         loginLogger.info(t);
     }
 };
+
+Logger.external = function(t) {
+    loginLogger.info(t);
+}
 
 module.exports = Logger;

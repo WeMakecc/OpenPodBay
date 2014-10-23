@@ -53,6 +53,8 @@ module.exports.setup = function(app){
 
         console.log('decriptQueryString > querystringClear: '+querystringClear);
 
+        logger.external(querystringClear);
+
         return query;
     }
 
