@@ -1,12 +1,13 @@
-int tickled = 5;
+int tickled = 12;
 
-int pinRed = 10;
+int pinRed = 8;
 int pinGreen = 9;
-int pinYellow = 8;
+int pinYellow = 10;
 
 //---------------------------------------------- setup
 
 void setupCustom() {
+  pinMode(tickled, OUTPUT);
   pinMode(pinRed, OUTPUT);
   pinMode(pinGreen, OUTPUT);
   pinMode(pinYellow, OUTPUT);

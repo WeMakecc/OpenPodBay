@@ -46,9 +46,10 @@ module.exports = function(super_module){
     };
 
     super_module.addCalendar = function(group_id, node_id, day, start, end, callback) {
-        var params = [group_id, node_id, day, start, end, 1]
+        var params = [group_id, node_id, day, start, end, 1];
+        
         var query = 'INSERT INTO "Calendar" VALUES( (SELECT max(calendar_id)+1 FROM "Calendar"), '+
-                                                  +'?, ?, ?, ?, ?, ?);';
+                                                  '?, ?, ?, ?, ?, ?);';
         u.getLogger().db(query+' '+params);
         db.query(
             query, 

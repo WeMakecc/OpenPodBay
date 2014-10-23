@@ -162,7 +162,10 @@ module.exports.setup = function(app){
 
     function askCalendar(node, user, res) {
         model.askCalendar(user.group, node.node_id, u.getNow(), function(_res) {
-            if(_res) checkinAccess(res, user.user_id, node.node_id, u.getNow());
+            if(_res) {
+                console.log("dudee");
+                checkinAccess(res, user.user_id, node.node_id, u.getNow());
+            }
             else checkinNegate(res);
         });
     }

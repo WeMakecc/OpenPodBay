@@ -7,8 +7,8 @@
 #include <TimerThree.h>
 
 //---------------------------------------------- NFC
-#define IRQ   (6)
-#define RESET (7)  // Not connected by default on the NFC Shield
+#define IRQ   (11)
+#define RESET (4)  // Not connected by default on the NFC Shield
 
 Adafruit_NFCShield_I2C nfc(IRQ, RESET);
 
@@ -40,6 +40,9 @@ void setup(void) {
 
   Serial.begin(115200);
 
+  // nfc
+  setupNFC();
+
   // the bridge library
   Serial.println(F("Bridge"));
   Bridge.begin();
@@ -50,9 +53,6 @@ void setup(void) {
   server.listenOnLocalhost();
   server.begin();
   delay(1000);
-
-  // nfc
-  setupNFC();
 
   // notify the server
   timerNotify.setInterval(60000, notifyServer);
