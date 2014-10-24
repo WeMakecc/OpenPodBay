@@ -8,7 +8,7 @@
     "basic-auth": "1.0.x",
     "express" : "4.1",           
     "ejs" : "1.0",               
-    "dblite" : "0.4",        
+    "dblite" : "0.6.1",        
     "body-parser": "1.2.0",
     "cli-table": "0.0.1",
     "nodemailer": "0.7.1",

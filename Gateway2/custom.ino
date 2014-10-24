@@ -59,6 +59,7 @@ void serveIncomingRequest() {
       doTheCheckIn();
       client.println(F("Status:200"));
     }
+    
     client.stop();
     Serial.println(F("connection closed"));
   }

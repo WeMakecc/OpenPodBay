@@ -1,13 +1,14 @@
+#define PASSWORD "wemake"
+int pinRed = 8;
+int pinGreen = 9;
+int pinYellow = 10;
+
 #define STATUS_NOT_RESERVED 0
 #define STATUS_RESERVED 1
 #define STATUS_RESERVED_USE 2
 #define STATUS_RESERVED_ALARM 3
 
 int _status = STATUS_NOT_RESERVED;
-
-int pinRed = 8;
-int pinGreen = 9;
-int pinYellow = 10;
 
 int ledState1 = LOW;
 volatile unsigned long blinkCount1 = 0;
@@ -25,7 +26,7 @@ void setupCustom() {
 void loopCustom() {
   // accept connection from server that ask if a tag is present and respond with the current UID
   serveIncomingRequest();
-  
+
   ledStatus();
 }
 
@@ -38,46 +39,50 @@ void serveIncomingRequest() {
     Serial.println(F("incoming connection"));
     Serial.println(command);
     command.trim();
-    
+
     // command to move the arduino in STATUS_RESERVED mode
-    if(command == "reserved") {
-      if(_status==STATUS_RESERVED || _status==STATUS_RESERVED_ALARM) {
+    if (command == "reserved") {
+      if (_status == STATUS_RESERVED || _status == STATUS_RESERVED_ALARM) {
         // this is a double check.. it can happen when the server crashed inside a reservation
         cleanInterrupt();
       }
-      
+
       _status = STATUS_RESERVED;
     }
-    
+
     // command to move the arduino in STATUS_RESERVED_ALARM mode
-    if(command == "reservedalarm") {
-      _status = STATUS_RESERVED_ALARM;
-      setStatusReservedEnd();
+    if (command == "reservedalarm") {
+      Serial.println(_status);
+      if (_status == STATUS_RESERVED_USE) {
+        _status = STATUS_RESERVED_ALARM;
+        setStatusReservedEnd();
+      }
     }
-    
+
     // command to move the arduino back in NOT_STATUS_RESERVED mode
-    if(command == "reservedend") {
+    if (command == "reservedend") {
       _status = STATUS_NOT_RESERVED;
       cleanInterrupt();
+      setNotUse();
     }
-    
+
     client.stop();
     Serial.println(F("connection closed"));
-    delay(15); 
+    delay(15);
   }
 }
 
 //---------------------------------------------- ask permission
 
 void askPermission() {
-  if(_status == STATUS_RESERVED_USE || _status == STATUS_RESERVED_ALARM) {
+  if (_status == STATUS_RESERVED_USE || _status == STATUS_RESERVED_ALARM) {
     Serial.println("machine in use, stop");
     return;
   }
-  
+
   Timer3.initialize(100000);
   Timer3.attachInterrupt(blinkCardReceived);
-  
+
   askPermissionProcess.begin(F("python"));
   askPermissionProcess.addParameter(F("/root/callserver.py"));
   askPermissionProcess.addParameter(F("2"));
@@ -93,47 +98,48 @@ void askPermission() {
   String timeString = "";
 
   Serial.println("answer:");
-  while (askPermissionProcess.available()>0) {
+  while (askPermissionProcess.available() > 0) {
     char c = askPermissionProcess.read();
-    
-    if(command==COMMAND_N) {
+
+    if (command == COMMAND_N) {
       // just debug
       Serial.print(c);
-    } else if(command==COMMAND_Y) {
+    } else if (command == COMMAND_Y) {
       timeString += c;
     }
-    
-    if(command==COMMAND_NONE && c=='n') {
+
+    if (command == COMMAND_NONE && c == 'n') {
       Serial.println("N");
       command = COMMAND_N;
       displayAccessNegate();
-    } else if(command==COMMAND_NONE && c=='y') {
+    } else if (command == COMMAND_NONE && c == 'y') {
       Serial.println("Y");
       command = COMMAND_Y;
     }
   }
-  
-  if(command==COMMAND_Y) {
+
+  if (command == COMMAND_Y) {
     setStateUse();
   }
-  
+
   Serial.flush();
   Serial.println();
 }
 
 void setStateUse() {
   _status = STATUS_RESERVED_USE;
-  
+
   ledState1 = LOW;
   Timer3.initialize(500000);
   Timer3.attachInterrupt(blinkReservedUsage);
-  
+
+  Serial.println("I have to do the login into the lenovo");
 }
 
 void setStatusReservedEnd() {
   Timer3.detachInterrupt();
   digitalWrite(pinGreen, LOW);
-  
+
   ledState1 = LOW;
   Timer3.initialize(100000);
   Timer3.attachInterrupt(blinkReservedAlarm);
@@ -144,4 +150,8 @@ void cleanInterrupt() {
   digitalWrite(pinGreen, LOW);
   digitalWrite(pinYellow, LOW);
   ledState1 = LOW;
+}
+
+void setNotUse() {
+  Serial.println("I have to do the logout into the lenovo");
 }

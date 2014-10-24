@@ -257,6 +257,8 @@ function addCalendarToServer(date, jsEvent, ui, g, that) {
 
     var objectToServer = buildObjectToServer(copiedEventObject, '', g);
 
+    console.log('objectToServer: ', objectToServer);
+
     $.post( DATA_URL+'/calendar/add', objectToServer, function( data ) {
 
         copiedEventObject.id = data[0];
@@ -271,9 +273,12 @@ function buildObjectToServer(copiedEventObject, calendar_id, g) {
     var objectToServer = {};
     objectToServer.group_id = g.group_id,
     objectToServer.node_id = copiedEventObject.node_id;
-    var days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     objectToServer.calendar_id = calendar_id;
-    objectToServer.day = days[copiedEventObject.start.day()-1];
+    objectToServer.day = days[copiedEventObject.start.day()];
+
+    console.log('objectToServer: '+objectToServer);
+
     objectToServer.start = paddy( copiedEventObject.start.hours(), 2)+':'+
                            paddy( copiedEventObject.start.minutes(), 2)+':00';
     if(calendar_id=='') {
@@ -296,7 +301,6 @@ function modifyCalendar( event, g ) {
         console.log('done!');        
     });
 }
-
 
 // some utils
 function paddy(n, p, c) {
