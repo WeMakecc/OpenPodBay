@@ -20,7 +20,7 @@ void ledStatus() {
 void displayAccessNegate() {
   Serial.println("access negate"); 
   digitalWrite(pinRed, HIGH);
-  delay(500);
+  delay(1000);
   digitalWrite(pinRed, LOW);
 }
 

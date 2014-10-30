@@ -50,8 +50,8 @@ void setup(void) {
 
   // the yun server
   Serial.println(F("YunServer"));
-  server.listenOnLocalhost();
   server.begin();
+  server.listenOnLocalhost();
   delay(1000);
 
   // notify the server

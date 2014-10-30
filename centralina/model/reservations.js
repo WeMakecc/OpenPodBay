@@ -206,7 +206,7 @@ module.exports = function(super_module){
         var params = [timestamp];
         var query = 'SELECT * FROM Reservation WHERE '+
                     '(? BETWEEN expected_start AND (expected_start+expected_duration));';
-        u.getLogger().db(query+' '+params);
+        //u.getLogger().db(query+' '+params);
         
         db.query(
             query, 
@@ -228,7 +228,7 @@ module.exports = function(super_module){
         var params = [timestamp];
         var query = 'SELECT * FROM Reservation WHERE '+
                     '(? BETWEEN expected_start+expected_duration-'+time_alarm+' AND (expected_start+expected_duration));';
-        u.getLogger().db(query+' '+params);
+        //u.getLogger().db(query+' '+params);
         
         db.query(
             query, 
