@@ -145,7 +145,7 @@ module.exports.setup = function(app){
             var gateway = _res[0];
             console.log('I should tick the machine #'+id+' with ip: '+gateway.current_ip);
             var request = require('request');
-            request.get('https://'+gateway.current_ip+'/arduino/doortick', 
+            request.get('http://'+gateway.current_ip+'/arduino/doortick', 
                 {timeout:15000},
                 function (error, response, body) {
                     console.log('/api/machines/tick/:id > ',
