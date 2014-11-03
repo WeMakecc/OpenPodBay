@@ -1,3 +1,7 @@
+/*
+   External API called from the wordpress portal
+*/
+
 var rootPath = require('path').dirname(require.main.filename),
     model = require(rootPath+'/model'),
     u = require(rootPath+'/utils.js'),

@@ -82,6 +82,10 @@ module.exports.setup = function(app) {
         res.render('calendar_list2.ejs', path('Calendar list', req));
     });
 
+    app.get('/ticker', authentication.ensureAuthenticated, function(req, res) {
+        res.render('ticker.ejs', path('Ticker', req));
+    });
+
     //---------------------------------------------------------------- log viewer
     function getLogView(title, log_path, req, res) {
         var id = req.params.id,

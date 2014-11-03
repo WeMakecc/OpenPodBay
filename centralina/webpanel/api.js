@@ -134,6 +134,29 @@ module.exports.setup = function(app){
         });
     });
 
+    app.get('/api/machines/tick/:id', authentication.ensureAuthenticated, function(req, res) {
+        var id = req.params.id;
+        var label = req.body.value; // the field value is passed by x-editable plugin
+
+        model.getMachine(id, function(_res) {
+            console.log(_res);
+            res.send(_res ? 200 : 404);
+
+            var gateway = _res[0];
+            console.log('I should tick the machine #'+id+' with ip: '+gateway.current_ip);
+            var request = require('request');
+            request.get('https://'+gateway.current_ip+'/arduino/doortick', 
+                {timeout:15000},
+                function (error, response, body) {
+                    console.log('/api/machines/tick/:id > ',
+                        'error: ',error, 
+                        'response: ', response, 
+                        'body: ',body);
+                }
+            ).auth(config.getNodesAuth().username, config.getNodesAuth().password, false);
+        });
+    });
+
     app.get('/api/reservations', authentication.ensureAuthenticated, function(req, res) {
         model.getReservations(function(_res) {
             res.json(_res);
