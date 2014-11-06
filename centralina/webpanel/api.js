@@ -150,8 +150,7 @@ module.exports.setup = function(app){
                 function (error, response, body) {
                     console.log('/api/machines/tick/:id > ',
                         'error: ',error, 
-                        'response: ', response, 
-                        'body: ',body);
+                        'response: ', response.statusCode);
                 }
             ).auth(config.getNodesAuth().username, config.getNodesAuth().password, false);
         });
@@ -230,6 +229,11 @@ module.exports.setup = function(app){
     app.get('/api/askTagToDeskNode', authentication.ensureAuthenticated, function(req, res) {
         var deskNodeId = 8;
         model.getMachine(deskNodeId, function(_res) {
+
+            if(_res.l.length==0) {
+                res.end(404);
+                return;
+            }
 
             var ip = _res[0].current_ip;
             

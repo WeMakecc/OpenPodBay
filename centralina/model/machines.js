@@ -46,7 +46,7 @@ module.exports = function(super_module){
 
     super_module.getMachine = function(id, callback) {
         var query = 'SELECT * FROM Node WHERE node_id = ?;';
-        u.getLogger().db(query);
+        //u.getLogger().db(query);
 
         db.query(
             query, 
