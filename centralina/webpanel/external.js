@@ -11,6 +11,8 @@ var rootPath = require('path').dirname(require.main.filename),
 var bodyParser = require('body-parser'),
     url = require('url');
 
+var wordpressAuth = config.getWordpressAuth();    
+
 var QueryUserSchema = {
     user_id: Number,
     role: String,
@@ -153,6 +155,8 @@ module.exports.setup = function(app){
                                          elements.credits, 1, function(result) {
                     res.json( makeResponse(errors, result) );
                 });
+
+                retryBadCalls();
             }
         });
     });
@@ -179,17 +183,51 @@ module.exports.setup = function(app){
             if(errors.length>0) {
                 res.send( makeResponse(errors, false) );
                 return;
+            } else {
+                
+                model.modifyOrInsertReservation(elements.reservation_id, elements.user_id,
+                                                elements.asset_id, elements.time_start,
+                                                -1, elements.duration,
+                                                -1, 1,
+                                                function(result) {
+                    res.send( makeResponse(errors, result) );
+                });
+
+                retryBadCalls();
             }
-            
-            model.modifyOrInsertReservation(elements.reservation_id, elements.user_id,
-                                            elements.asset_id, elements.time_start,
-                                            -1, elements.duration,
-                                            -1, 1,
-                                            function(result) {
-                res.send( makeResponse(errors, result) );
-            });
         });
     });
+
+
+    function retryBadCalls() {
+        var url = wordpressAuth.ip+wordpressAuth.retryUser;
+        var options = {
+            url: url ,
+            rejectUnauthorized: false,
+            requestCert: true,
+            agent: false
+        };
+        request(options, function (error, response, body) {
+            if (error) {
+                u.getLogger().error('webpanel > external.js > retryBadCalls: WORDPRESS > problem in callling '+url+' '+error);
+                return;
+            }
+        }); 
+
+        var url = wordpressAuth.ip+wordpressAuth.retryOrder;
+        var options = {
+            url: url ,
+            rejectUnauthorized: false,
+            requestCert: true,
+            agent: false
+        };
+        request(options, function (error, response, body) {
+            if (error) {
+                u.getLogger().error('webpanel > external.js > retryBadCalls: WORDPRESS > problem in callling '+url+' '+error);
+                return;
+            }
+        }); 
+    }
 
     //--------------------------------------------------------------- utils
     function isNumeric(value) {
