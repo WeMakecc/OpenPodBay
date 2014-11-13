@@ -11,7 +11,7 @@ var rootPath = require('path').dirname(require.main.filename),
 var bodyParser = require('body-parser'),
     url = require('url');
 
-var wordpressAuth = require(rootPath+'/config');.getWordpressAuth();    
+var wordpressAuth = require(rootPath+'/config').getWordpressAuth();    
 
 var QueryUserSchema = {
     user_id: Number,
