@@ -1,4 +1,4 @@
-var dblite = require('dblite'),
+var dblite = require('dblite').withSQLite('3.8.6+'),
     db = dblite(__dirname+'/db/database.db'),
     u = require(__dirname+'/../utils.js'),
     schema = require(__dirname+'/schemas.js');
