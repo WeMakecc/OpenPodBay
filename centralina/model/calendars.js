@@ -1,11 +1,9 @@
-var dblite = require('dblite').withSQLite('3.8.6+'),
-    db = dblite(__dirname+'/db/database.db'),
-    u = require(__dirname+'/../utils.js'),
+var u = require(__dirname+'/../utils.js'),
     schema = require(__dirname+'/schemas.js');
 
 var days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-module.exports = function(super_module){
+module.exports = function(super_module, db){
 
     super_module.getCalendars = function(callback) {
         var query = '';

@@ -1,9 +1,7 @@
-var dblite = require('dblite').withSQLite('3.8.6+'),
-    db = dblite(__dirname+'/db/database.db'),
-    u = require(__dirname+'/../utils.js'),
+var u = require(__dirname+'/../utils.js'),
     schema = require(__dirname+'/schemas.js');
 
-module.exports = function(super_module){
+module.exports = function(super_module, db){
 
     super_module.addTag = function(user_id, tag_type, tag_value, callback) {
         var params = [user_id, tag_type, tag_value, 1];
