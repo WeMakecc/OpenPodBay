@@ -5,7 +5,7 @@ module.exports = {
         username: String,
         group: Number,
         status: Number,
-        credits: Number,
+        credits: String,
         active: Number
     },
     

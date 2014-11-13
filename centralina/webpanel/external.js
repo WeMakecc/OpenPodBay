@@ -16,7 +16,7 @@ var QueryUserSchema = {
     role: String,
     username: String,
     status: Number,
-    credits: Number,
+    credits: String,
     timestamp: Number
 };
 
@@ -133,11 +133,13 @@ module.exports.setup = function(app){
             if(userCancelled) {
                 return;
             }
+                
+            var c = JSON.parse(new Buffer(query.credits, 'base64').toString('ascii'));
 
             var elements = {
                 user_id: query.user_id, role: query.role, 
                 username: query.username, status: query.status, 
-                credits: query.credits, timestamp: query.timestamp
+                credits: c, timestamp: query.timestamp
             };
             
             var errors = parseElement(elements, QueryUserSchema);

@@ -5,11 +5,11 @@ CREATE TABLE User (
     username TEXT,
     group_id INTEGER,
     status INTEGER,
-    credits INTEGER,
+    credits TEXT,
     active INTEGER
 );
-INSERT INTO User VALUES(0, 'Bob', 0, 5, 0, 1);
-INSERT INTO User VALUES(1, 'Alice', 1, 5, 0, 1);
+INSERT INTO User VALUES(0, 'Bob', 0, 5, '0', 1);
+INSERT INTO User VALUES(1, 'Alice', 1, 5, '0', 1);
 COMMIT;
 
 -- SQL for Group table

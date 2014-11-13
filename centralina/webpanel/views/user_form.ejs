@@ -17,9 +17,9 @@ function getUserDataFromForm() {
         'active': $('#checkbox-user-active').is(':checked') ? 1 : 0,
         'group': _retriveGroupId(),
         'status': parseInt($('#form-status').val()),
-        'credits': parseInt($('#form-credits').val()),
+        'credits': $('#form-credits').val(),
     };
-    console.log('user_form.ejs > getUserDataFromForm > user_json: '+user_json);
+    console.log('user_form.ejs > getUserDataFromForm > user_json: ',user_json);
     return user_json;
 }
 

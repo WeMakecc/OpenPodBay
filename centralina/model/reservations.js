@@ -19,6 +19,25 @@ module.exports = function(super_module){
         });
     };
 
+    super_module.getReservationById = function(id, callback) {
+        var query = 'SELECT * FROM Reservation WHERE reservation_id = ?;';
+        //u.getLogger().db(query);
+
+        db.query(
+            query, 
+            [id],
+            schema.ReservationSchema, 
+            function(err, rows) {
+                if(err) {
+                    u.getLogger().db('error','DB error: model.js > getReservationById: '+err);
+                    callback([]);
+                    return;
+                }
+                callback(rows);
+            }
+        );     
+    }
+
     // TODO: check user exists
     // TODO: check node exists
     // TODO: check start is valid start time (in the future)
