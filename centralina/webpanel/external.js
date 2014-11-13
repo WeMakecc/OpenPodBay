@@ -35,6 +35,7 @@ var QuesryOrderSchema = {
 module.exports.setup = function(app){
 
     app.use(bodyParser()); // get information from html forms
+    retryBadCalls();
 
     function makeResponse(errors, response) {
 
