@@ -51,8 +51,9 @@ module.exports.setup = function(app){
         res.send('y').end(200);
     });
 
-    function checkinNegate(res) {
+    function checkinNegate(res, tag_id) {
         console.log('checkin negate.');
+        u.getLogger().checkin('NEGATE: '+tag_id);
         res.send('n').end(200);
     }
     function checkinAccess(res, user_id, node_id, now) {
@@ -77,7 +78,7 @@ module.exports.setup = function(app){
         if( !node_id || !tag_id ) {
             u.getLogger().error('SERVICE > bad checkin request from '
                                  +ip+': '+JSON.stringify(req.body));
-            checkinNegate(res);
+            checkinNegate(res, tag_id);
             return;
         }
 
@@ -85,7 +86,7 @@ module.exports.setup = function(app){
 
         async.parallel([
             function(callback) {
-                callback(null, [ip, res]); // pass some additional argument to the async handler
+                callback(null, [ip, res, tag_id]); // pass some additional argument to the async handler
             },
             function(callback){
                 model.findUserByTagValue(tag_id, function(result) {
@@ -93,7 +94,7 @@ module.exports.setup = function(app){
                         callback(null, result);
                     } else {
                         u.getLogger().error('SERVICE > checkin request from '+ip+' #'+node_id+' but TAG '+tag_id+' not found in the database.');
-                        checkinNegate(res);
+                        checkinNegate(res, tag_id);
                         callback(true, []);
                     }
                 });
@@ -104,7 +105,7 @@ module.exports.setup = function(app){
                         callback(null, result);
                     } else {
                         u.getLogger().error('SERVICE > checkin request from '+ip+' #'+node_id+' but NODE ID not found in the database.');
-                        checkinNegate(res);
+                        checkinNegate(res, tag_id);
                         callback(true, []);
                     }
                 });
@@ -117,7 +118,7 @@ module.exports.setup = function(app){
 
         var ip = results[0][0],
             res = results[0][1],
-            node_id = results[0][2],
+            tag_id = results[0][2],
             user = results[1][0],
             node = results[2][0],
             node_id = node.node_id
@@ -131,10 +132,10 @@ module.exports.setup = function(app){
         switch (node.type) {
             case 'asset': 
                 console.log('ask reservation');
-                askReservation(node, user, res);
+                askReservation(node, user, res, tag_id);
                 break;
             case 'gateway':
-                askCalendar(node, user, res);
+                askCalendar(node, user, res, tag_id);
                 break;
             default:
                 u.getLogger().error('SERVICE > checkin request from '+ip+' #'+node_id+':'+node.type+' but type is not recognized.');
@@ -142,7 +143,7 @@ module.exports.setup = function(app){
             }
     }
 
-    function askReservation(node, user, res) {
+    function askReservation(node, user, res, tag_id) {
         model.askReservation(
             u.getNow(), 
             user.user_id, 
@@ -150,7 +151,7 @@ module.exports.setup = function(app){
 
             function(_res) {
                 if(_res=='n') {
-                    checkinNegate(res);
+                    checkinNegate(res, tag_id);
                 } else {
                     u.getLogger().checkin('checkin (reservation) from '+node.node_id+' OK from user '+user.user_id);
 
@@ -164,13 +165,13 @@ module.exports.setup = function(app){
         );
     }
 
-    function askCalendar(node, user, res) {
+    function askCalendar(node, user, res, tag_id) {
         model.askCalendar(user.group, node.node_id, u.getNow(), function(_res) {
             if(_res) {
                 u.getLogger().checkin('checkin (calendar) from '+node.node_id+' OK from user '+user.user_id);
                 checkinAccess(res, user.user_id, node.node_id, u.getNow());
             }
-            else checkinNegate(res);
+            else checkinNegate(res, tag_id);
         });
     }
 
