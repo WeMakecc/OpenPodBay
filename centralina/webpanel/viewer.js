@@ -107,6 +107,11 @@ module.exports.setup = function(app) {
         });
     }
 
+    app.get('/log/checkin', authentication.ensureAuthenticated, function(req, res) {
+        var log_path = rootPath+'/log/checkin.log';
+        getLogView('Checkin log', log_path, req, res);
+    });
+
     app.get('/log/error', authentication.ensureAuthenticated, function(req, res) {
         var log_path = rootPath+'/log/error.log';
         getLogView('Error log', log_path, req, res);

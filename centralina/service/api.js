@@ -72,6 +72,8 @@ module.exports.setup = function(app){
         var node_id = req.body.node_id;
         var tag_id = req.body.tag_id;
 
+        u.getLogger().checkin('checkin from '+node_id+' with tag id: '+tag_id);
+
         if( !node_id || !tag_id ) {
             u.getLogger().error('SERVICE > bad checkin request from '
                                  +ip+': '+JSON.stringify(req.body));
@@ -150,6 +152,8 @@ module.exports.setup = function(app){
                 if(_res=='n') {
                     checkinNegate(res);
                 } else {
+                    u.getLogger().checkin('checkin (reservation) from '+node.node_id+' OK from user '+user.user_id);
+
                     console.log(_res);
                     var actual_start = u.getNow() - _res.expected_start;
                     var actual_duration = _res.expected_duration - actual_start;
@@ -163,7 +167,7 @@ module.exports.setup = function(app){
     function askCalendar(node, user, res) {
         model.askCalendar(user.group, node.node_id, u.getNow(), function(_res) {
             if(_res) {
-                console.log("dudee");
+                u.getLogger().checkin('checkin (calendar) from '+node.node_id+' OK from user '+user.user_id);
                 checkinAccess(res, user.user_id, node.node_id, u.getNow());
             }
             else checkinNegate(res);

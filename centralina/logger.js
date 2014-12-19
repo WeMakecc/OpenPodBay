@@ -3,7 +3,8 @@ var winston = require('winston');
 var genericLogger = null,
     dbLogger = null,
     viewLogger = null,
-    networkLogger = null;
+    networkLogger = null,
+    checkinlLogger = null;
 
 function initLogger() {
     console.log('logger.js > initLogger');
@@ -47,6 +48,13 @@ function initLogger() {
         transports: [
           new (winston.transports.Console)(),
           new (winston.transports.File)({ filename: __dirname+'/log/external.log' })
+        ]
+    });
+
+    checkinlLogger = new (winston.Logger)({
+        transports: [
+          new (winston.transports.Console)(),
+          new (winston.transports.File)({ filename: __dirname+'/log/checkin.log' })
         ]
     });
 }
@@ -96,6 +104,10 @@ Logger.login = function(t, n) {
 
 Logger.external = function(t) {
     loginLogger.info(t);
+}
+
+Logger.checkin = function(t) {
+    checkinlLogger.info(t);
 }
 
 module.exports = Logger;
