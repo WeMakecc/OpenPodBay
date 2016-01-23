@@ -17,8 +17,8 @@ module.exports.setup = function(app){
     app.use(bodyParser()); // get information from html forms
 
     app.post('/notifyStatus', function(req, res) {
-        var ip = req.headers['x-forwarded-for'] || 
-            req.connection.remoteAddress || 
+        var ip = req.headers['x-forwarded-for'] ||
+            req.connection.remoteAddress ||
             req.socket.remoteAddress ||
             req.connection.socket.remoteAddress;
         var body = req.body;
@@ -43,7 +43,7 @@ module.exports.setup = function(app){
             } else {
                 var defaultLabel = type+node_id;
                 model.addMachine(node_id, ip, u.getNow(), status, 1, type, defaultLabel, function(result) {
-                   u.getLogger().network('the machine #'+node_id+' at '+ip+' is new with status: '+status); 
+                   u.getLogger().network('the machine #'+node_id+' at '+ip+' is new with status: '+status);
                 });
             }
         });
@@ -60,18 +60,71 @@ module.exports.setup = function(app){
         res.send('y').end(200);
 
         if(wordpressAuth.forward) {
-            forwardCheckinToWordpress(user_id, node_id, now); // @   
-        }        
+            forwardCheckinToWordpress(user_id, node_id, now); // @
+        }
     }
 
     app.post('/checkin', function(req,res) {
-        var ip = req.headers['x-forwarded-for'] || 
-            req.connection.remoteAddress || 
+        var ip = req.headers['x-forwarded-for'] ||
+            req.connection.remoteAddress ||
             req.socket.remoteAddress ||
             req.connection.socket.remoteAddress;
 
         var node_id = req.body.node_id;
         var tag_id = req.body.tag_id;
+
+        u.getLogger().checkin('checkin from '+node_id+' with tag id: '+tag_id);
+
+        if( !node_id || !tag_id ) {
+            u.getLogger().error('SERVICE > bad checkin request from '
+                                 +ip+': '+JSON.stringify(req.body));
+            checkinNegate(res, tag_id);
+            return;
+        }
+
+        console.log('SERVICE > api.js > /checkin with tag: '+tag_id);
+
+        async.parallel([
+            function(callback) {
+                callback(null, [ip, res, tag_id]); // pass some additional argument to the async handler
+            },
+            function(callback){
+                model.findUserByTagValue(tag_id, function(result) {
+                    if(result.length>0) {
+                        callback(null, result);
+                    } else {
+                        u.getLogger().error('SERVICE > checkin request from '+ip+' #'+node_id+' but TAG '+tag_id+' not found in the database.');
+                        checkinNegate(res, tag_id);
+                        callback(true, []);
+                    }
+                });
+            },
+            function(callback){
+                model.getMachine(node_id, function(result) {
+                    if(result.length>0) {
+                        callback(null, result);
+                    } else {
+                        u.getLogger().error('SERVICE > checkin request from '+ip+' #'+node_id+' but NODE ID not found in the database.');
+                        checkinNegate(res, tag_id);
+                        callback(true, []);
+                    }
+                });
+            }
+        ], handleCheckinRequest );
+    });
+
+    app.get('/checkin/:node/:tag', function(req,res) {
+        var ip = req.headers['x-forwarded-for'] ||
+            req.connection.remoteAddress ||
+            req.socket.remoteAddress ||
+            req.connection.socket.remoteAddress;
+
+        console.log(req.params, req.);
+
+        // var node_id = req.body.node_id;
+        // var tag_id = req.body.tag_id;
+        var node_id = req.params.node;
+        var tag_id = req.params.tag;
 
         u.getLogger().checkin('checkin from '+node_id+' with tag id: '+tag_id);
 
@@ -123,14 +176,14 @@ module.exports.setup = function(app){
             node = results[2][0],
             node_id = node.node_id
             ;
-        
+
         if( ip != node.current_ip ) {
             u.getLogger().error('SERVICE > checkin request from '+ip+' #'+node_id+
                                 ' but seems a different ip from the last one: '+node.current_ip+'.');
         }
 
         switch (node.type) {
-            case 'asset': 
+            case 'asset':
                 console.log('ask reservation');
                 askReservation(node, user, res, tag_id);
                 break;
@@ -145,8 +198,8 @@ module.exports.setup = function(app){
 
     function askReservation(node, user, res, tag_id) {
         model.askReservation(
-            u.getNow(), 
-            user.user_id, 
+            u.getNow(),
+            user.user_id,
             node.node_id,
 
             function(_res) {
@@ -158,7 +211,7 @@ module.exports.setup = function(app){
                     console.log(_res);
                     var actual_start = u.getNow() - _res.expected_start;
                     var actual_duration = _res.expected_duration - actual_start;
-                    
+
                     res.send('y'+actual_duration).end(200);
                 }
             }
@@ -186,8 +239,8 @@ module.exports.setup = function(app){
     }
 
     app.post('/checkout', function(req,res) {
-        var ip = req.headers['x-forwarded-for'] || 
-            req.connection.remoteAddress || 
+        var ip = req.headers['x-forwarded-for'] ||
+            req.connection.remoteAddress ||
             req.socket.remoteAddress ||
             req.connection.socket.remoteAddress;
         var body = req.body;
@@ -199,7 +252,7 @@ module.exports.setup = function(app){
         // TODO: double check that the ip correspond to the given node id
         //var asset_id_from_db = model.getNodeId(ip);
         //if(asset_id_from_db != asset_id) { error(...) }
-        
+
         var user_id = model.findUserByTagValue(tag_id, function(result) {
             // TODO: if a tag is associated to more then one user.. BOOM
             if(result.length==0) {
@@ -209,7 +262,7 @@ module.exports.setup = function(app){
 
             var user_id = result[0].user_id;
 
-            // TODO: check in the db if the tag is associated to a reservation 
+            // TODO: check in the db if the tag is associated to a reservation
             //       and send back a response to the node/machine/asset
             //model.checkReservation....
             //.. res.send(200)
@@ -248,7 +301,7 @@ module.exports.setup = function(app){
             if (error) {
                 u.getLogger().error('WORDPRESS > problem in callling '+type+' '+error);
                 return;
-            } 
+            }
 
             console.log('forwardToWordpress > response:'+body);
             body = JSON.parse(body);
