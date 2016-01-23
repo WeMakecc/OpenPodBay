@@ -119,12 +119,12 @@ module.exports.setup = function(app){
             req.socket.remoteAddress ||
             req.connection.socket.remoteAddress;
 
-        console.log(req.params, req.);
-
         // var node_id = req.body.node_id;
         // var tag_id = req.body.tag_id;
         var node_id = req.params.node;
         var tag_id = req.params.tag;
+
+        console.log(req.params, node_id, tag_id);
 
         u.getLogger().checkin('checkin from '+node_id+' with tag id: '+tag_id);
 
